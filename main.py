@@ -143,10 +143,10 @@ def createSchedule_objectversion(week, employees):
 
 	return week_schedule
 
-def createSchedule(week, employees):
-	roles = createRoles(week)
+def createSchedule(week_roles, employees):
+	#roles = createRoles(week)
 	week_schedule = []
-	for role in roles:
+	for role in week_roles:
 		#find all the available employees for role
 		possible_employees = [employee for employee in employees if can_take_on_role(employee, role, week_schedule)]
 		#assign the best employee for the role

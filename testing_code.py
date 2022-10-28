@@ -54,11 +54,6 @@ print(role.name)
 print(role.day)
 print(role.callTime)
 
-mRole = main.roles[0]
-print(mRole.name)
-print(mRole.day)
-print(mRole.callTime)
-
 employee_objects = []
 for employee in employees:
     name = employee[0]
