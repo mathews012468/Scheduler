@@ -63,6 +63,16 @@ for employee in employees:
     new_employee = main.Employee(name,max_shifts,availability)
     employee_objects.append(new_employee)
 
-schedule = main.createSchedule(role_objs, employee_objects)
 
-main.scheduleView_Restaurant(schedule)
+#Day objects that get created 'somewhere':
+monday = main.Day(name=main.Weekday.MONDAY)
+tuesday = main.Day(name=main.Weekday.TUESDAY)
+
+def compileWeek(): # A week contains whatever day objects have been created?
+	pass
+
+week = [monday,tuesday] # somehow we get here.	
+
+schedule = main.createSchedule(week, employee_objects)
+
+main.scheduleView_Restaurant(schedule, week)

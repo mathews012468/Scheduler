@@ -93,102 +93,40 @@ def employee_role_rank(employee, schedule, role): #Oh, maybe I could pass in the
 		employeeRank -=80
 	if employee.shiftsRemaining(schedule) <= 2:
 		employeeRank -= 40
-	# print(employee.name)
-	# print(employeeRank)
 
 	return employeeRank
 
-#Current structure with two options:
-#1) 'hardcoded' monday = [list of role names]
-monday_list = ['lunch', 'back', 'aux']
-tuesday_list = ['lunch']
-
-#2) Day objects that get created 'somewhere':
-monday = Day(name=Weekday.MONDAY)
-tuesday = Day(name=Weekday.TUESDAY)
-
-def compileWeek(): # A week contains whatever day objects have been created?
-	pass
-
-week = [monday,tuesday] # somehow we get here.
-
 def createRoles(week):
 	'''creates a list of Role objects based on roles named in a 'week' '''
-	roles = []
+	weekRoles = []
 	for day in week:
+		dayRoles =[]
 		for role_name in day.roles:
 			role = Role(name=role_name, day=day.name)
-			roles.append(role)
-	return roles
+			dayRoles.append(role)
+		weekRoles.append(dayRoles)
+	return weekRoles
 
-#this version assigns the employee to the role object at role.employee.
-#this came up since I was having trouble retrieving the data of each role,employee pair
-#when trying to display it in the scheduleView functions below.
-#though with this approach, the role objects get denser and denser as they go-
-#This might have downsides I'm unaware off?
-
-#Also- it doens't actually work cause the related functions, can_take_on_role and such
-# have not be re-written to take in this approach.
-def createSchedule_objectversion(week, employees):
-	roles = createRoles(week)
+def createSchedule(week, employees):
+	rolesOfTheWeek = createRoles(week)
 	week_schedule = []
-	for role in roles:
-		possible_employees = [employee for employee in employees if can_take_on_role(employee, role, week_schedule)]
-		#find possible employees who have matching availability
-		try:
-			role.employee = max(possible_employees, key=lambda employee: employee_role_rank(employee, week_schedule, role))
-		except ValueError:
-			role.employee = Employee('Unassigned',99,{})
-		week_schedule.append(role)
+	for day in range(len(rolesOfTheWeek)):
+		for role in rolesOfTheWeek[day]:
+			#find all the available employees for role
+			possible_employees = [employee for employee in employees if can_take_on_role(employee, role, week_schedule)]
+			#assign the best employee for the role
+			try:
+				role_and_employee = (role, max(possible_employees, key=lambda employee: employee_role_rank(employee, week_schedule, role) ))
+			except ValueError:
+				role_and_employee = (role, Employee('Unassinged',99,{}))
+			week_schedule.append(role_and_employee)
 
 	return week_schedule
 
-def createSchedule(week_roles, employees):
-	#roles = createRoles(week)
-	week_schedule = []
-	for role in week_roles:
-		#find all the available employees for role
-		possible_employees = [employee for employee in employees if can_take_on_role(employee, role, week_schedule)]
-		#assign the best employee for the role
-		try:
-			role_and_employee = (role, max(possible_employees, key=lambda employee: employee_role_rank(employee, week_schedule, role) ))
-		except ValueError:
-			role_and_employee = (role, Employee('Unassinged',99,{}))
-		week_schedule.append(role_and_employee)
-
-	return week_schedule
-
-employees = [
-	Employee(
-		name="Sil", 
-		max_shifts=2,
-		availability={
-			Weekday(0): {"aux", "lunch", "eve"}, # Question: Why a set?
-			Weekday(1): {"lunch"}
-		}
-	),
-	Employee(
-		name="Mathew",
-		max_shifts=3,
-		availability={
-			Weekday(0): {"back"},
-			Weekday(1): {}
-		}
-	),
-	Employee(
-		name="Ashlynn",
-		max_shifts=4,
-		availability={
-			Weekday(0): {"lunch"},
-			Weekday(1): {}
-		}
-	)
-]
-
-def scheduleView_Restaurant(schedule):
+def scheduleView_Restaurant(schedule, week):
 	'''print the schedule in 'Restaurant View' '''
-	for i in range(7): # for the seven days of the week.
-		headerDate= Weekday(i)
+	for day in range(len(week)): # for the seven days of the week.
+		headerDate= Weekday(day)
 		print(f'{headerDate}')
 		for grouping in schedule:
 			role = grouping[0]
