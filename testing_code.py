@@ -1,5 +1,5 @@
-import main
-import ast
+import main, ast
+from pathlib import Path
 
 def extract_data(file_line):
     return line.split("-")[1].strip()
@@ -25,34 +25,23 @@ with open("testing/input/employee1.txt") as f:
 
             employees.append([name,max_shifts,weekAvailability])
 
-with open("testing/input/role1.txt") as f:
-    roles = []
-    while line := f.readline():
-        if line.startswith("Day"):
-            dayname = extract_data(line).upper()
-            day = main.Weekday[dayname]
+def compileWeek(roleFileName):
+    roleFilePath = Path.cwd() / 'testing/input' / roleFileName
+    week=[]
+    with open(roleFilePath) as file:
+        while line := file.readline():
+            if line == '\n' or line.startswith('#'): #ignore empty and #comment lines
+                continue
+            day = main.Weekday[line.upper().strip()] #strip to get rid of '\n'
 
-            line = f.readline()
-            role = extract_data(line)
+            line = file.readline() #read next line of roles
+            roles = [role.strip() for role in line.split(',')]
 
-            line = f.readline()
-            calltime = extract_data(line)
+            week.append({day: roles})
+    return week
 
-            roles.append([day, role, calltime])
-
-role_objs = []
-for role in roles:
-    day = role[0]
-    role_name = role[1]
-    calltime = role[2]
-
-    new_role = main.Role(name=role_name, day=day)
-    role_objs.append(new_role)
-
-role = role_objs[0]
-print(role.name)
-print(role.day)
-print(role.callTime)
+week = compileWeek('roles_smallSample.txt')
+rolesOfWeek = main.createRoles(week)
 
 employee_objects = []
 for employee in employees:
@@ -63,16 +52,6 @@ for employee in employees:
     new_employee = main.Employee(name,max_shifts,availability)
     employee_objects.append(new_employee)
 
-
-#Day objects that get created 'somewhere':
-monday = main.Day(name=main.Weekday.MONDAY)
-tuesday = main.Day(name=main.Weekday.TUESDAY)
-
-def compileWeek(): # A week contains whatever day objects have been created?
-	pass
-
-week = [monday,tuesday] # somehow we get here.	
-
-schedule = main.createSchedule(week, employee_objects)
+schedule = main.createSchedule(rolesOfWeek, employee_objects)
 
 main.scheduleView_Restaurant(schedule, week)

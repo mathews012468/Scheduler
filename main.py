@@ -10,23 +10,7 @@ class Weekday(Enum):
 	FRIDAY = 4
 	SATURDAY = 5
 	SUNDAY = 6
-		
-# May not be needed.
-class Day:
-	# The appeal of a Day object stems from wanting a container for a day's role names.
-	# a space for a date is appealing too.
-	def __init__(self, name, roles=None, date=None):
-		self.name = name
-		self.date = date #date object?
 
-		# The idea is to have this list of role names exposed, editable as needed.
-		roles = {
-			Weekday.MONDAY: ['lunch', 'back', 'aux'],
-			Weekday.TUESDAY: ['lunch']
-		}
-		self.roles = roles.get(name, roles)
-		if self.roles is None:
-			raise ValueError('Hey this is fucked')
 
 class Role:
 	def __init__(self, name, day=None, callTime=None, date=None): 
@@ -50,7 +34,8 @@ class Role:
 		}
 		self.callTime = callTimes.get(name, callTime)
 		if self.callTime is None:
-			raise ValueError('Provide recognized role name or call time.')
+			raise ValueError(f'Provide recognized role name or call time. Provided: {name} {callTime}')
+
 
 class Employee:
 	def __init__(self, name, max_shifts, availability):
@@ -67,11 +52,13 @@ class Employee:
 				remainingShifts -= 1
 		return remainingShifts
 
+
 def isDouble(employee, schedule, role): # How to think about consolidating the same use of arguements here?
 	for grouping in schedule:
 		if not grouping[0].day == role.day or not grouping[1].name == employee.name:
 			return False
 	return True
+
 
 def can_take_on_role(employee, role, schedule=None): # Chaining the schedule in here to get it to 'shifts remaining' does not seem optimal.
 													# TODO: fix this
@@ -85,6 +72,7 @@ def can_take_on_role(employee, role, schedule=None): # Chaining the schedule in 
 	
 	return True
 
+
 def employee_role_rank(employee, schedule, role): #Oh, maybe I could pass in the role_and_employees list directly, to consolidate arguments?
 	employeeRank = 100
 	#TODO highest aptitude for role
@@ -96,22 +84,21 @@ def employee_role_rank(employee, schedule, role): #Oh, maybe I could pass in the
 
 	return employeeRank
 
+
 def createRoles(week):
 	'''creates a list of Role objects based on roles named in a 'week' '''
-	weekRoles = []
+	rolesOfWeek = []
 	for day in week:
-		dayRoles =[]
-		for role_name in day.roles:
-			role = Role(name=role_name, day=day.name)
-			dayRoles.append(role)
-		weekRoles.append(dayRoles)
-	return weekRoles
+		for dayName,roles in day.items():
+			rolesOfDay = [Role(name=roleName, day=dayName) for roleName in roles]
+		rolesOfWeek.append(rolesOfDay)
+	return rolesOfWeek
 
-def createSchedule(week, employees):
-	rolesOfTheWeek = createRoles(week)
+
+def createSchedule(rolesOfWeek, employees):
 	week_schedule = []
-	for day in range(len(rolesOfTheWeek)):
-		for role in rolesOfTheWeek[day]:
+	for day in range(len(rolesOfWeek)):
+		for role in rolesOfWeek[day]:
 			#find all the available employees for role
 			possible_employees = [employee for employee in employees if can_take_on_role(employee, role, week_schedule)]
 			#assign the best employee for the role
@@ -123,6 +110,7 @@ def createSchedule(week, employees):
 
 	return week_schedule
 
+
 def scheduleView_Restaurant(schedule, week):
 	'''print the schedule in 'Restaurant View' '''
 	for day in range(len(week)): # for the seven days of the week.
@@ -133,6 +121,7 @@ def scheduleView_Restaurant(schedule, week):
 			employee = grouping[1]
 			if role.day == headerDate:
 				print(f'{role.name}: {employee.name}')
+				
 
 def scheduleView_SinglePerson(schedule, employee):
 	'''print schedule for single person point of view '''
@@ -140,12 +129,3 @@ def scheduleView_SinglePerson(schedule, employee):
 	employeeShifts = sorted([grouping[0] for grouping in schedule if employee in grouping], key=lambda role: role.day.value)
 	for role in employeeShifts:
 		print(f'{role.day.name.capitalize()}- {role.name.capitalize()} {role.callTime}')
-
-if __name__ == "__main__":
-	weekly_schedule = createSchedule(week, employees)
-
-	#weekly_schedule = createSchedule_objectversion(week, employees)
-	#print(weekly_schedule)
-
-	scheduleView_Restaurant(weekly_schedule)
-	# scheduleView_SinglePerson(weekly_schedule,employees[0])
