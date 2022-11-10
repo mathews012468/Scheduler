@@ -16,7 +16,7 @@ def test0():
         (main.Role(name='aux', day=main.Weekday.MONDAY), subject_1)
         ]
         
-    return print(subject_1.shiftsRemaining(schedule) == 97)
+    return subject_1.shiftsRemaining(schedule) == 97
 
 def test1():
     '''employee in schedule for same role on two different days times'''
@@ -29,7 +29,7 @@ def test1():
 
         ]
         
-    return print(subject_1.shiftsRemaining(schedule) == 96)
+    return subject_1.shiftsRemaining(schedule) == 96
 
 def test2():
     '''employee scheduled for same role on the same day twice'''
@@ -42,7 +42,7 @@ def test2():
 
         ]
         
-    return print(subject_1.shiftsRemaining(schedule) == 96)
+    return subject_1.shiftsRemaining(schedule) == 96
 
 
 if __name__ == '__main__': #Question- Why isn't this if __name__ == '__unit_tests__'?

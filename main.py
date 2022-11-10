@@ -1,5 +1,3 @@
-# WIP: Scheduler for Kiki's restaurant
-
 from enum import Enum
 
 class Weekday(Enum):
