@@ -49,10 +49,12 @@ def compileStaff(staffFileName):
     staffFilePath = Path.cwd() / 'testing/input' / staffFileName
     with open(staffFilePath) as f:
         weekStaff = []
-        while line := f.readline():
+        while line := f.readline(): # can you explain this? I can't seem to grasp how this works.
             if line.lower().startswith('name'):
                 staffName = line.split(':')[1].strip()
 
+                line = f.readline()
+                print(line + 'hey')
             if line.lower().startswith('shifts'):
                 maxShifts = int(line.split(':')[1].strip())
 
@@ -82,14 +84,14 @@ def compileRoles(roleFileName):
                 continue
             day = reWrite.Weekday[line.upper().strip()] #line -> Weekday Enum
 
-            line = file.readline() #read next line of role names
+            line = file.readline() #I don't actually understand how and why this works.
             roles = [role.strip() for role in line.split(',')]
 
             weekRoleNames.append({day: roles})
     return weekRoleNames
 
 
-#weekRoleNames = compileRoles('roles_monday.txt') #bah, the naming here is a mess.
+weekRoleNames = compileRoles('roles_monday.txt') #bah, the naming here is a mess.
 #rolesOfWeek = reWrite.createRoles(weekRoleNames)
 
 #schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)

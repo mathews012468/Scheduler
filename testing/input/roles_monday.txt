@@ -1,2 +1,5 @@
 monday
 front, aux, lunch
+
+tuesday
+aux, lunch, front
