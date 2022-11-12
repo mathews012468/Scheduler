@@ -4,7 +4,7 @@ from enum import Enum
 class Weekday(Enum):
     MONDAY = 0
     TUESDAY = 1
-    WENDESDAY = 2
+    WEDNESDAY = 2
     THURSDAY = 3
     FRIDAY = 4
     SATURDAY = 5
@@ -17,15 +17,15 @@ class Role:
 
         #default callTimes based on name
         callTimes = {
-        'lunch': 10.30, #Question: Use datetime.time instead of int?
-        'front': 16.30,
-        'aux': 18.00
+        'lunch': datetime.time(hour=10, minute=30),
+        'front': datetime.time(hour=16, minute=30),
+        'aux': datetime.time(hour=18)
         }
         self.callTime = callTimes.get(name)
 
 
 class Staff:
-    def __init__(self, name, availability=None):
+    def __init__(self, name, availability):
         self.name = name
         self.availability = availability
 
@@ -42,7 +42,7 @@ def createRoles(compiledRoles): #Question: move this function to test_code.py?
     return rolesOfWeek
 
 
-def createWeekSchedule(rolesOfWeek, staffList): #TODO: create list of Staff Objects from input.
+def createWeekSchedule(rolesOfWeek, staffList):
     """Pair a member of staff with each role in a weekday of Roles
     input: list of Role objects from createRoles() and a list of Staff Objects
     output: a list of lists containing tuples of (RoleObject, StaffObject) pairs for each weekday
