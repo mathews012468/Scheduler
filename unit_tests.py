@@ -1,52 +1,27 @@
-import main
-#Test shiftsRemaining
-#input: Employee, schedule
-# Employee Object: name, max_shifts, availability
-#Employee.name = string
-# Employee.max_shifts = int
-# Employee.availability = Dictionary Weekday(Enum): set(role names as strings)
-#Schedule: a List of (Role, Employee) tuples
+import reWrite, datetime
 
-def test0():
-    '''When employee object is in the schedule list, employee.max_shifts gets reduced by 1'''
-    availability_1 = {main.Weekday.MONDAY: {'lunch', 'aux', 'front'}}
-    subject_1 = main.Employee(name='Atlas', max_shifts=98, availability=availability_1)
+def test_isAvailable0():
+    role = reWrite.Role('swing',reWrite.Weekday.MONDAY)
+    staff = reWrite.Staff('Atlas',{reWrite.Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)]})
 
-    schedule = [
-        (main.Role(name='aux', day=main.Weekday.MONDAY), subject_1)
-        ]
-        
-    return subject_1.shiftsRemaining(schedule) == 97
+    assert reWrite.isAvailable(role, staff) == True
 
-def test1():
-    '''employee in schedule for same role on two different days times'''
-    availability_1 = {main.Weekday.MONDAY: {'lunch', 'aux', 'front'}}
-    subject_1 = main.Employee(name='Atlas', max_shifts=98, availability=availability_1)
+def test_isAvailable1():
+    role = reWrite.Role('swing',reWrite.Weekday.MONDAY,callTime = datetime.time(hour=13))
+    staff = reWrite.Staff('Atlas',{reWrite.Weekday.MONDAY: [datetime.time(hour=14),datetime.time(hour=23)]})
 
-    schedule = [
-        (main.Role(name='aux', day=main.Weekday.MONDAY), subject_1),
-        (main.Role(name='aux', day=main.Weekday.TUESDAY), subject_1)
+    assert reWrite.isAvailable(role, staff) == False
 
-        ]
-        
-    return subject_1.shiftsRemaining(schedule) == 96
+def test_isAvailable2():
+    """False in first pair, True in second pair"""
+    role = reWrite.Role('swing',reWrite.Weekday.MONDAY,callTime = datetime.time(hour=13))
+    staff = reWrite.Staff('Atlas',{reWrite.Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=14),datetime.time(hour=18),datetime.time(hour=23)]})
 
-def test2():
-    '''employee scheduled for same role on the same day twice'''
-    availability_1 = {main.Weekday.MONDAY: {'lunch', 'aux', 'front'}}
-    subject_1 = main.Employee(name='Atlas', max_shifts=98, availability=availability_1)
+    assert reWrite.isAvailable(role, staff) == True
 
-    schedule = [
-        (main.Role(name='aux', day=main.Weekday.MONDAY), subject_1),
-        (main.Role(name='aux', day=main.Weekday.MONDAY), subject_1)
+def testSuite_isAvailable():
+    test_isAvailable0()
+    test_isAvailable1()
+    test_isAvailable2()
 
-        ]
-        
-    return subject_1.shiftsRemaining(schedule) == 96
-
-
-if __name__ == '__main__': #Question- Why isn't this if __name__ == '__unit_tests__'?
-    test0()
-    test1()
-    test2() #Question: so how granular do I get with these testing variations?
-                #TODO: Write better tests.
+testSuite_isAvailable()

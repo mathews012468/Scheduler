@@ -18,7 +18,21 @@ class Role:
         #default callTimes based on name
         callTimes = {
         'lunch': datetime.time(hour=10, minute=30),
+        'brunch': datetime.time(hour=10, minute=30),
+        'brunchdoor': datetime.time(hour=12, minute=00),
+        'swing': datetime.time(hour=13),
+        'FMN': datetime.time(hour=14),
+        'shermans': datetime.time(hour=16, minute=30),
+        'veranda': datetime.time(hour=16, minute=30),
+        'outside': datetime.time(hour=16, minute=30),
+        'bbar': datetime.time(hour=16, minute=30),
+        'vbar': datetime.time(hour=16, minute=30),
         'front': datetime.time(hour=16, minute=30),
+        'uber': datetime.time(hour=16, minute=30),
+        'door': datetime.time(hour=18),
+        'back': datetime.time(hour=18),
+        'middle': datetime.time(hour=18),
+        'shermans6pm': datetime.time(hour=18),
         'aux': datetime.time(hour=18)
         }
         self.callTime = callTimes.get(name)
@@ -41,6 +55,19 @@ def createRoles(compiledRoles): #Question: move this function to test_code.py?
         rolesOfWeek.append(rolesOfDay)
     return rolesOfWeek
 
+def isAvailable(role, staff):
+    """check if role.callTime is in staff.availability"""
+    day = role.day
+    staffAvail = staff.availability[day]
+    while staffAvail != []:
+        endTime = staffAvail.pop()
+        startTime = staffAvail.pop()
+        if role.callTime >= startTime and role.callTime <= endTime:
+            return True
+        else:
+            continue
+    return False
+
 
 def createWeekSchedule(rolesOfWeek, staffList):
     """Pair a member of staff with each role in a weekday of Roles
@@ -52,7 +79,8 @@ def createWeekSchedule(rolesOfWeek, staffList):
     for day in rolesOfWeek:
         daySchedule = []
         for role in day:
-            roleStaffPair = (role, random.choice(staffList))
+            availableStaff = [staff for staff in staffList if isAvailable(role, staff)]
+            roleStaffPair = (role, random.choice(availableStaff))
             daySchedule.append(roleStaffPair)
         weekSchedule.append(daySchedule)
     return weekSchedule
@@ -60,12 +88,11 @@ def createWeekSchedule(rolesOfWeek, staffList):
 
 def scheduleView(schedule):
     """print schedule to screen"""
-    for day in range(len(schedule)):
-        headerDate= Weekday(day)
-        print(f'{headerDate}')
-        for roleStaffPair in schedule[day]:
+    for day in schedule:
+        headerDate = day[0][0].day #day of first Role object
+        print(f'---{headerDate}---')
+        for roleStaffPair in day:
             role = roleStaffPair[0]
             staff = roleStaffPair[1]
-            if role.day == headerDate:
-                print(f'{role.name}: {staff.name}')
+            print(f'{role.name}: {staff.name}')
 

@@ -2,6 +2,10 @@ import reWrite, datetime, os, re, ast
 
 
 def setAvailability(lines):
+    """set availability from staff request lines
+    input: list of lines from staff .txt file
+    returns: dictionary for Staff object availabiltiy
+    """
     availability = {
             reWrite.Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
             reWrite.Weekday.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
@@ -80,7 +84,7 @@ def compileRoles(roleFileName):
 
 staffList = compileStaff('staff_test.txt')
 
-weekRoleNames = compileRoles('roles_monday.txt') #bah, the naming here is a mess.
+weekRoleNames = compileRoles('roles_Oct24.txt') #bah, the naming here is a mess.
 rolesOfWeek = reWrite.createRoles(weekRoleNames)
 
 schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
