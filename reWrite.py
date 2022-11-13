@@ -39,8 +39,9 @@ class Role:
 
 
 class Staff:
-    def __init__(self, name, availability):
+    def __init__(self, name, maxShifts, availability):
         self.name = name
+        self.maxShifts = maxShifts
         self.availability = availability
 
 def createRoles(compiledRoles): #Question: move this function to test_code.py?
@@ -55,13 +56,15 @@ def createRoles(compiledRoles): #Question: move this function to test_code.py?
         rolesOfWeek.append(rolesOfDay)
     return rolesOfWeek
 
+
 def isAvailable(role, staff):
     """check if role.callTime is in staff.availability"""
     day = role.day
     staffAvail = staff.availability[day]
-    while staffAvail != []:
-        endTime = staffAvail.pop()
-        startTime = staffAvail.pop()
+    for i in range(0, len(staffAvail), 2): # iterate over staffAvail in 'chunks' of 2.
+        availPair = staffAvail[i:i+2]
+        startTime = availPair[0]
+        endTime = availPair[1]
         if role.callTime >= startTime and role.callTime <= endTime:
             return True
         else:

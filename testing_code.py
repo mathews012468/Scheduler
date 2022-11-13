@@ -55,7 +55,7 @@ def compileStaff(staffFileName):
                     requestLines.append(line.strip())
                 availability = setAvailability(requestLines) 
 
-                staffObject = reWrite.Staff(name, availability)
+                staffObject = reWrite.Staff(name, maxShifts, availability)
                 weekStaff.append(staffObject)
 
         return weekStaff
