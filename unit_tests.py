@@ -1,4 +1,4 @@
-import reWrite, datetime
+import reWrite, datetime, testing_code
 
 class isAvailable:
 
@@ -28,4 +28,50 @@ class isAvailable:
         isAvailable.test_1()
         isAvailable.test_2()
 
+class shiftsRemaining:
+    
+    def test1():
+        """"staff.maxShift=4, staff in schedule 4 times"""
+        weekRoleNames = testing_code.compileRoles('roles_fourShifts.txt')
+        staffList = testing_code.compileStaff('staff_single.txt')
+        rolesOfWeek = reWrite.createRoles(weekRoleNames)
+        
+        schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
+        staff = staffList[0]
+
+        assert reWrite.shiftsRemaining(staff, schedule) == 0
+
+    def test2():
+        """"staff.maxShifts=4, staff in schedule 2 times"""
+        weekRoleNames = testing_code.compileRoles('roles_twoShifts.txt')
+        staffList = testing_code.compileStaff('staff_single.txt')
+        rolesOfWeek = reWrite.createRoles(weekRoleNames)
+
+        schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
+        staff = staffList[0]
+        
+        assert reWrite.shiftsRemaining(staff, schedule) == 2
+
+    def test3():
+        """staff.maxShifts=4, staff in schedule 6 times"""
+        weekRoleNames = testing_code.compileRoles('roles_sixShifts.txt')
+        staffList = testing_code.compileStaff('staff_single.txt')
+        rolesOfWeek = reWrite.createRoles(weekRoleNames)
+
+        schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
+        staff = staffList[0]
+
+        #this doesn't quite work. Seems pytest could handle this:
+        #pytest.raises(ValueError, match='ValueError: Atlas shiftsRemaing: -2')
+        assert reWrite.shiftsRemaining(staff, schedule) is ValueError
+
+    def testSuite():
+        shiftsRemaining.test1()
+        shiftsRemaining.test2()
+        #shiftsRemaining.test3()
+
+#this seems to work?¿
 isAvailable.testSuite()
+shiftsRemaining.testSuite()
+
+#TODO: setup and use pytest

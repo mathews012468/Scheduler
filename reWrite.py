@@ -44,7 +44,7 @@ class Staff:
         self.maxShifts = maxShifts
         self.availability = availability
 
-def createRoles(compiledRoles): #Question: move this function to test_code.py?
+def createRoles(compiledRoles): #Question: move this function to testing_code.py?
     """Create Role Objects from compiled roles.txt input
     Input: List of dictionaries from testing_code.compileWeek()
     Output: A list of lists containing Role Objects for each weekday
@@ -56,6 +56,33 @@ def createRoles(compiledRoles): #Question: move this function to test_code.py?
         rolesOfWeek.append(rolesOfDay)
     return rolesOfWeek
 
+
+#Option1: return a number for shifts remaining. Seems clearer.
+def shiftsRemaining(staff, schedule):
+    shiftsRemaining = staff.maxShifts
+    flatSchedule = [pairs for day in schedule for pairs in day]
+    shiftCount = 0
+    for roleStaffPair in flatSchedule:
+        if roleStaffPair[1] == staff:
+            shiftsRemaining -= 1
+    if shiftsRemaining < 0:
+        raise ValueError(f'{staff.name} shiftsRemaing: {shiftsRemaining}')
+    return shiftsRemaining
+
+
+#Option2: return True or False.
+def MaxShift(staff, schedule): #What to name this for clarity on it's expected return value?
+    flatSchedule = [pairs for day in schedule for pairs in day]
+    shiftCount = 0
+    for roleStaffPair in flatSchedule:
+        if roleStaffPair[1] == staff:
+            shiftCount += 1
+            if shiftCount == staff.maxShifts:
+                return False
+                #returns False when maxShifts reached
+                #thought being- 'can staff be scheduled?' False.
+                #feels kinda unintutative with current function name.
+    return True
 
 def isAvailable(role, staff):
     """check if role.callTime is in staff.availability"""
@@ -71,7 +98,14 @@ def isAvailable(role, staff):
             continue
     return False
 
+#Here's my current train of thought.
+#Progress now means testing, and writing testing functions for simple access to class objects
+#(a schedule class seems helpful then?)
+#as feature ideas like maxShifts come up, they can then be written in a modular fashion and solidified through the testing process.
+#Once all the features I can think of are independently solid-
+#a new 'CreateSchedule' function can be pieced together that will end up returning a 'satisfying' schedule. Whatever that ends up being.
 
+#Question: Is this line of thought reasonable?
 def createWeekSchedule(rolesOfWeek, staffList):
     """Pair a member of staff with each role in a weekday of Roles
     input: list of Role objects from createRoles() and a list of Staff Objects

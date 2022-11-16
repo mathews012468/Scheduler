@@ -1,4 +1,4 @@
-import reWrite, datetime, os, re, ast
+import reWrite, datetime, os
 
 
 def setAvailability(lines):
@@ -55,7 +55,7 @@ def compileStaff(staffFileName):
                     requestLines.append(line.strip())
                 availability = setAvailability(requestLines) 
 
-                staffObject = reWrite.Staff(name, maxShifts, availability)
+                staffObject = reWrite.Staff(name, int(maxShifts), availability)
                 weekStaff.append(staffObject)
 
         return weekStaff
@@ -73,7 +73,7 @@ def compileRoles(roleFileName):
         while line := file.readline():
             if line == '\n' or line.startswith('#'): #ignore empty and #comment lines
                 continue
-            day = reWrite.Weekday[line.upper().strip()] #line -> Weekday Enum
+            day = reWrite.Weekday[line.upper().strip()]
 
             line = file.readline()
             roles = [role.strip() for role in line.split(',')]
@@ -81,12 +81,12 @@ def compileRoles(roleFileName):
             weekRoleNames.append({day: roles})
     return weekRoleNames
 
+if __name__ == reWrite: 
 
-staffList = compileStaff('staff_test.txt')
+    staffList = compileStaff('staff_maxShift_SingleStaff.txt')
+    weekRoleNames = compileRoles('roles_maxShift_SingleDay.txt')
+    rolesOfWeek = reWrite.createRoles(weekRoleNames)
+    
+    schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
 
-weekRoleNames = compileRoles('roles_Oct24.txt') #bah, the naming here is a mess.
-rolesOfWeek = reWrite.createRoles(weekRoleNames)
-
-schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
-
-reWrite.scheduleView(schedule)
+    reWrite.scheduleView(schedule)

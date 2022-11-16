@@ -10,7 +10,7 @@
 # note: time can not exceed 23.59 for datetime.time objects
 
 name: Atlas
-shifts: 7
+shifts: 4
 requests:
 	Monday:13.00,23.59
 	Wednesday:0.0,18.30
