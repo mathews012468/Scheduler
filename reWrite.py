@@ -70,20 +70,6 @@ def shiftsRemaining(staff, schedule):
     return shiftsRemaining
 
 
-#Option2: return True or False.
-def MaxShift(staff, schedule): #What to name this for clarity on it's expected return value?
-    flatSchedule = [pairs for day in schedule for pairs in day]
-    shiftCount = 0
-    for roleStaffPair in flatSchedule:
-        if roleStaffPair[1] == staff:
-            shiftCount += 1
-            if shiftCount == staff.maxShifts:
-                return False
-                #returns False when maxShifts reached
-                #thought being- 'can staff be scheduled?' False.
-                #feels kinda unintutative with current function name.
-    return True
-
 def isAvailable(role, staff):
     """check if role.callTime is in staff.availability"""
     day = role.day

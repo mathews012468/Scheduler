@@ -81,10 +81,10 @@ def compileRoles(roleFileName):
             weekRoleNames.append({day: roles})
     return weekRoleNames
 
-if __name__ == reWrite: 
+if __name__ == "__main__":
 
-    staffList = compileStaff('staff_maxShift_SingleStaff.txt')
-    weekRoleNames = compileRoles('roles_maxShift_SingleDay.txt')
+    staffList = compileStaff('staff_test.txt')
+    weekRoleNames = compileRoles('roles_smallSample.txt')
     rolesOfWeek = reWrite.createRoles(weekRoleNames)
     
     schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
