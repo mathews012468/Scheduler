@@ -1,4 +1,4 @@
-import reWrite, datetime, os
+import main, datetime, os
 
 
 def setAvailability(lines):
@@ -7,19 +7,19 @@ def setAvailability(lines):
     returns: dictionary for Staff object availabiltiy
     """
     availability = {
-            reWrite.Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            reWrite.Weekday.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
+            main.Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            main.Weekday.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
             }
 
     for line in lines:
         weekday, requestTimes = line.split(':')
         requestTimes = [hours for hours in requestTimes.split(',')]
-        availability[reWrite.Weekday[weekday.upper()]] =[] # clear weekday's default availability
+        availability[main.Weekday[weekday.upper()]] =[] # clear weekday's default availability
 
         while requestTimes != []:
             start, end = requestTimes[:2]
@@ -27,8 +27,8 @@ def setAvailability(lines):
             startHour, startMinute = start.split('.')
             endHour, endMinute = end.split('.')
 
-            availability[reWrite.Weekday[weekday.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
-            availability[reWrite.Weekday[weekday.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
+            availability[main.Weekday[weekday.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
+            availability[main.Weekday[weekday.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
 
     return availability
 
@@ -55,7 +55,7 @@ def compileStaff(staffFileName):
                     requestLines.append(line.strip())
                 availability = setAvailability(requestLines) 
 
-                staffObject = reWrite.Staff(name, int(maxShifts), availability)
+                staffObject = main.Staff(name, int(maxShifts), availability)
                 weekStaff.append(staffObject)
 
         return weekStaff
@@ -73,7 +73,7 @@ def compileRoles(roleFileName):
         while line := file.readline():
             if line == '\n' or line.startswith('#'): #ignore empty and #comment lines
                 continue
-            day = reWrite.Weekday[line.upper().strip()]
+            day = main.Weekday[line.upper().strip()]
 
             line = file.readline()
             roles = [role.strip() for role in line.split(',')]
@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
     staffList = compileStaff('staff_test.txt')
     weekRoleNames = compileRoles('roles_smallSample.txt')
-    rolesOfWeek = reWrite.createRoles(weekRoleNames)
+    rolesOfWeek = main.createRoles(weekRoleNames)
     
-    schedule = reWrite.createWeekSchedule(rolesOfWeek, staffList)
+    schedule = main.createWeekSchedule(rolesOfWeek, staffList)
 
-    reWrite.scheduleView(schedule)
+    main.scheduleView(schedule)
