@@ -44,7 +44,7 @@ class Staff:
         self.maxShifts = maxShifts
         self.availability = availability
 
-def createRoles(compiledRoles): #Question: move this function to testing_code.py?
+def createRoles(compiledRoles):
     """Create Role Objects from compiled roles.txt input
     Input: List of dictionaries from testing_code.compileWeek()
     Output: A list of lists containing Role Objects for each weekday
@@ -57,7 +57,6 @@ def createRoles(compiledRoles): #Question: move this function to testing_code.py
     return rolesOfWeek
 
 
-#Option1: return a number for shifts remaining. Seems clearer.
 def shiftsRemaining(staff, schedule):
     shiftsRemaining = staff.maxShifts
     flatSchedule = [pairs for day in schedule for pairs in day]
@@ -84,14 +83,7 @@ def isAvailable(role, staff):
             continue
     return False
 
-#Here's my current train of thought.
-#Progress now means testing, and writing testing functions for simple access to class objects
-#(a schedule class seems helpful then?)
-#as feature ideas like maxShifts come up, they can then be written in a modular fashion and solidified through the testing process.
-#Once all the features I can think of are independently solid-
-#a new 'CreateSchedule' function can be pieced together that will end up returning a 'satisfying' schedule. Whatever that ends up being.
 
-#Question: Is this line of thought reasonable?
 def createWeekSchedule(rolesOfWeek, staffList):
     """Pair a member of staff with each role in a weekday of Roles
     input: list of Role objects from createRoles() and a list of Staff Objects
