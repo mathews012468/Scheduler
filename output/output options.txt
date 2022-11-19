@@ -1,0 +1,34 @@
+Single person point of view: # This I like and find helpful to receive weekly
+----
+Sil
+Monday- Front, Calltime: 16:30
+Tuesday- None
+Wednesday- Bbar, Calltime: 16:30
+Thursday-  Lunch, Calltime: 10:30
+Friday- None
+Saturday- Bbar, Calltime: 16:30
+Sunday- None
+
+Restaurant Point of View: # This is helpful to get a complete overview. Current choice for testing.
+----
+Monday
+Front: {name}
+Aux: {name}
+Back: {name}
+Bbar: {name}
+VBar: {name}
+
+Feature Parody point of view:
+csv: Day/Date comlumns, Employee rows. Role printed where the two meet
+----
+Name    Monday  Tuesday Wednesday   Thursday    Friday  Saturday    Sunday
+Sil     Front   None    ''
+Ashlynn Veranda Lunch   ''
+Mathew  Lunch   Back    ''
+Cliff   BBar    BBar    ''
+
+
+
+
+
+

@@ -35,7 +35,7 @@ def setAvailability(lines):
 
 def compileStaff(staffFileName):
     """compile staff from .txt file containing staff data"""
-    staffFilePath = os.path.join('testing', 'input', staffFileName)
+    staffFilePath = os.path.join('input', staffFileName)
     with open(staffFilePath) as f:
         weekStaff = []
         while line := f.readline():
@@ -67,7 +67,7 @@ def compileRoles(roleFileName):
     Dictionary[key] = Weekday.Enum
     Dictionary[value] = list of role names
     """
-    roleFilePath = os.path.join('testing', 'input', roleFileName)
+    roleFilePath = os.path.join('input', roleFileName)
     weekRoleNames=[]
     with open(roleFilePath) as file:
         while line := file.readline():
