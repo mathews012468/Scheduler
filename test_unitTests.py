@@ -1,4 +1,4 @@
-import main, datetime, testing_code, pytest
+import main, datetime, pytest
 
 class Test_isAvailable:
     def test_0(self):
@@ -25,33 +25,22 @@ class Test_isAvailable:
 class Test_shiftsRemaining:
     def test_1(self):
         """"staff.maxShift=4, staff in schedule 4 times"""
-        weekRoleNames = testing_code.compileRoles('roles_fourShifts.txt')
-        staffList = testing_code.compileStaff('staff_single.txt')
-        rolesOfWeek = main.createRoles(weekRoleNames)
-        
-        schedule = main.createWeekSchedule(rolesOfWeek, staffList)
-        staff = staffList[0]
+        schedule = main.Schedule('roles_fourShifts.txt', 'staff_single.txt')
+        staff = schedule.week[0][0][1] # staff object of first day's roleStaffPair
 
         assert main.shiftsRemaining(staff, schedule) == 0
 
     def test_2(self):
         """"staff.maxShifts=4, staff in schedule 2 times"""
-        weekRoleNames = testing_code.compileRoles('roles_twoShifts.txt')
-        staffList = testing_code.compileStaff('staff_single.txt')
-        rolesOfWeek = main.createRoles(weekRoleNames)
-
-        schedule = main.createWeekSchedule(rolesOfWeek, staffList)
-        staff = staffList[0]
+        schedule = main.Schedule('roles_twoShifts.txt','staff_single.txt')
+        staff = schedule.week[0][0][1]
         
         assert main.shiftsRemaining(staff, schedule) == 2
 
     def test_3(self):
         """staff.maxShifts=4, staff in schedule 6 times"""
-        weekRoleNames = testing_code.compileRoles('roles_sixShifts.txt')
-        staffList = testing_code.compileStaff('staff_single.txt')
-        rolesOfWeek = main.createRoles(weekRoleNames)
+        schedule = main.Schedule('roles_sixShifts.txt','staff_single.txt')
+        staff = schedule.week[0][0][1]
 
-        schedule = main.createWeekSchedule(rolesOfWeek, staffList)
-        staff = staffList[0]
-
-        assert pytest.raises(ValueError, match='ValueError: Atlas shiftsRemaing: -2')
+        with pytest.raises(ValueError, match='Atlas shiftsRemaing: -2'):
+            main.shiftsRemaining(staff, schedule)
