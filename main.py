@@ -106,11 +106,77 @@ class ProcessInput:
         return rolesOfWeek
 
 
+#Writing out thought...
+
+#I don't think I understand a 'schedule object'.
+#The way I'm thinking about it now is a schedule can be a list of days.
+#Each day containing...what?
+#   The roles to be filled for a day.
+#   The roles to be filled + staff available that day? That seems to be too much.
+    
+#to be specfic, here's the idea of a 'day'. A dictionary where key=WeekdayEnum, and value=[list of roles]
+#This is what is created from txt input with the compileRoles function.
+
+#Now, the next step, on how to proceed these 'day dictionaries' is where I start to get uncertain.
+#CompileRoles gives me a list of dictionaries- a list of 'days'.
+#then CreateRoles takes each dictionary, and creates a list of Role Objects.
+#Since Role Objects have an attribute space for name, day, (and callTime).
+#the dictionary collection is thrown out and the Role Objects are stored in an individual list.
+#Now each 'day' is a list...
+
+#That's frusterating becuase I'm unncertain of which direction to pick. A dictionary with redundent data-   
+#Key=WeekdayEnum, Value=[list of Role Objects] WeekdayEnum is now redundant as a Key and Attribute of the Role Objects.
+#Or
+#A list of Role Objects. No more dict Key, and now a day can be retrieved with list index. [0] is the first day, [1] is the second...etc
+#The annoyance here is the density of a list of lists. Which quickly amounts to retreiving data like this:
+
+    """print(schedule.week) # a 'week'. Alist of lists of Role,Staff tuple pairs
+    print(schedule.week[0]) # first 'day' of the week. List of Role,Staff tuple pairs
+    print(schedule.week[0][0]) # first Role,Staff tuple pair of the first day
+    print(schedule.week[0][0][1])# Staff object of the first Role,Staff object pair."""
+
+#I'm now thinking that I'm using collections to store stuff too quickly in the process
+#and that there's probably a way to achieve 'simple data retrieval' from objects themselves, rather than colletions inside collections.
+
+#This idea of 'simple data retreivel' is something I'm interested in as I'm thinking it will keep me inline with this 'modular' and 'overseeable' way of working that I'm wanting.
+
+
+#There's an instinctive annoyance with that kind of 'notation'. It feels unweildy and 'frusterating'.
+#That is what I'm wanting to 'solve'.
+
+#So what do I want?
+#What would be 'smooth'? Is this about retreving data that is stored in a collection?
+#I want 'simple retreival' Is that what I'm after?
+#Yes. How do I set that up?
+
+#This is works, as in the labels (name, weekday) and callTime data are available to use in functions like isAvailable.
+#However, the resulting 'schedule' that is now a list of lists feels dense, and gets denser (i.e. more frusterating) with each element added to it from this point on.
+
+#At this point the 'schedule' is made up of a list of lists of Role Objects. And now Staff Objects are introduced...
+#Staff Objects are constructed from input, currently a txt file, and each Staff Object has an attirbute for a name.
+#New attributes come up as ideas for 'creating the schedule' come forward, and currently there is:
+#   Availabiltiy: a dictionary of time intervals. Key=weekday, Value=[list of timestamps]
+#   MaxShifts: an int value
+#   Soon to be: Aptitude or Preference, a collection of aptitudes or preferences for certain roles
+#The desire is to add on any attribute as ideas come up.
+#Why does that currently feel hard to do?
+
+#A schedule as an object, can this help with that?
+#A schedule as an object is an instance of a Schedule class. And this class object takes the form of a dict.
+#Then the schedule class would look something like this:
+
+#What does that mean? Now a schedule object is always a dictionary?
+class Schedule_2(list):
+    pass
+
+#This quickly starts to seem redundent when Role objects currently have a weekd
 class Schedule:
     def __init__(self, roleInput, staffInput, week=None):
         """"Create schedule object from role and staff inputs
         roleInput = string filename.txt
         staffInput = string filename.txt """
+        #Right now these ProcessInput functions create the input that is used to build the schedule's week.
+        #chainging the .txt filename input seems to say there is a 'better' solution.
         scheduleRoles = ProcessInput.compileRoles(roleInput)
         scheduleStaff = ProcessInput.compileStaff(staffInput)
 
@@ -125,6 +191,8 @@ class Schedule:
 
         self.week = week
 
+#I don't see a situation where Staff and Role objects would want to 'talk to eachother'
+#What possibilities open up with Staff and Role class moving inside of the Schedule class?
 
 class Role:
     def __init__(self, name, day, callTime=None ):
@@ -159,19 +227,7 @@ class Staff:
         self.name = name
         self.maxShifts = maxShifts
         self.availability = availability
-
-def createRoles(compiledRoles):
-    """Create Role Objects from compiled roles.txt input
-    Input: List of dictionaries from compileWeek()
-    Output: A list of lists containing Role Objects for each weekday
-    """
-    rolesOfWeek = []
-    for dict in compiledRoles:
-        for weekday,roles in dict.items():
-            rolesOfDay = [Role(name=roleName, day=weekday) for roleName in roles]
-        rolesOfWeek.append(rolesOfDay)
-    return rolesOfWeek
-
+        
 
 def shiftsRemaining(staff, schedule):
     shiftsRemaining = staff.maxShifts
@@ -217,6 +273,7 @@ def createWeekSchedule(rolesOfWeek, staffList):
     return weekSchedule
 
 
+
 def scheduleView(schedule):
     """print schedule to screen"""
     for day in schedule:
@@ -230,8 +287,11 @@ def scheduleView(schedule):
 
 
 schedule = Schedule('roles_sixShifts.txt','staff_single.txt')
-print(schedule.week)
-print(schedule.week[0])
-print(schedule.week[0][0])
-print(schedule.week[0][0][1])
+print(schedule.week) # a 'week'. Alist of lists of Role,Staff tuple pairs
+print(schedule.week[0]) # first 'day' of the week. List of Role,Staff tuple pairs
+print(schedule.week[0][0]) # first Role,Staff tuple pair of the first day
+print(schedule.week[0][0][1])# Staff object of the first Role,Staff object pair.
+
+#Does having the Role and Staff objects be part of the Schedule class
+#allow for a different way to store the a week schedule?
 

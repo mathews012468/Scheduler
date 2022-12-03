@@ -27,6 +27,7 @@ class Test_shiftsRemaining:
         """"staff.maxShift=4, staff in schedule 4 times"""
         schedule = main.Schedule('roles_fourShifts.txt', 'staff_single.txt')
         staff = schedule.week[0][0][1] # staff object of first day's roleStaffPair
+        #This index chain shows there's a simpler way to set this up.
 
         assert main.shiftsRemaining(staff, schedule) == 0
 
