@@ -37,7 +37,18 @@ def formSchedule_stuck(roleCollection, staffColletion):
 		availableStaff.sort(key = shiftsRemaining) # order the pool of available staff with highest shifts remaining at the front.
 		staff = availableStaff[0] # select the first staff from the ordered pool.
 
-		#UNLESS following conditons are true. This is where I am stuck on how to write this...
+		#UNLESS following conditons are true. This is where I am stuck on how to write this.
+		# if selected staff is already scheduled for a shift on the selected role's weekday:
+			# place selected staff into a 'prefered last' pool
+			# select next staff from the Ordered Pool.
+
+		#And then,
+		# if the Ordered Pool has been iterated through (no appropriate staff has been found):
+			# order the Prefered Last pool by highest shifts remaining at the front.
+			# select the first staff from Prefered Last.
+
+		#There is some basic grasp of loops or if statement flow that I am apparently not understanding.
+
 
 		schedule.append((role,staff))
 
