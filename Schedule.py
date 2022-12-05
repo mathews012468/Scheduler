@@ -28,8 +28,49 @@
 # pair selected staff with selected role
 
 # select next role from the role collection...repeat until all roles from the role collection have been paired with a member of the staff collection.
+from enum import Enum
+import datetime
+
+class Weekdays(Enum):
+	MODNAY = 'monday'
+	TUESDAY = 'tuesday'
+	WEDNESDAY = 'wednesday'
+	THURSDAY = 'thursday'
+	FRIDAY = 'friday'
+	SATURDAY = 'saturday'
+	SUNDAY = 'sunday'
+
+class Role: #pasted in from main
+    def __init__(self, name, day, callTime=None ):
+        self.name = name
+        self.day = day
+
+        #default callTimes based on name
+        callTimes = {
+        'lunch': datetime.time(hour=10, minute=30),
+        'brunch': datetime.time(hour=10, minute=30),
+        'brunchdoor': datetime.time(hour=12, minute=00),
+        'swing': datetime.time(hour=13),
+        'FMN': datetime.time(hour=14),
+        'shermans': datetime.time(hour=16, minute=30),
+        'veranda': datetime.time(hour=16, minute=30),
+        'outside': datetime.time(hour=16, minute=30),
+        'bbar': datetime.time(hour=16, minute=30),
+        'vbar': datetime.time(hour=16, minute=30),
+        'front': datetime.time(hour=16, minute=30),
+        'uber': datetime.time(hour=16, minute=30),
+        'door': datetime.time(hour=18),
+        'back': datetime.time(hour=18),
+        'middle': datetime.time(hour=18),
+        'shermans6pm': datetime.time(hour=18),
+        'aux': datetime.time(hour=18)
+        }
+        self.callTime = callTimes.get(name)
+        if self.callTime == None:
+        	raise ValueError(f'{self.name} has no matching callTime')
 
 
+	#roleCollection comes in, segmented into days? No, it does not need to be.
 def pairAvailableStaff(roleCollection, staffColletion):
 	roleStaffPairs = []
 	for role in roleCollection: # select the first role of the role collection.
@@ -55,11 +96,31 @@ def pairAvailableStaff(roleCollection, staffColletion):
 		#Replace the staff pairing.
 		#That is it's own sweep iteration.
 
+
+def repairDoubles(roleStaffPairs):
+	for weekday in Weekdays:
+		weekdayPairs = [pair for pair in roleStaffPairs if pair[0].day == weekday]
+		for pairs in weekdayPairs:
+			staffIndecies = [index for index,staff in enumerate(weekdayPairs) if staff == pairs[1]]
+			if len(staffIndecies) > 1:
+				#repair double occurance
+				#oh my god I need access to so much information to do this.
+				#A list of who is working today
+				#A list of who is available for this role, and is not working this day
+				#I need to access the role of the staff first.
+				#Aaaaaaaaaaaaa
+
+
+		#find all occurances of a staff member appearing <1 times in this list of pairs.
+
+	#get a list of all roleStaffPairs, whose role.weekday is == 'weekday'
+
 		#To do this, get a collection of all the roleStaffPairs for a certain weekday.
 		#To get this collection from the full week collection.
 		# in roleStaffCollection:
 		# find each pair from a certain weekday.
 
+#This is the way to do it.
 		#weekdays come with roles, a role is of a weekday.
 		#when creating roleStaffPairs, the weekday seperation can be maintained.
 		#for weekday in Weekdays:
@@ -69,6 +130,10 @@ def pairAvailableStaff(roleCollection, staffColletion):
 
 		#For each multiple occurance of a staff in the roleStaffPairs.
 			#Find a replacement staff who is not scheduled for a shift that day.
+
+		#What are the excpetions of this sweep?
+		# a double is found, and no replacement is found
+		# raise error.
 
 		#Then, once the double sweep has occured.
 		#An aptitdue sweep can take place.
