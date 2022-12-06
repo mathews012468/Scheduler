@@ -43,5 +43,4 @@ class Test_shiftsRemaining:
         schedule = main.Schedule('roles_sixShifts.txt','staff_single.txt')
         staff = schedule.week[0][0][1]
 
-        with pytest.raises(ValueError, match='Atlas shiftsRemaing: -2'):
-            main.shiftsRemaining(staff, schedule)
+        assert main.shiftsRemaining(staff, schedule) == -2
