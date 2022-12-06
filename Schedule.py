@@ -40,7 +40,7 @@ class Weekdays(Enum):
 	SATURDAY = 'saturday'
 	SUNDAY = 'sunday'
 
-class Role: #pasted in from main
+class Role:
     def __init__(self, name, day, callTime=None ):
         self.name = name
         self.day = day
@@ -70,7 +70,14 @@ class Role: #pasted in from main
         	raise ValueError(f'{self.name} has no matching callTime')
 
 
-	#roleCollection comes in, segmented into days? No, it does not need to be.
+class Staff:
+    def __init__(self, name, maxShifts, availability):
+        self.name = name
+        self.maxShifts = maxShifts
+        self.availability = availability
+
+
+
 def pairAvailableStaff(roleCollection, staffColletion):
 	roleStaffPairs = []
 	for role in roleCollection: # select the first role of the role collection.
@@ -95,6 +102,7 @@ def pairAvailableStaff(roleCollection, staffColletion):
 		#When double is found, check for staff who is available and not scheduled that day.
 		#Replace the staff pairing.
 		#That is it's own sweep iteration.
+
 
 
 def repairDoubles(roleStaffPairs):
@@ -126,7 +134,7 @@ def repairDoubles(roleStaffPairs):
 		#for weekday in Weekdays:
 			#for role in roleCollection.
 				#weekdayRoles = [role for role in roleCollection if role.day == 'weekday']
-
+				
 
 		#For each multiple occurance of a staff in the roleStaffPairs.
 			#Find a replacement staff who is not scheduled for a shift that day.
@@ -134,23 +142,6 @@ def repairDoubles(roleStaffPairs):
 		#What are the excpetions of this sweep?
 		# a double is found, and no replacement is found
 		# raise error.
-
-		#Then, once the double sweep has occured.
-		#An aptitdue sweep can take place.
-		# for each role/staff pair, is anyone paired into a role they are unsuited for?
-		#find replacements for staff pairings with roles.
-
-		#With each of these sweeps there are possible exceptions, how they are handeled, would be to the specfics of the sweep.
-		#This aligns with the modular setup I am wanting.
-
-
-		#Another way to phrase this is.
-		#Select first staff from the order pool, and check them against a set of conditions
-		#if all conditions are False, pair the selected staff with selected role.
-
-
-
-
 
 		#UNLESS following conditons are true. This is where I am stuck on how to write this.
 		# if selected staff is already scheduled for a shift on the selected role's weekday:
@@ -183,13 +174,3 @@ def formSchedule_00(roleCollection, staffCollection):
 		schedule.append((role,lowPriority[0]))
 
 	return schedule
-
-
-
-
-def shiftsRemaining(staff, schedule):
-	shiftCount = 0
-	for staff in schedule:
-		shiftCount += 1
-
-	return staff.maxShifts - shiftCount
