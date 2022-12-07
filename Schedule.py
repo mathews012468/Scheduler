@@ -1,33 +1,21 @@
-# Roles made up of, name, weekday of role, callTime
-# Staff is name, maxium shifts, and availability
-
-# pass in variables, minimize messing with state.
-
 # Goal:
 # Take in a collection of roles
 # Take in a collection of staff
-# Return the collection of roles paired with appropriate staff 
+# Return the collection of roles paired with staff
 
-
-# Strategy for selecting 'appropriate' staff:
+# Strategy for selecting staff:
 # select the first role of the role collection.
 # from the staff collection, get a pool of all staff who are available for the selected role's call time.
 # order the pool of available staff with highest shifts remaining at the front.
 # select the first staff from the ordered pool.
 # pair selected staff with selected role.
-	# UNLESS following conditons are true. This is where I am stuck on how to represent this.
+# 
+#
+# Strategy for forming the scheduling:
+# A seperate sweep for each criterea, such as Doubles, and Preference
+# sweeps are called in order of 'importance'
+# after last sweep, the 'finished' schedule is returned.
 
-# if selected staff is already scheduled for a shift on the selected role's weekday:
-# 	place selected staff into a 'prefered last' pool
-# 	select next staff from the Ordered Pool.
-
-# if the Ordered Pool has been iterated through (no appropriate staff has been found):
-# 	order the Prefered Last pool by highest shifts remaining at the front.
-# 	select the first staff from Prefered Last.
-
-# pair selected staff with selected role
-
-# select next role from the role collection...repeat until all roles from the role collection have been paired with a member of the staff collection.
 from enum import Enum
 import datetime
 
@@ -113,8 +101,6 @@ def repairDoubles(roleStaffPairs):
 			staffIndecies = [index for index, staff in enumerate(weekdayPairs) if staff == pairs[1]]
 			if len(staffIndecies) > 1:
 				doubles = staffIndecies[1:]
-				#have no data to work with
-				#too much weight to rewrite all of this.
 
 
 def formSchedule_00(roleCollection, staffCollection):
@@ -135,15 +121,3 @@ def formSchedule_00(roleCollection, staffCollection):
 		schedule.append((role,lowPriority[0]))
 
 	return schedule
-
-		#UNLESS following conditons are true. This is where I am stuck on how to write this.
-		# if selected staff is already scheduled for a shift on the selected role's weekday:
-			# place selected staff into a 'prefered last' pool
-			# select next staff from the Ordered Pool.
-
-		#And then,
-		# if the Ordered Pool has been iterated through (no appropriate staff has been found):
-			# order the Prefered Last pool by highest shifts remaining at the front.
-			# select the first staff from Prefered Last.
-
-		#There is some basic grasp of loops or if statement flow that I am apparently not understanding.
