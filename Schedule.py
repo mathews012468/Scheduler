@@ -72,16 +72,24 @@ class Role:
 
 
 class Staff:
-    def __init__(self, name, maxShifts, availability):
-        self.name = name
-        self.maxShifts = maxShifts
-        self.availability = availability
+	def __init__(self, name, maxShifts, availability):
+		self.name = name
+		self.maxShifts = maxShifts
+		self.availability = availability
+
+	def isAvailable(self, role):
+		dayAvailability = self.availability[role.day]
+		if role.callTime >= dayAvailability[0] and role.callTime <= dayAvailability[1]:
+			return True
+		return False
+
+
 
 
 def pairAvailableStaff(roleCollection, staffCollection):
 	roleStaffPairs = []
 	for role in roleCollection: # select the first role of the role collection.
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role.callTime)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
 		if availableStaff == []:
 			raise RuntimeError(f'No staff available for {role}')
 		availableStaff.sort(key = shiftsRemaining) # order the pool of available staff with highest shifts remaining at the front.
