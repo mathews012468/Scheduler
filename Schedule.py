@@ -1,20 +1,9 @@
-# Goal:
-# Take in a collection of roles
-# Take in a collection of staff
-# Return the collection of roles paired with staff
+# Clearing loose ends
 
-# Strategy for selecting staff:
-# select the first role of the role collection.
-# from the staff collection, get a pool of all staff who are available for the selected role's call time.
-# order the pool of available staff with highest shifts remaining at the front.
-# select the first staff from the ordered pool.
-# pair selected staff with selected role.
-# 
-#
-# Strategy for forming the scheduling:
-# A seperate sweep for each criterea, such as Doubles, and Preference
-# sweeps are called in order of 'importance'
-# after last sweep, the 'finished' schedule is returned.
+#test isAvailble
+#test shiftsRemaining
+
+#test and excercise pairAvailableStaff
 
 from enum import Enum
 import datetime
@@ -54,9 +43,9 @@ class Role:
         'shermans6pm': datetime.time(hour=18),
         'aux': datetime.time(hour=18)
         }
-        self.callTime = callTimes.get(name)
+        self.callTime = callTimes.get(name, callTime)
         if self.callTime == None:
-        	raise ValueError(f'{self.name} has no matching callTime')
+        	raise ValueError(f'provide callTime for {self.name}')
 
 
 class Staff:
@@ -67,12 +56,19 @@ class Staff:
 
 	def isAvailable(self, role):
 		dayAvailability = self.availability[role.day]
-		if role.callTime >= dayAvailability[0] and role.callTime <= dayAvailability[1]:
-			return True
+		for i in range(0, len(dayAvailability), 2): # iterate through dayAvailability in 'chunks' of 2
+			availTimes = dayAvailability[i:i+2]
+			startTime = availTimes[0]
+			endTime = availTimes[1]
+			if role.callTime >= startTime and role.callTime <= endTime:
+				return True
+			else:
+				continue
 		return False
 
 
 
+#Sortkey, as rank
 
 def pairAvailableStaff(roleCollection, staffCollection):
 	roleStaffPairs = []
@@ -93,6 +89,13 @@ def shiftsRemaining(staff, roleStaffPairs):
 	return staff.maxShifts - shiftCount
 
 	
+#from the list of pairs,
+# find all the staff that is doubled, which is in a day.
+#[(role,staff), (role,staff), (role,staff)]
+
+#we have to get a subset of days
+#find the doubles in a day.
+
 
 def repairDoubles(roleStaffPairs):
 	for weekday in Weekdays:
@@ -102,6 +105,7 @@ def repairDoubles(roleStaffPairs):
 			if len(staffIndecies) > 1:
 				doubles = staffIndecies[1:]
 
+#write function for finding staff who is working.
 
 def formSchedule_00(roleCollection, staffCollection):
 	schedule = []
