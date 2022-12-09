@@ -22,6 +22,8 @@ front = Schedule.Role('front', Schedule.Weekdays.MONDAY)
 lunch = Schedule.Role('lunch', Schedule.Weekdays.MONDAY)
 aux = Schedule.Role('aux', Schedule.Weekdays.MONDAY)
 middle = Schedule.Role('middle', Schedule.Weekdays.FRIDAY)
+swing = Schedule.Role('swing', Schedule.Weekdays.WEDNESDAY)
+vbar = Schedule.Role('swing', Schedule.Weekdays.WEDNESDAY)
 
 roles = [front, lunch, aux, middle]
 
@@ -55,3 +57,14 @@ class Test_isAvailable:
         staff = Schedule.Staff('Atlas',4,{Schedule.Weekdays.MONDAY: [datetime.time(hour=8),datetime.time(hour=14),datetime.time(hour=18),datetime.time(hour=23)]})
 
         assert staff.isAvailable(role) == True
+
+class Test_shiftsRemaining:
+    def test_0(self):
+        """staff maxShifts = 4, scheduled for 2 shifts"""
+        roleStaffPairs = [(front, chell), (lunch, atlas), (middle, chell)]
+        assert Schedule.shiftsRemaining(chell, roleStaffPairs) == 2
+    
+    def test_1(self):
+        """staff maxShifts = 4, scheduled for 6 shifts"""
+        roleStaffPairs = [(front, pbody), (lunch, pbody), (aux, pbody), (middle, pbody), (swing, pbody), (vbar, pbody)]
+        assert Schedule.shiftsRemaining(pbody, roleStaffPairs) == -2

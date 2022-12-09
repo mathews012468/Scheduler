@@ -1,8 +1,5 @@
 # Clearing loose ends
 
-#test isAvailble
-#test shiftsRemaining
-
 #test and excercise pairAvailableStaff
 
 from enum import Enum
