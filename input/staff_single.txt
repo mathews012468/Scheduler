@@ -3,6 +3,6 @@
 name: Atlas
 shifts: 4
 requests:
-    monday:1.00,23.00
+    monday:8.00,23.00
 
 -

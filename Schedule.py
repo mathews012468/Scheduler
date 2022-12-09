@@ -101,24 +101,3 @@ def repairDoubles(roleStaffPairs):
 			staffIndecies = [index for index, staff in enumerate(weekdayPairs) if staff == pairs[1]]
 			if len(staffIndecies) > 1:
 				doubles = staffIndecies[1:]
-
-#write function for finding staff who is working.
-
-def formSchedule_00(roleCollection, staffCollection):
-	schedule = []
-	for role in roleCollection:
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role.callTime)]
-		availableStaff.sort(key= shiftsRemaining)
-
-		lowPriority = []
-		for staff in availableStaff:
-			if staff.isDouble(role):
-				staff.append(lowPriority)
-				continue
-			else:
-				schedule.append((role,staff))
-				break
-		lowPriority.sort(key = shiftsRemaining)
-		schedule.append((role,lowPriority[0]))
-
-	return schedule
