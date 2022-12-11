@@ -90,7 +90,7 @@ def shiftsRemaining(staff, roleStaffPairs):
 #we have to get a subset of days
 #find the doubles in a day.
 
-def rolesThatAreDoubled(roleStaffPairs):
+def doubledRoles(roleStaffPairs):
 	"""
 	take in current schedule, list of (role, staff)
 	return list of indices of staff that are doubled in a day in that list
@@ -109,9 +109,10 @@ def rolesThatAreDoubled(roleStaffPairs):
 		else:
 			staffDays.add(staffDay)
 	return doubleIndices
+	
 
 def repairDoubles(roleStaffPairs, staffCollection):
-	doubleIndices = rolesThatAreDoubled(roleStaffPairs)
+	doubleIndices = doubledRoles(roleStaffPairs)
 	for index in doubleIndices:
 		role = roleStaffPairs[index][0]
 		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)

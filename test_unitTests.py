@@ -41,7 +41,7 @@ for roleStaff in roleStaffPairs:
     displayRoleStaffPair(roleStaff)
 
 print("DOUBLES")
-for index in Schedule.rolesThatAreDoubled(roleStaffPairs):
+for index in Schedule.doubledRoles(roleStaffPairs):
     roleStaff = roleStaffPairs[index]
     displayRoleStaffPair(roleStaff)
 
@@ -114,3 +114,49 @@ class Test_compileRoles:
         thursdayroles = [role for role in roleList if role.day == Schedule.Weekdays.THURSDAY]
         assert thursdayroles[4].name =='shermans6pm'
         assert thursdayroles[4].callTime == datetime.time(hour=18, minute=00)
+
+class Test_doubledRoles:
+    frontMonday = Schedule.Role('front', Schedule.Weekdays.MONDAY)
+    backMonday = Schedule.Role('back', Schedule.Weekdays.MONDAY)
+    lunchTuesday = Schedule.Role('lunch', Schedule.Weekdays.TUESDAY)
+    auxFriday = Schedule.Role('aux', Schedule.Weekdays.FRIDAY)
+    verandaFriday = Schedule.Role('veranda', Schedule.Weekdays.FRIDAY)
+    staffAtlas = Schedule.Staff('Atlas',4,openAvailability)
+    staffPbody = Schedule.Staff('Pbody',4,openAvailability)
+
+    def test_0(self):
+        """schedule with no doubles"""
+        schedule = [(Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas)]
+        assert Schedule.doubledRoles(schedule) == []
+    
+    def test_1(self):
+        """schedule with a single double"""
+        schedule = [
+            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas),
+            (Test_doubledRoles.backMonday, Test_doubledRoles.staffAtlas)
+            ]
+        assert Schedule.doubledRoles(schedule) == [1]
+    
+    def test_2(self):
+        """schedule with no doubles across multiple days"""
+        schedule = [
+            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas),
+            (Test_doubledRoles.backMonday, Test_doubledRoles.staffPbody),
+            (Test_doubledRoles.lunchTuesday, Test_doubledRoles.staffAtlas),
+            (Test_doubledRoles.auxFriday, Test_doubledRoles.staffAtlas)
+        ]
+        assert Schedule.doubledRoles(schedule) == []
+    
+    def test_3(self):
+        """multiple doubles across multiple days"""
+        schedule = [
+            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffPbody),
+            (Test_doubledRoles.backMonday, Test_doubledRoles.staffPbody),
+            (Test_doubledRoles.lunchTuesday, Test_doubledRoles.staffAtlas),
+            (Test_doubledRoles.auxFriday, Test_doubledRoles.staffAtlas),
+            (Test_doubledRoles.verandaFriday, Test_doubledRoles.staffAtlas)
+        ]
+        assert Schedule.doubledRoles(schedule) == [1,4]
+
+
+
