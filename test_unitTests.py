@@ -30,6 +30,21 @@ roles = [front, lunch, aux, middle]
 
 #print(Schedule.pairAvailableStaff(roles, staff))
 
+def displayRoleStaffPair(roleStaff):
+    role = roleStaff[0]
+    staff = roleStaff[1]
+
+    print(role.name, role.day, role.callTime, staff.name)
+
+roleStaffPairs = Schedule.pairAvailableStaff(roles, staff)
+for roleStaff in roleStaffPairs:
+    displayRoleStaffPair(roleStaff)
+
+print("DOUBLES")
+for index in Schedule.rolesThatAreDoubled(roleStaffPairs):
+    roleStaff = roleStaffPairs[index]
+    displayRoleStaffPair(roleStaff)
+
 class Test_Role:
     def test_0(self):
         """No calltime provided for unlisted role"""

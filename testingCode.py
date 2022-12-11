@@ -95,5 +95,5 @@ def createRoles(compiledRoles):
             rolesOfWeek.append(role)
     return rolesOfWeek
 
-
-compileRoles('roles_twoshifts.txt')
+roleList = compileRoles('roles_smallSample.txt')
+staffList = compileStaff('staff_single.txt')
