@@ -28,23 +28,6 @@ vbar = Schedule.Role('swing', Schedule.Weekdays.WEDNESDAY)
 
 roles = [front, lunch, aux, middle]
 
-#print(Schedule.pairAvailableStaff(roles, staff))
-
-def displayRoleStaffPair(roleStaff):
-    role = roleStaff[0]
-    staff = roleStaff[1]
-
-    print(role.name, role.day, role.callTime, staff.name)
-
-roleStaffPairs = Schedule.pairAvailableStaff(roles, staff)
-for roleStaff in roleStaffPairs:
-    displayRoleStaffPair(roleStaff)
-
-print("DOUBLES")
-for index in Schedule.doubledRoles(roleStaffPairs):
-    roleStaff = roleStaffPairs[index]
-    displayRoleStaffPair(roleStaff)
-
 class Test_Role:
     def test_0(self):
         """No calltime provided for unlisted role"""
@@ -159,4 +142,31 @@ class Test_doubledRoles:
         assert Schedule.doubledRoles(schedule) == [1,4]
 
 
+class Test_pairAvailableStaff: 
+    def test_0(self):
+        """pair four roles with single available staff"""
+        roles = testingCode.compileRoles('roles_fourShifts.txt')
+        staff = testingCode.compileStaff('staff_single.txt')
+        pairings = Schedule.pairAvailableStaff(roles, staff)
+        assert len(pairings) == 4
+        for i in range(len(pairings)):
+            assert pairings[i][0] == roles[i]
+            assert pairings[i][1] == staff[0]
+    
+    def test_1(self):
+        """pair four role with unavaiable staff"""
+        roles = testingCode.compileRoles('roles_fourShifts.txt')
+        staff = testingCode.compileStaff('staff_unavailable.txt')
+        with pytest.raises(RuntimeError):
+            Schedule.pairAvailableStaff(roles,staff)
+
+    def test_2(self):
+        """pair four roles with available staff, same maxshifts"""
+        roles = testingCode.compileRoles('roles_fourShifts.txt')
+        staff = testingCode.compileStaff('staff_sameMaxShifts.txt')
+        #Question:
+        #What does the sort function fall back on when the return values from sort(key=shiftsRemaining) is the same?
+        
+        #I'm not sure how assert for an outcome I won't know. 
+        pass
 

@@ -1,0 +1,13 @@
+
+name: Atlas
+shifts: 4
+requests:
+    monday:23.00,23.00
+    tuesday:23.00,23.00
+    wednesday:23.00,23.00
+    thursday:23.00,23.00
+    friday:23.00,23.00
+    saturday:23.00,23.00
+    sunday:23.00,23.00
+
+-

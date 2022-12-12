@@ -70,7 +70,7 @@ def pairAvailableStaff(roleCollection, staffCollection):
 		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
 		if availableStaff == []:
 			raise RuntimeError(f'No staff available for {role}')
-		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs))# order the pool of available staff with highest shifts remaining at the front.
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
 		staff = availableStaff[0] # select the first staff from the ordered pool.
 		roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
 	return roleStaffPairs
@@ -109,7 +109,7 @@ def doubledRoles(roleStaffPairs):
 		else:
 			staffDays.add(staffDay)
 	return doubleIndices
-	
+
 
 def repairDoubles(roleStaffPairs, staffCollection):
 	doubleIndices = doubledRoles(roleStaffPairs)
