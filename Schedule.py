@@ -73,6 +73,8 @@ def pairAvailableStaff(roleCollection, staffCollection):
 		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
 		staff = availableStaff[0] # select the first staff from the ordered pool.
 		roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
+
+
 	return roleStaffPairs
 
 def shiftsRemaining(staff, roleStaffPairs):
@@ -83,7 +85,7 @@ def shiftsRemaining(staff, roleStaffPairs):
 	return staff.maxShifts - shiftCount
 
 
-def doubledRoles(roleStaffPairs):
+def rolesThatAreDoubled(roleStaffPairs):
 	"""
 	take in current schedule, list of (role, staff)
 	return list of indices of staff that are doubled in a day in that list
@@ -105,7 +107,7 @@ def doubledRoles(roleStaffPairs):
 
 
 def repairDoubles(roleStaffPairs, staffCollection):
-	doubleIndices = doubledRoles(roleStaffPairs)
+	doubleIndices = rolesThatAreDoubled(roleStaffPairs)
 	for index in doubleIndices:
 		role = roleStaffPairs[index][0]
 		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
@@ -126,6 +128,15 @@ def staffWorkingToday(roleStaffPairs, weekday):
 		if pair[0].day == weekday:
 			scheduledStaff.append(pair[1])
 	return scheduledStaff
+
+
+def createScheduleSample(roleCollection, staffCollection):
+	"""sample function for createSchedule, how I'm imagining it might look"""
+	schedule = pairAvailableStaff(roleCollection, staffCollection)
+	schedule.repairDoubles #hierarchy
+	schedule.aptitudePass #is exposed
+	schedule.anyPairingLogicThatComesUp # with call order
+	return schedule
 
 def printSchedule(schedule):
 	for i in range(len(schedule)):
