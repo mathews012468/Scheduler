@@ -164,9 +164,11 @@ class Test_pairAvailableStaff:
         """pair four roles with available staff, same maxshifts"""
         roles = testingCode.compileRoles('roles_fourShifts.txt')
         staff = testingCode.compileStaff('staff_sameMaxShifts.txt')
-        #Question:
-        #What does the sort function fall back on when the return values from sort(key=shiftsRemaining) is the same?
-        
-        #I'm not sure how assert for an outcome I won't know. 
+        #Hrm, it seems to work correctly though I'm not sure how to write a test for this.
         pass
 
+roles = testingCode.compileRoles('roles_fourShifts.txt')
+staff = testingCode.compileStaff('staff_sameMaxShifts.txt')
+
+schedule = Schedule.pairAvailableStaff(roles, staff)
+Schedule.printSchedule(schedule)

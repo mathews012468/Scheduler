@@ -82,13 +82,6 @@ def shiftsRemaining(staff, roleStaffPairs):
 			shiftCount += 1
 	return staff.maxShifts - shiftCount
 
-	
-#from the list of pairs,
-# find all the staff that is doubled, which is in a day.
-#[(role,staff), (role,staff), (role,staff)]
-
-#we have to get a subset of days
-#find the doubles in a day.
 
 def doubledRoles(roleStaffPairs):
 	"""
@@ -134,7 +127,6 @@ def staffWorkingToday(roleStaffPairs, weekday):
 			scheduledStaff.append(pair[1])
 	return scheduledStaff
 
-
-	#Repair the doubles with staff who is availabe and not in the schedule to work that day.
-
-	#then repair those doubles
+def printSchedule(schedule):
+	for i in range(len(schedule)):
+		print(schedule[i][0].name, schedule[i][1].name)
