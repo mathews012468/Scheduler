@@ -1,7 +1,3 @@
-# Clearing loose ends
-
-#test and excercise pairAvailableStaff
-
 from enum import Enum
 import datetime
 
@@ -73,9 +69,8 @@ def pairAvailableStaff(roleCollection, staffCollection):
 		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
 		staff = availableStaff[0] # select the first staff from the ordered pool.
 		roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
-
-
 	return roleStaffPairs
+
 
 def shiftsRemaining(staff, roleStaffPairs):
 	shiftCount = 0
@@ -94,9 +89,9 @@ def staffDoubles(roleStaffPairs):
 	#if staff has already worked that day, then it's a double
 	doubleIndices = []
 	staffDays = set() #set of staff day pairs
-	for index, roleStaffPair in enumerate(roleStaffPairs):
-		staff = roleStaffPair[1]
-		day = roleStaffPair[0].day
+	for index, pair in enumerate(roleStaffPairs):
+		staff = pair[1]
+		day = pair[0].day
 		staffDay = (staff, day)
 
 		if staffDay in staffDays:
@@ -118,7 +113,6 @@ def repairDoubles(roleStaffPairs, staffCollection):
 		newPair = list(roleStaffPairs[index]) #tuple to list
 		newPair[1] = availableStaff[0] # repair staff
 		roleStaffPairs[index] = newPair # insert new pairing
-
 	return roleStaffPairs
 
 
@@ -130,14 +124,21 @@ def staffWorkingToday(roleStaffPairs, weekday):
 	return scheduledStaff
 
 
-def createScheduleSample(roleCollection, staffCollection):
-	"""sample function for createSchedule, how I'm imagining it might look"""
-	schedule = pairAvailableStaff(roleCollection, staffCollection)
-	schedule.repairDoubles #hierarchy
-	schedule.aptitudePass #is exposed
-	schedule.anyPairingLogicThatComesUp # with call order
-	return schedule
-
 def printSchedule(schedule):
 	for i in range(len(schedule)):
 		print(schedule[i][0].name, schedule[i][1].name)
+
+
+def sortKey(staffList, roleStaffPairs):
+	"""seperate function for testing"""
+	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
+	return staffList
+
+
+def createScheduleSample(roleCollection, staffCollection):
+	"""sample function for createSchedule, how I'm imagining it can look"""
+	schedule = pairAvailableStaff(roleCollection, staffCollection)
+	schedule.repairDoubles #hierarchy
+	schedule.preferencePass #exposed
+	schedule.anyPairingLogicThatComesUp # with call order
+	return schedule
