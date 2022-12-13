@@ -112,7 +112,7 @@ def repairDoubles(roleStaffPairs, staffCollection):
 		role = roleStaffPairs[index][0]
 		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
 		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff not in scheduledStaff]
-		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs))
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
 		
 		#repair the role at index with new staff.
 		newPair = list(roleStaffPairs[index]) #tuple to list
