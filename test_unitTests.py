@@ -98,7 +98,7 @@ class Test_compileRoles:
         assert thursdayroles[4].name =='shermans6pm'
         assert thursdayroles[4].callTime == datetime.time(hour=18, minute=00)
 
-class Test_doubledRoles:
+class Test_staffDoubles:
     frontMonday = Schedule.Role('front', Schedule.Weekdays.MONDAY)
     backMonday = Schedule.Role('back', Schedule.Weekdays.MONDAY)
     lunchTuesday = Schedule.Role('lunch', Schedule.Weekdays.TUESDAY)
@@ -109,37 +109,37 @@ class Test_doubledRoles:
 
     def test_0(self):
         """schedule with no doubles"""
-        schedule = [(Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas)]
-        assert Schedule.doubledRoles(schedule) == []
+        schedule = [(Test_staffDoubles.frontMonday, Test_staffDoubles.staffAtlas)]
+        assert Schedule.staffDoubles(schedule) == []
     
     def test_1(self):
         """schedule with a single double"""
         schedule = [
-            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas),
-            (Test_doubledRoles.backMonday, Test_doubledRoles.staffAtlas)
+            (Test_staffDoubles.frontMonday, Test_staffDoubles.staffAtlas),
+            (Test_staffDoubles.backMonday, Test_staffDoubles.staffAtlas)
             ]
-        assert Schedule.doubledRoles(schedule) == [1]
+        assert Schedule.staffDoubles(schedule) == [1]
     
     def test_2(self):
         """schedule with no doubles across multiple days"""
         schedule = [
-            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffAtlas),
-            (Test_doubledRoles.backMonday, Test_doubledRoles.staffPbody),
-            (Test_doubledRoles.lunchTuesday, Test_doubledRoles.staffAtlas),
-            (Test_doubledRoles.auxFriday, Test_doubledRoles.staffAtlas)
+            (Test_staffDoubles.frontMonday, Test_staffDoubles.staffAtlas),
+            (Test_staffDoubles.backMonday, Test_staffDoubles.staffPbody),
+            (Test_staffDoubles.lunchTuesday, Test_staffDoubles.staffAtlas),
+            (Test_staffDoubles.auxFriday, Test_staffDoubles.staffAtlas)
         ]
-        assert Schedule.doubledRoles(schedule) == []
+        assert Schedule.staffDoubles(schedule) == []
     
     def test_3(self):
         """multiple doubles across multiple days"""
         schedule = [
-            (Test_doubledRoles.frontMonday, Test_doubledRoles.staffPbody),
-            (Test_doubledRoles.backMonday, Test_doubledRoles.staffPbody),
-            (Test_doubledRoles.lunchTuesday, Test_doubledRoles.staffAtlas),
-            (Test_doubledRoles.auxFriday, Test_doubledRoles.staffAtlas),
-            (Test_doubledRoles.verandaFriday, Test_doubledRoles.staffAtlas)
+            (Test_staffDoubles.frontMonday, Test_staffDoubles.staffPbody),
+            (Test_staffDoubles.backMonday, Test_staffDoubles.staffPbody),
+            (Test_staffDoubles.lunchTuesday, Test_staffDoubles.staffAtlas),
+            (Test_staffDoubles.auxFriday, Test_staffDoubles.staffAtlas),
+            (Test_staffDoubles.verandaFriday, Test_staffDoubles.staffAtlas)
         ]
-        assert Schedule.doubledRoles(schedule) == [1,4]
+        assert Schedule.staffDoubles(schedule) == [1,4]
 
 
 class Test_pairAvailableStaff: 
@@ -166,6 +166,17 @@ class Test_pairAvailableStaff:
         staff = testingCode.compileStaff('staff_sameMaxShifts.txt')
         #Hrm, it seems to work correctly though I'm not sure how to write a test for this.
         pass
+
+class Test_repairDoubles:
+    def test_0(self):
+        """"replacing staff who has been paired on a double"""
+        schedule = [
+            (Schedule.Role('front',Schedule.Weekdays.MONDAY), atlas),
+            (Schedule.Role('back',Schedule.Weekdays.MONDAY), atlas)
+        ]
+        staffList = [atlas,pbody,chell]
+        assert Schedule.repairDoubles(schedule, staffList)[1][1] is not atlas
+
 
 roles = testingCode.compileRoles('roles_fourShifts.txt')
 staff = testingCode.compileStaff('staff_sameMaxShifts.txt')

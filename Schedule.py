@@ -85,7 +85,7 @@ def shiftsRemaining(staff, roleStaffPairs):
 	return staff.maxShifts - shiftCount
 
 
-def rolesThatAreDoubled(roleStaffPairs):
+def staffDoubles(roleStaffPairs):
 	"""
 	take in current schedule, list of (role, staff)
 	return list of indices of staff that are doubled in a day in that list
@@ -107,7 +107,7 @@ def rolesThatAreDoubled(roleStaffPairs):
 
 
 def repairDoubles(roleStaffPairs, staffCollection):
-	doubleIndices = rolesThatAreDoubled(roleStaffPairs)
+	doubleIndices = staffDoubles(roleStaffPairs)
 	for index in doubleIndices:
 		role = roleStaffPairs[index][0]
 		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
