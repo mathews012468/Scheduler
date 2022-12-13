@@ -1,6 +1,14 @@
 from enum import Enum
 import datetime
 
+#Things to do/discuss:
+#Feedback/sanity check for current functions.
+#Schedule as an object seems appealing, though unsure why.
+#Merge into master branch
+
+#Further ahead:
+#How/where to store data for RolePreference
+
 class Weekdays(Enum):
 	MONDAY = 0
 	TUESDAY = 1
