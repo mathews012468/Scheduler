@@ -1,133 +1,15 @@
-import random, datetime, os
 from enum import Enum
+import datetime
 
-class Weekday(Enum):
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
+class Weekdays(Enum):
+	MONDAY = 0
+	TUESDAY = 1
+	WEDNESDAY = 2
+	THURSDAY = 3
+	FRIDAY = 4
+	SATURDAY = 5
+	SUNDAY = 6
 
-class ProcessInput:
-    """Contains functions to compile roles and compile staff from input.txt files"""
-
-    def compileStaff(staffFileName):
-        """compile staff from .txt file containing staff data"""
-        staffFilePath = os.path.join('input', staffFileName)
-        with open(staffFilePath) as f:
-            weekStaff = []
-            while line := f.readline():
-
-                if line.lower().startswith('name'):
-                    name = line.split(':')[1].strip()
-
-                    line = f.readline() # move to shift line
-                    maxShifts = line.split(':')[1].strip()
-
-                    line = f.readline() # move to request line
-                    requestLines = []
-                    while True: #store the next set of lines
-                        line = f.readline()
-                        if line.startswith('\n'):
-                            break
-                        requestLines.append(line.strip())
-                    availability = ProcessInput.setAvailability(requestLines) 
-
-                    staffObject = Staff(name, int(maxShifts), availability)
-                    weekStaff.append(staffObject)
-
-            return weekStaff
-
-    def setAvailability(requestLines):
-        """set availability from staff request lines
-        input: list of stripped request lines from staff .txt file
-        returns: dictionary for Staff object availabiltiy
-        """
-        availability = {
-                Weekday.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-                Weekday.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
-                }
-
-        for line in requestLines:
-            weekday, requestTimes = line.split(':')
-            requestTimes = [hours for hours in requestTimes.split(',')]
-            availability[Weekday[weekday.upper()]] =[] # clear weekday's default availability
-
-            while requestTimes != []:
-                start, end = requestTimes[:2]
-                del requestTimes[:2]
-                startHour, startMinute = start.split('.')
-                endHour, endMinute = end.split('.')
-
-                availability[Weekday[weekday.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
-                availability[Weekday[weekday.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
-
-        return availability
-
-    def compileRoles(roleFileName):
-        """input: .txt file containing names of roles and associated weekday
-        Output: A list of dictionaries for each weekday.
-        Dictionary[key] = Weekday.Enum
-        Dictionary[value] = list of role names
-        """
-        roleFilePath = os.path.join('input', roleFileName)
-        weekRoleNames=[]
-        with open(roleFilePath) as file:
-            while line := file.readline():
-                if line == '\n' or line.startswith('#'): #ignore empty and #comment lines
-                    continue
-                day = Weekday[line.upper().strip()]
-
-                line = file.readline()
-                roles = [role.strip() for role in line.split(',')]
-
-                weekRoleNames.append({day: roles})
-        #create list of Role objects from weekRoleNames
-        return ProcessInput.createRoles(weekRoleNames)
-
-    def createRoles(compiledRoles):
-        """Create Role Objects from compiled roles.txt input
-        Input: List of dictionaries from compileWeek()
-        Output: A list of lists containing Role Objects for each weekday
-        """
-        rolesOfWeek = []
-        for dict in compiledRoles:
-            for weekday,roles in dict.items():
-                rolesOfDay = [Role(name=roleName, day=weekday) for roleName in roles]
-            rolesOfWeek.append(rolesOfDay)
-        return rolesOfWeek
-
-
-class Schedule:
-    def __init__(self, roleInput, staffInput, week=None):
-        """"Create schedule object from role and staff inputs
-        roleInput = string filename.txt
-        staffInput = string filename.txt """
-        #Right now these ProcessInput functions create the input that is used to build the schedule's week.
-        #chainging the .txt filename input seems to say there is a 'better' solution.
-        scheduleRoles = ProcessInput.compileRoles(roleInput)
-        scheduleStaff = ProcessInput.compileStaff(staffInput)
-
-        week = []
-        for day in scheduleRoles:
-            daySchedule = []
-            for role in day:
-                availableStaff = [staff for staff in scheduleStaff if isAvailable(role, staff)]
-                roleStaffPair = (role, random.choice(availableStaff))
-                daySchedule.append(roleStaffPair)
-            week.append(daySchedule)
-
-        self.week = week
-
-#I don't see a situation where Staff and Role objects would want to 'talk to eachother'
-#What possibilities open up with Staff and Role class moving inside of the Schedule class?
 
 class Role:
     def __init__(self, name, day, callTime=None ):
@@ -154,76 +36,109 @@ class Role:
         'shermans6pm': datetime.time(hour=18),
         'aux': datetime.time(hour=18)
         }
-        self.callTime = callTimes.get(name)
+        self.callTime = callTimes.get(name, callTime)
+        if self.callTime == None:
+        	raise ValueError(f'provide callTime for {self.name}')
 
 
 class Staff:
-    def __init__(self, name, maxShifts, availability):
-        self.name = name
-        self.maxShifts = maxShifts
-        self.availability = availability
-        
+	def __init__(self, name, maxShifts, availability):
+		self.name = name
+		self.maxShifts = maxShifts
+		self.availability = availability
 
-def shiftsRemaining(staff, schedule):
-    shiftsRemaining = staff.maxShifts
-    flatSchedule = [pairs for day in schedule.week for pairs in day]
-    for roleStaffPair in flatSchedule:
-        if roleStaffPair[1] == staff:
-            shiftsRemaining -= 1
-    return shiftsRemaining
-
-
-def isAvailable(role, staff):
-    """check if role.callTime is in staff.availability"""
-    day = role.day
-    staffAvail = staff.availability[day]
-    for i in range(0, len(staffAvail), 2): # iterate over staffAvail in 'chunks' of 2.
-        availPair = staffAvail[i:i+2]
-        startTime = availPair[0]
-        endTime = availPair[1]
-        if role.callTime >= startTime and role.callTime <= endTime:
-            return True
-        else:
-            continue
-    return False
+	def isAvailable(self, role):
+		dayAvailability = self.availability[role.day]
+		for i in range(0, len(dayAvailability), 2): # iterate through dayAvailability in 'chunks' of 2
+			availTimes = dayAvailability[i:i+2]
+			startTime = availTimes[0]
+			endTime = availTimes[1]
+			if role.callTime >= startTime and role.callTime <= endTime:
+				return True
+			else:
+				continue
+		return False
 
 
-def createWeekSchedule(rolesOfWeek, staffList):
-    """Pair a member of staff with each role in a weekday of Roles
-    input: list of Role objects from createRoles() and a list of Staff Objects
-    output: a list of lists containing tuples of (RoleObject, StaffObject) pairs for each weekday
-    """
-    global weekSchedule # global for other functions to access.
-    weekSchedule = []
-    for day in rolesOfWeek:
-        daySchedule = []
-        for role in day:
-            availableStaff = [staff for staff in staffList if isAvailable(role, staff)]
-            roleStaffPair = (role, random.choice(availableStaff))
-            daySchedule.append(roleStaffPair)
-        weekSchedule.append(daySchedule)
-    return weekSchedule
+def pairAvailableStaff(roleCollection, staffCollection):
+	roleStaffPairs = []
+	for role in roleCollection: # select the first role of the role collection.
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
+		if availableStaff == []:
+			raise RuntimeError(f'No staff available for {role}')
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
+		staff = availableStaff[0] # select the first staff from the ordered pool.
+		roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
+	return roleStaffPairs
 
 
-
-def scheduleView(schedule):
-    """print schedule to screen"""
-    for day in schedule:
-        headerDate = day[0][0].day #day of first Role object
-        print(f'---{headerDate}---')
-        for roleStaffPair in day:
-            role = roleStaffPair[0]
-            staff = roleStaffPair[1]
-            print(f'{role.name}: {staff.name}')
+def shiftsRemaining(staff, roleStaffPairs):
+	shiftCount = 0
+	for pair in roleStaffPairs:
+		if pair[1] == staff:
+			shiftCount += 1
+	return staff.maxShifts - shiftCount
 
 
+def staffDoubles(roleStaffPairs):
+	"""
+	take in current schedule, list of (role, staff)
+	return list of indices of staff that are doubled in a day in that list
+	"""
+	
+	#if staff has already worked that day, then it's a double
+	doubleIndices = []
+	staffDays = set() #set of staff day pairs
+	for index, pair in enumerate(roleStaffPairs):
+		staff = pair[1]
+		day = pair[0].day
+		staffDay = (staff, day)
 
-schedule = Schedule('roles_sixShifts.txt','staff_single.txt')
-print(schedule.week) # a 'week'. Alist of lists of Role,Staff tuple pairs
-print(schedule.week[0]) # first 'day' of the week. List of Role,Staff tuple pairs
-print(schedule.week[0][0]) # first Role,Staff tuple pair of the first day
-print(schedule.week[0][0][1])# Staff object of the first Role,Staff object pair.
+		if staffDay in staffDays:
+			doubleIndices.append(index)
+		else:
+			staffDays.add(staffDay)
+	return doubleIndices
 
-#Does having the Role and Staff objects be part of the Schedule class
-#allow for a different way to store the a week schedule?
 
+def repairDoubles(roleStaffPairs, staffCollection):
+	doubleIndices = staffDoubles(roleStaffPairs)
+	for index in doubleIndices:
+		role = roleStaffPairs[index][0]
+		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff not in scheduledStaff]
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
+		
+		#repair the role at index with new staff.
+		newPair = list(roleStaffPairs[index]) #tuple to list
+		newPair[1] = availableStaff[0] # repair staff
+		roleStaffPairs[index] = newPair # insert new pairing
+	return roleStaffPairs
+
+
+def staffWorkingToday(roleStaffPairs, weekday):
+	scheduledStaff = list()
+	for pair in roleStaffPairs:
+		if pair[0].day == weekday:
+			scheduledStaff.append(pair[1])
+	return scheduledStaff
+
+
+def printSchedule(schedule):
+	for i in range(len(schedule)):
+		print(schedule[i][0].name, schedule[i][1].name)
+
+
+def sortKey(staffList, roleStaffPairs):
+	"""seperate function for testing"""
+	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
+	return staffList
+
+
+def createScheduleSample(roleCollection, staffCollection):
+	"""sample function for createSchedule, how I'm imagining it can look"""
+	schedule = pairAvailableStaff(roleCollection, staffCollection)
+	schedule.repairDoubles #hierarchy
+	schedule.preferencePass #exposed
+	schedule.anyPairingLogicThatComesUp # with call order
+	return schedule
