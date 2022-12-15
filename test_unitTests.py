@@ -121,11 +121,11 @@ class Test_compileRoles:
     
     def test_2(self):
         """multiple days of roles"""
-        roleList = testingCode.compileRoles('worlddata/roles_Oct24.txt')
-        thursdayroles = [role for role in roleList if role.day == main.Weekdays.THURSDAY]
+        roleList = testingCode.compileRoles('roles_smallSample.txt')
+        thursdayroles = [role for role in roleList if role.day == main.Weekdays.WEDNESDAY]
 
-        assert thursdayroles[4].name =='shermans6pm'
-        assert thursdayroles[4].callTime == datetime.time(hour=18, minute=00)
+        assert thursdayroles[1].name =='middle'
+        assert thursdayroles[1].callTime == datetime.time(hour=18, minute=00)
 
 class Test_staffDoubles:
     def test_0(self):
