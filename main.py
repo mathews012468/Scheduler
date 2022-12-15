@@ -93,7 +93,7 @@ def pairAvailableStaff(roleCollection, staffCollection):
 			raise RuntimeError(f'No staff available for {role}')
 		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
 		staff = availableStaff[0] # select the first staff from the ordered pool.
-		roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
+		roleStaffPairs.append((role,staff))
 	return roleStaffPairs
 
 
@@ -188,10 +188,23 @@ def createSchedule(roleCollection, staffCollection):
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection)
 	#now proceed with pairing each role.
 
-	schedule = pairAvailableStaff(roleCollection, staffCollection)
-	schedule = repairDoubles(schedule, staffCollection)
-	return schedule
+	roleStaffPairs = []
+	for role in roleCollection: # select the first role of the role collection.
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
+		if availableStaff == []:
+			raise RuntimeError(f'No staff available for {role}')
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
+		for staff in availableStaff: # select the first staff from the ordered pool.
+			if staff not in staffWorkingToday(roleStaffPairs, role.day):
+				roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
+				break
+			if staff == availableStaff[-1]:
+				unassigned = Staff(name='unassigned',maxShifts=None, availability=None)
+				roleStaffPairs.append((role,unassigned))
+			else:
+				continue
 
+	#sort through unassigned roles?
 
 
 
