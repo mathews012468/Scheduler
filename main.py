@@ -165,16 +165,22 @@ def printDaySchedule(schedule, weekday):
 
 
 
-def sortKey(staffList, roleStaffPairs):
+def sortKey_shiftsRemaining(staffList, roleStaffPairs):
 	"""seperate function for testing"""
 	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
 	return staffList
+
+def sortKey_qualifiedStaff(roleCollection):
+	"""seperate function for testing"""
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
+	return roleCollection
+
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	for role in roleCollection: #current hack-around.
 		if role.qualifiedStaff == None: #Desired format is to have default value of a Role object be 'staffCollection' instead of current None.
 			role.qualifiedStaff = staffCollection
-	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tighest' qualificiation list first.
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 	return roleCollection
 
 def createSchedule(roleCollection, staffCollection):

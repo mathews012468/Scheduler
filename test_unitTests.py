@@ -244,7 +244,7 @@ class Test_repairDoubles:
 
         assert main.repairDoubles(schedule, staffList)[1][1] is not atlas
 
-class Test_sortKey:
+class Test_sortKeys:
     def test_0(self):
         """verifying staff is sorted by shifts remaining in descending order"""
         chell.maxShifts = 4
@@ -256,8 +256,20 @@ class Test_sortKey:
             (role, chell), (role, chell), (role, chell),
             (role, pbody), (role, pbody), (role, pbody)
         ]
-        sortedList = main.sortKey(staffList, schedule)
+        sortedList = main.sortKey_shiftsRemaining(staffList, schedule)
 
         assert sortedList[0] == atlas
         assert sortedList[1] == chell
         assert sortedList[2] == pbody
+    
+    def test_1(self):
+        """verify roles are sorted by number of qualified staff"""
+        oneRole = main.Role(name='test', day=None, callTime='0', qualifiedStaff=[chell])
+        twoRole = main.Role(name='test', day=None, callTime='0', qualifiedStaff=[chell, atlas])
+        fourRole = main.Role(name='test', day=None, callTime='0', qualifiedStaff=[chell, atlas, pbody, staff])
+        roleList = [twoRole, fourRole, oneRole]
+
+        sortedList = main.sortKey_qualifiedStaff(roleList)
+
+        assert sortedList[0] == oneRole
+        assert sortedList[2] == fourRole
