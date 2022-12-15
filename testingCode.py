@@ -95,5 +95,9 @@ def createRoles(compiledRoles):
             rolesOfWeek.append(role)
     return rolesOfWeek
 
-roleList = compileRoles('roles_smallSample.txt')
-staffList = compileStaff('staff_single.txt')
+roleList = compileRoles('worlddata/roles_Dec12.txt')
+staffList = compileStaff('worlddata/staff_Dec12.txt')
+
+schedule = main.createSchedule(roleList, staffList)
+
+main.printDaySchedule(schedule, main.Weekdays.MONDAY)

@@ -80,6 +80,19 @@ class Test_shiftsRemaining:
 
         assert main.shiftsRemaining(staff, roleStaffPairs) == 2
 
+class Test_isQualified:
+    def test_0(self):
+        """staff not qualified for role"""
+        role.qualifiedStaff = [atlas, pbody]
+
+        assert staff.isQualified(role) == False
+    
+    def test_0(self):
+        """staff is qualified for role"""
+        role.qualifiedStaff = [atlas, pbody]
+
+        assert pbody.isQualified(role) == True
+
 class Test_compileStaff:
     def test_0(self):
         """single staff"""
@@ -108,7 +121,7 @@ class Test_compileRoles:
     
     def test_2(self):
         """multiple days of roles"""
-        roleList = testingCode.compileRoles('roles_Oct24.txt')
+        roleList = testingCode.compileRoles('worlddata/roles_Oct24.txt')
         thursdayroles = [role for role in roleList if role.day == main.Weekdays.THURSDAY]
 
         assert thursdayroles[4].name =='shermans6pm'
@@ -170,7 +183,7 @@ class Test_staffWorkingToday:
             (roleMonday, staff), (roleTuesday, staff), (roleTuesday, atlas)
         ]
 
-        assert main.staffWorkingToday(schedule,main.Weekdays.MONDAY)[0] == staff
+        assert staff in main.staffWorkingToday(schedule,main.Weekdays.MONDAY)
 
     def test_1(self):
         """return list of multiple staff working Tuesday"""
@@ -191,6 +204,8 @@ class Test_pairAvailableStaff:
         """pair four roles with single available staff"""
         roles = testingCode.compileRoles('roles_fourShifts.txt')
         staff = testingCode.compileStaff('staff_single.txt')
+
+        roles = main.setQualifiedStaff(roles, staff) #TOFIX
         pairings = main.pairAvailableStaff(roles, staff)
 
         assert len(pairings) == 4
@@ -209,12 +224,13 @@ class Test_pairAvailableStaff:
         """pair four roles with three available staff, staff have maxshifts of 4"""
         roles = testingCode.compileRoles('roles_fourShifts.txt')
         staff = testingCode.compileStaff('staff_sameMaxShifts.txt')
+
+        roles = main.setQualifiedStaff(roles, staff) #TOFIX
         pairings = main.pairAvailableStaff(roles,staff)
 
         for pair in pairings:
             assert main.shiftsRemaining(pair[1], pairings) <= 3 and main.shiftsRemaining(pair[1],pairings) >= 2
-        
-
+    
 class Test_repairDoubles:
     def test_0(self):
         """"replacing staff who has been paired on a double"""

@@ -1,6 +1,7 @@
 #added
 .DS_Store
 .vscode/
+worlddata/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
