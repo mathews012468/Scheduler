@@ -1,5 +1,7 @@
 from enum import Enum
 import datetime
+import logging
+logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
 #Things to do/discuss:
 #Feedback/sanity check for current functions.
@@ -177,11 +179,17 @@ def sortKey_qualifiedStaff(roleCollection):
 
 
 def setQualifiedStaff(roleCollection, staffCollection):
-	#current hack-around.
-	#Desired format is to have default value of a Role object be 'staffCollection' instead of current None.
+	#temp solution. Specific qualifed list for 'door' and 'FMN'
+	#all staff qualifed for other roles
 	for role in roleCollection:
 		if role.name == 'door':
-			role.qualifiedStaff = ['Glenn, Fernanda, Rose, Zoey']
+			doorStaff = ['Glenn', 'Fernanda', 'Rose', 'Zoey']
+			doorList = [staff for staff in staffCollection if staff.name in doorStaff] #get staff objects
+			role.qualifiedStaff = doorList
+		if role.name == 'FMN':
+			FMNStaff = ['Mia']
+			FMNList = [staff for staff in staffCollection if staff.name in FMNStaff]
+			role.qualifiedStaff = FMNList
 		else:
 			role.qualifiedStaff = staffCollection
 	return roleCollection
@@ -205,25 +213,31 @@ def setQualifiedStaff(roleCollection, staffCollection):
 def createSchedule(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
-	#now proceed with pairing each role.
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 
 	roleStaffPairs = []
-	for role in roleCollection: # select the first role of the role collection.
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
+	for role in roleCollection: # select the first role of the ordered role collection.
+		availableStaff = [staff for staff in role.qualifiedStaff if staff.isAvailable(role)] # from the qualified staff list, get a list of all staff who are available.
 		if availableStaff == []:
-			raise RuntimeError(f'No staff available for {role}')
-		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
+			logging.info(f'No staff with availabilty for {role}')
+			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
+			roleStaffPairs.append((role,unassigned))
+			continue
+
+		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the list of available staff with highest shifts remaining at the front.
 		for staff in availableStaff: # select the first staff from the ordered pool.
-			if staff not in staffWorkingToday(roleStaffPairs, role.day):
-				roleStaffPairs.append((role,staff)) #pair selected staff with selected role.
+			#this part is a temporary mess.
+			if staff not in staffWorkingToday(roleStaffPairs, role.day): # no doubles on this pass.
+				roleStaffPairs.append((role,staff))
 				break
-			if staff == availableStaff[-1]:
-				unassigned = Staff(name='unassigned',maxShifts=None, availability=None)
+			if staff == availableStaff[-1]: #end of list reached with no pairing found.
+				logging.info(f'no staff available without double for {role}')
+				unassigned = Staff(name='Unassigned',maxShifts=None, availability=None)
 				roleStaffPairs.append((role,unassigned))
 			else:
-				continue
-
-	#sort through unassigned roles?
+				continue # select next staff from list
+			
+	return roleStaffPairs
 
 
 

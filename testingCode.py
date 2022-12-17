@@ -97,3 +97,7 @@ def createRoles(compiledRoles):
 
 roleList = compileRoles('worlddata/roles_Dec12.txt')
 staffList = compileStaff('worlddata/staff_Dec12.txt')
+
+schedule = main.createSchedule(roleList, staffList)
+
+main.printWeekSchedule(schedule)
