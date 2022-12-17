@@ -177,15 +177,34 @@ def sortKey_qualifiedStaff(roleCollection):
 
 
 def setQualifiedStaff(roleCollection, staffCollection):
-	for role in roleCollection: #current hack-around.
-		if role.qualifiedStaff == None: #Desired format is to have default value of a Role object be 'staffCollection' instead of current None.
+	#current hack-around.
+	#Desired format is to have default value of a Role object be 'staffCollection' instead of current None.
+	for role in roleCollection:
+		if role.name == 'door':
+			role.qualifiedStaff = ['Glenn, Fernanda, Rose, Zoey']
+		else:
 			role.qualifiedStaff = staffCollection
-	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 	return roleCollection
+
+
+
+#The first pass is to have all roles paired with a staff.
+#That is the goal to get to, with data from previously scheduled weeks.
+
+#Select the role with the shortest list of qualified staff.
+#get list of the role's qualified staff that is avaiable and not yet scheduled that day of the week.
+#order the staff list by shifts remaining
+#pair the first staff from the qualified staff list with the role.
+
+#when no staff can be found given the above criterea:
+	#log: no available staff found for {role}
+	#pair role with 'Unassigned'
+	#continue to next role in the role collection.
+
 
 def createSchedule(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection)
+	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
 	#now proceed with pairing each role.
 
 	roleStaffPairs = []
