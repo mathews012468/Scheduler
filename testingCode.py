@@ -98,6 +98,6 @@ def createRoles(compiledRoles):
 roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
 staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 
-schedule = main.createSchedule(roleList, staffList)
+schedule = main.createSchedule_noDoubles(roleList, staffList)
 
 main.printWeekSchedule(schedule)

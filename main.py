@@ -58,10 +58,22 @@ class Role:
 		return f"{self.name}"
 
 class Staff:
-	def __init__(self, name, maxShifts, availability):
+	def __init__(self, name, maxShifts, availability, rolePreference=None):
 		self.name = name
 		self.maxShifts = maxShifts
 		self.availability = availability
+
+		#preferences based on name
+		rolePreferences = {
+			'Zoey':['door']
+		}
+		allRoles = [
+		'lunch', 'brunch', 'brunchdoor', 'swing', 'FMN', 'shermans',
+		'veranda', 'outside', 'bbar', 'vbar', 'front', 'uber', 'door',
+		'back', 'middle', 'shermans6pm', 'aux'
+		]
+		self.rolePreference = rolePreferences.get(name, allRoles)
+		
 
 	def __repr__(self):
 		return "{self.__class__.__name__}({self.name},{self.maxShifts})".format(self=self)
@@ -133,7 +145,7 @@ def repairDoubles(roleStaffPairs, staffCollection):
 	for index in doubleIndices:
 		role = roleStaffPairs[index][0]
 		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff not in scheduledStaff]
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role) and staff not in scheduledStaff]
 		if availableStaff == []:
 			raise RuntimeError(f'No staff avaialbe to repair {role.name}')
 		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
@@ -180,7 +192,6 @@ def sortKey_qualifiedStaff(roleCollection):
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
-	#all staff (except Zoey) qualifed for other roles
 	for role in roleCollection:
 		if role.name == 'door':
 			doorStaff = ['Glenn', 'Fernanda', 'Rose', 'Zoey']
@@ -195,12 +206,11 @@ def setQualifiedStaff(roleCollection, staffCollection):
 			FMNList = [staff for staff in staffCollection if staff.name in FMNStaff]
 			role.qualifiedStaff = FMNList
 		if role.qualifiedStaff == None:
-			notZoey = [staff for staff in staffCollection if staff.name != 'Zoey']
-			role.qualifiedStaff = notZoey #Zoey only avaible for door role. What's a better way to implement this idea?
+			role.qualifiedStaff = staffCollection
 	return roleCollection
 
 
-def createSchedule(roleCollection, staffCollection):
+def createSchedule_noDoubles(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
@@ -209,6 +219,7 @@ def createSchedule(roleCollection, staffCollection):
 	for role in roleCollection: # select the first role of the ordered role collection.
 		availableStaff = [staff for staff in role.qualifiedStaff if staff.isAvailable(role)] # from the qualified staff list, get a list of all staff who are available.
 		availableStaff = [staff for staff in availableStaff if shiftsRemaining(staff, roleStaffPairs) > 0] # adhearing to maxShifts attribute
+		availableStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
 		if availableStaff == []:
 			logging.info(f'No staff with availabilty for {role}')
 			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
@@ -222,6 +233,7 @@ def createSchedule(roleCollection, staffCollection):
 				break
 			if staff == availableStaff[-1]: #end of list reached with no pairing found.
 				logging.info(f'no staff available without double for {role} on {role.day.name}')
+				logging.info(f'{availableStaff}')
 				unassigned = Staff(name='Unassigned',maxShifts=None, availability=None)
 				roleStaffPairs.append((role,unassigned))
 			else:
@@ -230,9 +242,25 @@ def createSchedule(roleCollection, staffCollection):
 	logStats(roleStaffPairs, staffCollection)
 	return roleStaffPairs
 
+#iono, which to follow?
+
+def createSchedule_doubles(roleCollection, staffCollection):
+	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
+
+	schedule = pairAvailableStaff(roleCollection, staffCollection)
+
+	print('Before Doubles')
+	printWeekSchedule(schedule)
+
+	schedule = repairDoubles(schedule, staffCollection)
+
+	logStats(schedule, staffCollection)
+	return schedule
+
 def logStats(roleStaffPairs, staffCollection):
 	for staff in staffCollection:
-		logging.debug(f'{staff} shift count: {shiftsRemaining(staff, roleStaffPairs)}')
+		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
 
