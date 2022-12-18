@@ -208,6 +208,7 @@ def createSchedule(roleCollection, staffCollection):
 	roleStaffPairs = []
 	for role in roleCollection: # select the first role of the ordered role collection.
 		availableStaff = [staff for staff in role.qualifiedStaff if staff.isAvailable(role)] # from the qualified staff list, get a list of all staff who are available.
+		availableStaff = [staff for staff in availableStaff if shiftsRemaining(staff, roleStaffPairs) > 0] # adhearing to maxShifts attribute
 		if availableStaff == []:
 			logging.info(f'No staff with availabilty for {role}')
 			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
@@ -220,7 +221,7 @@ def createSchedule(roleCollection, staffCollection):
 				roleStaffPairs.append((role,staff))
 				break
 			if staff == availableStaff[-1]: #end of list reached with no pairing found.
-				logging.info(f'no staff available without double for {role}')
+				logging.info(f'no staff available without double for {role} on {role.day.name}')
 				unassigned = Staff(name='Unassigned',maxShifts=None, availability=None)
 				roleStaffPairs.append((role,unassigned))
 			else:
