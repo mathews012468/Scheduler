@@ -179,35 +179,25 @@ def sortKey_qualifiedStaff(roleCollection):
 
 
 def setQualifiedStaff(roleCollection, staffCollection):
-	#temp solution. Specific qualifed list for 'door' and 'FMN'
-	#all staff qualifed for other roles
+	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
+	#all staff (except Zoey) qualifed for other roles
 	for role in roleCollection:
 		if role.name == 'door':
 			doorStaff = ['Glenn', 'Fernanda', 'Rose', 'Zoey']
 			doorList = [staff for staff in staffCollection if staff.name in doorStaff] #get staff objects
 			role.qualifiedStaff = doorList
+		if role.name == 'brunchdoor':
+			brunchdoorStaff = ['Rose', 'Glenn', 'Mia']
+			brunchdoorList = [staff for staff in staffCollection if staff.name in brunchdoorStaff]
+			role.qualifiedStaff = brunchdoorList
 		if role.name == 'FMN':
 			FMNStaff = ['Mia']
 			FMNList = [staff for staff in staffCollection if staff.name in FMNStaff]
 			role.qualifiedStaff = FMNList
-		else:
-			role.qualifiedStaff = staffCollection
+		if role.qualifiedStaff == None:
+			notZoey = [staff for staff in staffCollection if staff.name != 'Zoey']
+			role.qualifiedStaff = notZoey #Zoey only avaible for door role. What's a better way to implement this idea?
 	return roleCollection
-
-
-
-#The first pass is to have all roles paired with a staff.
-#That is the goal to get to, with data from previously scheduled weeks.
-
-#Select the role with the shortest list of qualified staff.
-#get list of the role's qualified staff that is avaiable and not yet scheduled that day of the week.
-#order the staff list by shifts remaining
-#pair the first staff from the qualified staff list with the role.
-
-#when no staff can be found given the above criterea:
-	#log: no available staff found for {role}
-	#pair role with 'Unassigned'
-	#continue to next role in the role collection.
 
 
 def createSchedule(roleCollection, staffCollection):
@@ -226,7 +216,6 @@ def createSchedule(roleCollection, staffCollection):
 
 		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the list of available staff with highest shifts remaining at the front.
 		for staff in availableStaff: # select the first staff from the ordered pool.
-			#this part is a temporary mess.
 			if staff not in staffWorkingToday(roleStaffPairs, role.day): # no doubles on this pass.
 				roleStaffPairs.append((role,staff))
 				break
@@ -236,13 +225,18 @@ def createSchedule(roleCollection, staffCollection):
 				roleStaffPairs.append((role,unassigned))
 			else:
 				continue # select next staff from list
-			
+
+	logStats(roleStaffPairs, staffCollection)
 	return roleStaffPairs
 
+def logStats(roleStaffPairs, staffCollection):
+	for staff in staffCollection:
+		logging.debug(f'{staff} shift count: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
-	#TODO:
-	
+
+	#TODO with Dec12_Week data:
+
 	#test ideas
 #are there any doubles?
 #does anyone exceed their maxshifts?

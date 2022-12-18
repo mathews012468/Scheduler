@@ -90,13 +90,13 @@ def createRoles(compiledRoles):
     rolesOfWeek = []
     for dict in compiledRoles:
         for weekday ,roles in dict.items():
-            rolesOfDay = [main.Role(name=roleName, day=weekday) for roleName in roles]
+            rolesOfDay = [main.Role(name=roleName.lower(), day=weekday) for roleName in roles]
         for role in rolesOfDay: #lazy 'fix' to not store a list of lists for each weekday.
             rolesOfWeek.append(role)
     return rolesOfWeek
 
-roleList = compileRoles('worlddata/roles_Dec12.txt')
-staffList = compileStaff('worlddata/staff_Dec12.txt')
+roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
+staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 
 schedule = main.createSchedule(roleList, staffList)
 
