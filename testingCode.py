@@ -95,8 +95,8 @@ def createRoles(compiledRoles):
             rolesOfWeek.append(role)
     return rolesOfWeek
 
-roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
-staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
+roleList = compileRoles('roles_Dec12_Week.txt')
+staffList = compileStaff('staff_Dec12_Week.txt')
 
 schedule = main.createSchedule_noDoubles(roleList, staffList)
 
