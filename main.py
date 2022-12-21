@@ -58,20 +58,21 @@ class Role:
 		return f"{self.name}"
 
 class Staff:
-	def __init__(self, name, maxShifts, availability, rolePreference=None):
+	def __init__(self, name, maxShifts, availability, rolePreference=None, doubles=False):
 		self.name = name
 		self.maxShifts = maxShifts
 		self.availability = availability
 
 		#preferences based on name
 		rolePreferences = {
-			'Zoey':['door']
+			'Staff4':['door']
 		}
 		allRoles = [
 		'lunch', 'brunch', 'brunchdoor', 'swing', 'FMN', 'shermans',
 		'veranda', 'outside', 'bbar', 'vbar', 'front', 'uber', 'door',
 		'back', 'middle', 'shermans6pm', 'aux'
 		]
+
 		self.rolePreference = rolePreferences.get(name, allRoles)
 		
 
@@ -194,15 +195,15 @@ def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
 	for role in roleCollection:
 		if role.name == 'door':
-			doorStaff = ['Glenn', 'Fernanda', 'Rose', 'Zoey']
+			doorStaff = ['Staff1', 'Staff2', 'Staff3', 'Staff4']
 			doorList = [staff for staff in staffCollection if staff.name in doorStaff] #get staff objects
 			role.qualifiedStaff = doorList
 		if role.name == 'brunchdoor':
-			brunchdoorStaff = ['Rose', 'Glenn', 'Mia']
+			brunchdoorStaff = ['Staff2', 'Staff1', 'Staff5']
 			brunchdoorList = [staff for staff in staffCollection if staff.name in brunchdoorStaff]
 			role.qualifiedStaff = brunchdoorList
 		if role.name == 'FMN':
-			FMNStaff = ['Mia']
+			FMNStaff = ['Staff5']
 			FMNList = [staff for staff in staffCollection if staff.name in FMNStaff]
 			role.qualifiedStaff = FMNList
 		if role.qualifiedStaff == None:
@@ -242,19 +243,12 @@ def createSchedule_noDoubles(roleCollection, staffCollection):
 	logStats(roleStaffPairs, staffCollection)
 	return roleStaffPairs
 
-#iono, which to follow?
 
 def createSchedule_doubles(roleCollection, staffCollection):
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
-
 	schedule = pairAvailableStaff(roleCollection, staffCollection)
-
-	print('Before Doubles')
-	printWeekSchedule(schedule)
-
 	schedule = repairDoubles(schedule, staffCollection)
-
 	logStats(schedule, staffCollection)
 	return schedule
 
@@ -263,8 +257,74 @@ def logStats(roleStaffPairs, staffCollection):
 		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
+def observationFunction(roleCollection, staffCollection):
+	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
+	roleStaffPairs = []
+	for role in roleCollection:
+		#So, for role in roleCollection.
+		#get the broadest set of basic criterea for each role. 
+		qualifiedStaff = [staff for staff in staffCollection if staff.isQualified(role)]
+		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)]
+		hasPreference = [staff for staff in staffCollection if role.name in staff.rolePreference]
 
-	#TODO with Dec12_Week data:
+		roleBaseCriterea = [qualifiedStaff, availableStaff, hasPreference]
+		#store this data somewhere. in a variable that's tied to each role?
+		#this is closer to 'Schedule' data, different from Role data.
+
+		#Now here is what I want.
+		#with a list of 'base criterea' for each role.
+		#create lists of all the possible combinations of these 'base criterea'
+		#how do I do that?
+		#how do I instruct the computer to compile those lists?
+		
+		#for range(len(roleBaseCriterea)):
+		#create lists of all possbile combinations.
+		#create lists of staff in index0 and index1
+		#create lists of staff in index0 and index2
+		#create lists of staff in index0 and index1 and index2
+		#create lists of staff in index1 and index 2...
+
+		#what kind of loop can create all these variations?
+		
+		#and- the following step. Where do these created lists get stored?
+		#'Schedule' object that has a spot for data of each role in the roleCollection?
+	
+		#lets say all these lists get made, a collection of data is processed
+		#a function takes in a the week's 'roleCollection' and 'staffCollection'
+		#then all this data is compiled for each role in roleCollection.
+
+		#is there similar data to be compiled for each staff in staffCollection?
+		#is there 'useful' data to be compiled for each staff in staffCollection?
+
+		#lets say all that gets done,
+		#then we can get to next part. Making observations.
+		
+		#now we can make observations
+		# for each role in roleCollection we can see the length of each 'compiled' list
+		# we can sort those 'base criterea' in list by length- might be useful?
+
+		#the number of times a specfic staff member is in each list for a role
+		#the number of times a specific staff member is in a list for any role in the week
+		
+		#for each role this data is stored
+		#this is what I want, the point here is not to make a decision.
+		#It is to get as wide a range of observations as possible.
+		#The choosing will be a by-product of the observations.
+		#this is so that useful data can be surfaced for 'unideal' situations. That is what's of interest.
+
+		#When a staff and roleCollection happen to pair up and each criterea is able to be met for each role and staff- okay. That will be a by-product of the programtic observations.
+		#What will be useful here, is that edge-cases and unideal sceneraios will be first observed, and then are able to be surfaced with some accompiment of 'relevent' role/staff information.
+		#That is what success for this algorithm will be.
+
+		#Ah! That's a missing element. When a roleCollection and staffCollection come together, within a 'schedule' container.
+		#There are new criterea and restrictions to take into account.
+		#The maxShifts for each staff member is a staff attribute,
+		#That staff data within a 'schedule' made of a roleCollection and staffCollection
+			#Which staff are available for doubles is a staff attribute.
+			#Where, within the schedule, those doubles can be placed is an observation that occurs 'within the schedule'.
+			#okay, this is the line of thinking I'm intereted in.
+
+	pass
 
 	#test ideas
 #are there any doubles?
