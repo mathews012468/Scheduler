@@ -298,31 +298,25 @@ def observationFunction(roleCollection, staffCollection):
 
 		#lets say all that gets done,
 		#then we can get to next part. Making observations.
-		
-		#now we can make observations
 		# for each role in roleCollection we can see the length of each 'compiled' list
-		# we can sort those 'base criterea' in list by length- might be useful?
+		# we can sort those 'compiled lists' by length- might be useful?
 
 		#the number of times a specfic staff member is in each list for a role
-		#the number of times a specific staff member is in a list for any role in the week
+		#the number of times a specific staff member is in a list for any role in the week?
 		
-		#for each role this data is stored
-		#this is what I want, the point here is not to make a decision.
+		#for each role data to make these kinds of observations is stored.
+		#The point here is not to make a decision.
 		#It is to get as wide a range of observations as possible.
-		#The choosing will be a by-product of the observations.
-		#this is so that useful data can be surfaced for 'unideal' situations. That is what's of interest.
+		#Choosing staff for a role will be a by-product of the observations.
 
-		#When a staff and roleCollection happen to pair up and each criterea is able to be met for each role and staff- okay. That will be a by-product of the programtic observations.
+		#When a staff and roleCollection happen to pair up and each criteria is able to be met for each role and staff- okay. That will be a by-product of the programtic observations.
 		#What will be useful here, is that edge-cases and unideal sceneraios will be first observed, and then are able to be surfaced with some accompiment of 'relevent' role/staff information.
-		#That is what success for this algorithm will be.
+		#That is what success for this function will be.
 
 		#Ah! That's a missing element. When a roleCollection and staffCollection come together, within a 'schedule' container.
-		#There are new criterea and restrictions to take into account.
-		#The maxShifts for each staff member is a staff attribute,
-		#That staff data within a 'schedule' made of a roleCollection and staffCollection
+		#There are new criteria and restrictions to take into account.
 			#Which staff are available for doubles is a staff attribute.
-			#Where, within the schedule, those doubles can be placed is an observation that occurs 'within the schedule'.
-			#okay, this is the line of thinking I'm intereted in.
+			#Applying that data, within the schedule, to see where doubles can be placed is an observation that occurs 'within the schedule'.
 
 	pass
 
