@@ -3,14 +3,6 @@ import datetime
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
-#Things to do/discuss:
-#Feedback/sanity check for current functions.
-#Schedule as an object seems appealing, though unsure why.
-#Merge into master branch
-
-#Further ahead:
-#How/where to store data for RolePreference
-
 class Weekdays(Enum):
 	MONDAY = 0
 	TUESDAY = 1
@@ -27,7 +19,6 @@ class Role:
 		self.day = day
 		self.qualifiedStaff = qualifiedStaff
 
-		#default callTimes based on name
 		callTimes = {
 		'lunch': datetime.time(hour=10, minute=30),
 		'brunch': datetime.time(hour=10, minute=30),
@@ -63,7 +54,7 @@ class Staff:
 		self.maxShifts = maxShifts
 		self.availability = availability
 
-		#preferences based on name
+		#TODO: un-hardcode (softcode?) this.
 		rolePreferences = {
 			'Staff4':['door']
 		}
@@ -179,7 +170,6 @@ def printDaySchedule(schedule, weekday):
 		print(pair[0].name, pair[1].name)
 
 
-
 def sortKey_shiftsRemaining(staffList, roleStaffPairs):
 	"""seperate function for testing"""
 	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
@@ -193,6 +183,7 @@ def sortKey_qualifiedStaff(roleCollection):
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
+	#TODO: A 'softcode' solution for this
 	for role in roleCollection:
 		if role.name == 'door':
 			doorStaff = ['Staff1', 'Staff2', 'Staff3', 'Staff4']
@@ -267,24 +258,15 @@ def observationFunction(roleCollection, staffCollection):
 		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)]
 		hasPreference = [staff for staff in staffCollection if role.name in staff.rolePreference]
 
-		roleBaseCriterea = [qualifiedStaff, availableStaff, hasPreference]
+		roleBaseCriteria = [qualifiedStaff, availableStaff, hasPreference]
 		#store this data somewhere. in a variable that's tied to each role?
 		#this is closer to 'Schedule' data, different from Role data.
 
-		#Now here is what I want.
 		#with a list of 'base criterea' for each role.
-		#create lists of all the possible combinations of these 'base criterea'
-		#how do I do that?
-		#how do I instruct the computer to compile those lists?
-		
-		#for range(len(roleBaseCriterea)):
-		#create lists of all possbile combinations.
-		#create lists of staff in index0 and index1
-		#create lists of staff in index0 and index2
-		#create lists of staff in index0 and index1 and index2
-		#create lists of staff in index1 and index 2...
-
-		#what kind of loop can create all these variations?
+		#get lists of all the possible combinations of these 'base criterea'
+		for i in range(len(roleBaseCriteria)):
+			for comb in itertools.combinations(roleBaseCriteria, i + 1):
+				print(comb)
 		
 		#and- the following step. Where do these created lists get stored?
 		#'Schedule' object that has a spot for data of each role in the roleCollection?
