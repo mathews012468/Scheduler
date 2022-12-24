@@ -248,6 +248,7 @@ def logStats(roleStaffPairs, staffCollection):
 		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
+#TODO: move to Exploration branch
 def observationFunction(roleCollection, staffCollection):
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
 	roleStaffPairs = []
