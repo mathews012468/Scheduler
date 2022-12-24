@@ -248,61 +248,6 @@ def logStats(roleStaffPairs, staffCollection):
 		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
-#TODO: move to Exploration branch
-def observationFunction(roleCollection, staffCollection):
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
-	roleStaffPairs = []
-	for role in roleCollection:
-		#So, for role in roleCollection.
-		#get the broadest set of basic criterea for each role. 
-		qualifiedStaff = [staff for staff in staffCollection if staff.isQualified(role)]
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)]
-		hasPreference = [staff for staff in staffCollection if role.name in staff.rolePreference]
-
-		roleBaseCriteria = [qualifiedStaff, availableStaff, hasPreference]
-		#store this data somewhere. in a variable that's tied to each role?
-		#this is closer to 'Schedule' data, different from Role data.
-
-		#with a list of 'base criterea' for each role.
-		#get lists of all the possible combinations of these 'base criterea'
-		for i in range(len(roleBaseCriteria)):
-			for comb in itertools.combinations(roleBaseCriteria, i + 1):
-				print(comb)
-		
-		#and- the following step. Where do these created lists get stored?
-		#'Schedule' object that has a spot for data of each role in the roleCollection?
-	
-		#lets say all these lists get made, a collection of data is processed
-		#a function takes in a the week's 'roleCollection' and 'staffCollection'
-		#then all this data is compiled for each role in roleCollection.
-
-		#is there similar data to be compiled for each staff in staffCollection?
-		#is there 'useful' data to be compiled for each staff in staffCollection?
-
-		#lets say all that gets done,
-		#then we can get to next part. Making observations.
-		# for each role in roleCollection we can see the length of each 'compiled' list
-		# we can sort those 'compiled lists' by length- might be useful?
-
-		#the number of times a specfic staff member is in each list for a role
-		#the number of times a specific staff member is in a list for any role in the week?
-		
-		#for each role data to make these kinds of observations is stored.
-		#The point here is not to make a decision.
-		#It is to get as wide a range of observations as possible.
-		#Choosing staff for a role will be a by-product of the observations.
-
-		#When a staff and roleCollection happen to pair up and each criteria is able to be met for each role and staff- okay. That will be a by-product of the programtic observations.
-		#What will be useful here, is that edge-cases and unideal sceneraios will be first observed, and then are able to be surfaced with some accompiment of 'relevent' role/staff information.
-		#That is what success for this function will be.
-
-		#Ah! That's a missing element. When a roleCollection and staffCollection come together, within a 'schedule' container.
-		#There are new criteria and restrictions to take into account.
-			#Which staff are available for doubles is a staff attribute.
-			#Applying that data, within the schedule, to see where doubles can be placed is an observation that occurs 'within the schedule'.
-
-	pass
-
 	#test ideas
 #are there any doubles?
 #does anyone exceed their maxshifts?
