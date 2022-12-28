@@ -227,8 +227,8 @@ def setQualifiedStaff(roleCollection, staffCollection):
 
 def createSchedule_noDoubles(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
-	#TODO: Sort by loop of each day in weekday [role.monday, role.tuesday, role.wednesday, role.thursday, role.friday, role.saturday, role.sunday, role.monday...etc]
+	roleCollection = setQualifiedStaff(roleCollection, staffCollection)
+	roleCollection = sortWeekdayPattern(roleCollection) # to balance role staff pairing across the week
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 
 	roleStaffPairs = []
