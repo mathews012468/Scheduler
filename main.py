@@ -3,8 +3,11 @@ import datetime
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
+from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
+
 # Un-hardcode Staff.rolepreferences
 # a solution for setQualifiedStaff
+# Move all hard-coded stuff to a seperate file
 
 #role selection through workdays
 
@@ -39,6 +42,7 @@ class Role:
 		'front': datetime.time(hour=16, minute=30),
 		'uber': datetime.time(hour=16, minute=30),
 		'door': datetime.time(hour=18),
+		'door2':datetime.time(hour=18),
 		'back': datetime.time(hour=18),
 		'middle': datetime.time(hour=18),
 		'shermans6pm': datetime.time(hour=18),
@@ -60,15 +64,9 @@ class Staff:
 		self.maxShifts = maxShifts
 		self.availability = availability
 
-		#TODO: un-hardcode (softcode?) this.
-		rolePreferences = {
-			'Staff4':['door']
-		}
-		allRoles = [
-		'lunch', 'brunch', 'brunchdoor', 'swing', 'FMN', 'shermans',
-		'veranda', 'outside', 'bbar', 'vbar', 'front', 'uber', 'door',
-		'back', 'middle', 'shermans6pm', 'aux'
-		]
+		#TODO: set up a cleaner way for this type of funcationality
+		rolePreferences = rolepreference_Dec12.rolePreferences
+		allRoles = rolepreference_Dec12.allRoles
 
 		self.rolePreference = rolePreferences.get(name, allRoles)
 		
@@ -186,6 +184,7 @@ def sortKey_qualifiedStaff(roleCollection):
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
 	return roleCollection
 
+#TODO: write in a way that isn't 'destructive' to roleCollection
 def sortWeekdayPattern(roleCollection):
 	"""
 	pattern the roleCollection by loop of each day in weekday
@@ -200,9 +199,7 @@ def sortWeekdayPattern(roleCollection):
 					roleCollection.remove(role)
 					break
 	return patternedList
-
 	
-
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
@@ -227,7 +224,7 @@ def setQualifiedStaff(roleCollection, staffCollection):
 
 def createSchedule_noDoubles(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection)
+	roleCollection = qualifiedStaff_Dec12.setQualifiedStaff(roleCollection, staffCollection)
 	roleCollection = sortWeekdayPattern(roleCollection) # to balance role staff pairing across the week
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 
