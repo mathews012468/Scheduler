@@ -3,6 +3,12 @@ import datetime
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
+# Un-hardcode Staff.rolepreferences
+# a solution for setQualifiedStaff
+
+#role selection through workdays
+
+
 class Weekdays(Enum):
 	MONDAY = 0
 	TUESDAY = 1
@@ -180,6 +186,23 @@ def sortKey_qualifiedStaff(roleCollection):
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
 	return roleCollection
 
+def sortWeekdayPattern(roleCollection):
+	"""
+	pattern the roleCollection by loop of each day in weekday
+	[role.monday, role.tuesday, role.wednesday, role.thursday, role.friday, role.saturday, role.sunday, role.monday...etc]
+	"""
+	patternedList = []
+	while roleCollection != []:
+		for day in Weekdays:
+			for role in roleCollection:
+				if role.day == day:
+					patternedList.append(role)
+					roleCollection.remove(role)
+					break
+	return patternedList
+
+	
+
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
@@ -205,6 +228,7 @@ def setQualifiedStaff(roleCollection, staffCollection):
 def createSchedule_noDoubles(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
+	#TODO: Sort by loop of each day in weekday [role.monday, role.tuesday, role.wednesday, role.thursday, role.friday, role.saturday, role.sunday, role.monday...etc]
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
 
 	roleStaffPairs = []
