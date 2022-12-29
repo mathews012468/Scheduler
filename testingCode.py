@@ -95,6 +95,19 @@ def createRoles(compiledRoles):
             rolesOfWeek.append(role)
     return rolesOfWeek
 
+def printWeekSchedule(schedule):
+	for day in main.Weekdays:
+		print(day.name)
+		dayPairs = [pair for pair in schedule if pair[0].day == day]
+		for pair in dayPairs:
+			print(pair[0].name, pair[1].name)
+
+def printDaySchedule(schedule, weekday):
+	dayPairs = [pair for pair in schedule if pair[0].day == weekday]
+	print(weekday.name)
+	for pair in dayPairs:
+		print(pair[0].name, pair[1].name)
+
 roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
 staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 

@@ -4,11 +4,6 @@ logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
 from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
 
-#Question about Staff._key:
-#You can create an attribute without defining it in the class initialization?
-	#Does it matter that it's '_private' in this case?
-
-
 #TODO: and practical things to go over tomorrow
 
 # Move all hard-coded stuff to a seperate file, with respect to keeping staff data offline
@@ -17,17 +12,6 @@ from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
 #Re-write weekdaySorting in way that's not destructive to roleCollection
 
 #Cull and cleaning for front-end prep
-
-def pairAvailableStaff(roleCollection, staffCollection):
-	roleStaffPairs = []
-	for role in roleCollection: # select the first role of the role collection.
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)] # from the staff collection, get a pool of all staff who are available for the selected role's call time.
-		if availableStaff == []:
-			raise RuntimeError(f'No staff available for {role}')
-		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)# order the pool of available staff with highest shifts remaining at the front.
-		staff = availableStaff[0] # select the first staff from the ordered pool.
-		roleStaffPairs.append((role,staff))
-	return roleStaffPairs
 
 
 def shiftsRemaining(staff, roleStaffPairs):
@@ -38,63 +22,12 @@ def shiftsRemaining(staff, roleStaffPairs):
 	return staff.maxShifts - shiftCount
 
 
-def staffDoubles(roleStaffPairs):
-	"""
-	take in current schedule, list of (role, staff)
-	return list of indices of staff that are doubled in a day in that list
-	"""
-	
-	#if staff has already worked that day, then it's a double
-	doubleIndices = []
-	staffDays = set() #set of staff day pairs
-	for index, pair in enumerate(roleStaffPairs):
-		staff = pair[1]
-		day = pair[0].day
-		staffDay = (staff, day)
-
-		if staffDay in staffDays:
-			doubleIndices.append(index)
-		else:
-			staffDays.add(staffDay)
-	return doubleIndices
-
-
-def repairDoubles(roleStaffPairs, staffCollection):
-	doubleIndices = staffDoubles(roleStaffPairs)
-	for index in doubleIndices:
-		role = roleStaffPairs[index][0]
-		scheduledStaff = staffWorkingToday(roleStaffPairs, role.day)
-		availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role) and staff not in scheduledStaff]
-		if availableStaff == []:
-			raise RuntimeError(f'No staff avaialbe to repair {role.name}')
-		availableStaff.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
-		
-		#repair the role at index with new staff.
-		newPair = list(roleStaffPairs[index]) #tuple to list
-		newPair[1] = availableStaff[0] # repair staff
-		roleStaffPairs[index] = newPair # insert new pairing
-	return roleStaffPairs
-
-
 def staffWorkingToday(roleStaffPairs, weekday):
 	scheduledStaff = set()
 	for pair in roleStaffPairs:
 		if pair[0].day == weekday:
 			scheduledStaff.add(pair[1])
 	return scheduledStaff
-
-def printWeekSchedule(schedule):
-	for day in Weekdays:
-		print(day.name)
-		dayPairs = [pair for pair in schedule if pair[0].day == day]
-		for pair in dayPairs:
-			print(pair[0].name, pair[1].name)
-
-def printDaySchedule(schedule, weekday):
-	dayPairs = [pair for pair in schedule if pair[0].day == weekday]
-	print(weekday.name)
-	for pair in dayPairs:
-		print(pair[0].name, pair[1].name)
 
 
 def sortWeekdayPattern(roleCollection):
