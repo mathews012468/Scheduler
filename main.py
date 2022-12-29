@@ -5,12 +5,17 @@ logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
 from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
 
-# Un-hardcode Staff.rolepreferences
-# a solution for setQualifiedStaff
+#TODO:
 # Move all hard-coded stuff to a seperate file
+	#Staff.rolepreferences, qualifiedStaff, callTimes
 
-#role selection through workdays
+#Re-write weekdaySorting in way that's not destructive to roleCollection
 
+#Cull and cleaning for front-end prep
+
+#Question about Staff._key:
+#You can create an attribute without defining it in the class initialization?
+	#Does it matter that it's '_private' in this case?
 
 class Weekdays(Enum):
 	MONDAY = 0
@@ -64,7 +69,7 @@ class Staff:
 		self.maxShifts = maxShifts
 		self.availability = availability
 
-		#TODO: set up a cleaner way for this type of funcationality
+		#TODO: set up a cleaner way to do this
 		rolePreferences = rolepreference_Dec12.rolePreferences
 		allRoles = rolepreference_Dec12.allRoles
 
@@ -184,7 +189,6 @@ def sortKey_qualifiedStaff(roleCollection):
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
 	return roleCollection
 
-#TODO: write in a way that isn't 'destructive' to roleCollection
 def sortWeekdayPattern(roleCollection):
 	"""
 	pattern the roleCollection by loop of each day in weekday
@@ -203,7 +207,6 @@ def sortWeekdayPattern(roleCollection):
 
 def setQualifiedStaff(roleCollection, staffCollection):
 	#temp solution. Specific qualifed list for 'door', 'brunchdoor' and 'FMN'
-	#TODO: A 'softcode' solution for this
 	for role in roleCollection:
 		if role.name == 'door':
 			doorStaff = ['Staff1', 'Staff2', 'Staff3', 'Staff4']
@@ -305,8 +308,6 @@ def alternateStaffForRole(roleStaffPairs, index, staffCollection, cutOff=-500):
 	return alternateStaff
 
 
-
-
 def createSchedule_doubles(roleCollection, staffCollection):
 	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
@@ -320,9 +321,6 @@ def logStats(roleStaffPairs, staffCollection):
 		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
-	#test ideas
+	#test cases to write:
 #are there any doubles?
 #does anyone exceed their maxshifts?
-
-#__str__
-#__repr__
