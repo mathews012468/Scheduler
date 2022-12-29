@@ -181,16 +181,6 @@ def printDaySchedule(schedule, weekday):
 		print(pair[0].name, pair[1].name)
 
 
-def sortKey_shiftsRemaining(staffList, roleStaffPairs):
-	"""seperate function for testing"""
-	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
-	return staffList
-
-def sortKey_qualifiedStaff(roleCollection):
-	"""seperate function for testing"""
-	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
-	return roleCollection
-
 def sortWeekdayPattern(roleCollection):
 	"""
 	pattern the roleCollection by loop of each day in weekday
@@ -227,7 +217,7 @@ def setQualifiedStaff(roleCollection, staffCollection):
 	return roleCollection
 
 
-def createSchedule_noDoubles(roleCollection, staffCollection):
+def createSchedule(roleCollection, staffCollection):
 	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
 	roleCollection = qualifiedStaff_Dec12.setQualifiedStaff(roleCollection, staffCollection)
 	roleCollection = sortWeekdayPattern(roleCollection) # to balance role staff pairing across the week
@@ -260,63 +250,6 @@ def createSchedule_noDoubles(roleCollection, staffCollection):
 	logStats(roleStaffPairs, staffCollection)
 	return roleStaffPairs
 
-def staffKey(staff, role, roleStaffPairs):
-	"""
-	return an int representing the rank value of a staff for given role
-	larger int is a higher ranking
-	"""
-	key = 1000 #base value of rank
-	key += (shiftsRemaining(staff, roleStaffPairs) * 100) # add value of 100 for each of this staff's shift remaining
-	if not staff.isAvailabile(role):
-		key -= 1000 # subtract value of 1,000 when staff does not have availabilty for this role's callTime
-	if not role.name in staff.rolePreference:
-		key -= 100 # subtract value of 100 when this role is not in this staff's role prefrence
-	if staff in staffWorkingToday(roleStaffPairs, role.day):
-		key -= 500 # subtract value of 500 when this staff is already scheduled to work this weekday
-	if not staff in role.qualifiedStaff:
-		key -= 1000 # subtract value of 1,000 when this staff is not qualified for this role
-	
-	staff._key = key #store key in staff '_key' attribute
-	#Question: You can create an attribute without defining it in the class initialization?
-	#Does it matter that it's '_private' in this case?
-	return key
-
-def createSchedule(roleCollection, staffCollection):
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection)
-	roleCollection.sort(key = lambda role: len(role.qualifiedStaff))
-
-	roleStaffPairs = []
-	for role in roleCollection:
-		staff = max(staffCollection, key = lambda staff: staffKey(staff, role, rolesStaffPairs))
-		newPair = (role, staff)
-		if staff._key <= -1000:
-			logging.info(f'no suitable staff found for {role}')
-			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None)
-			newPair = (role, unassigned)
-		roleStaffPairs.append(newPair)
-
-	logStats(roleStaffPairs)
-	return roleStaffPairs
-
-def alternateStaffForRole(roleStaffPairs, index, staffCollection, cutOff=-500):
-	"""Once roleStaffPairs have been assigned,
-	return a list of alternate staffing options for a roleStaffPair at given index
-	"""
-	pairToBeReassigend = roleStaffPairs[index]
-	currentRole = pairToBeReassigend[0]
-	currentStaff = pairToBeReassigend[1]
-	alternateStaff = [staff for staff in staffCollection if staffKey(staff,currentRole,roleStaffPairs) >= cutOff and staff != currentStaff]
-
-	return alternateStaff
-
-
-def createSchedule_doubles(roleCollection, staffCollection):
-	roleCollection = setQualifiedStaff(roleCollection, staffCollection) 
-	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
-	schedule = pairAvailableStaff(roleCollection, staffCollection)
-	schedule = repairDoubles(schedule, staffCollection)
-	logStats(schedule, staffCollection)
-	return schedule
 
 def logStats(roleStaffPairs, staffCollection):
 	for staff in staffCollection:
