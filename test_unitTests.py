@@ -275,6 +275,16 @@ class Test_sortKeys:
         assert sortedList[2] == fourRole
 
 
+def sortKey_shiftsRemaining(staffList, roleStaffPairs):
+	"""seperate function for testing"""
+	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
+	return staffList
+
+def sortKey_qualifiedStaff(roleCollection):
+	"""seperate function for testing"""
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
+	return roleCollection
+
 #test cases to write:
 #are there any doubles?
 #does anyone exceed their maxshifts?
