@@ -17,6 +17,7 @@ class Role:
 		self.day = day
 		self.qualifiedStaff = qualifiedStaff
 
+
 		callTimes = {
 		'lunch': datetime.time(hour=10, minute=30),
 		'brunch': datetime.time(hour=10, minute=30),
@@ -52,12 +53,7 @@ class Staff:
 		self.name = name
 		self.maxShifts = maxShifts
 		self.availability = availability
-
-		#TODO: set up a cleaner way to do this
-		rolePreferences = rolepreference_Dec12.rolePreferences
-		allRoles = rolepreference_Dec12.allRoles
-
-		self.rolePreference = rolePreferences.get(name, allRoles)
+		self.rolePreference = rolePreference #coming from test input
 		
 
 	def __repr__(self):

@@ -15,6 +15,9 @@ def compileStaff(staffFileName):
                 line = f.readline() # move to shift line
                 maxShifts = line.split(':')[1].strip()
 
+                line = f.readline() # move to role prefence line
+                rolePreference = eval(line.split(':')[1].strip())
+
                 line = f.readline() # move to request line
                 requestLines = []
                 while True: #store the next set of lines
@@ -24,7 +27,7 @@ def compileStaff(staffFileName):
                     requestLines.append(line.strip())
                 availability = setAvailability(requestLines) 
 
-                staffObject = main.Staff(name, int(maxShifts), availability)
+                staffObject = main.Staff(name=name, maxShifts=int(maxShifts), availability=availability, rolePreference=rolePreference)
                 weekStaff.append(staffObject)
 
         return weekStaff
@@ -111,6 +114,6 @@ def printDaySchedule(schedule, weekday):
 roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
 staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 
-schedule = main.createSchedule_noDoubles(roleList, staffList)
+schedule = main.createSchedule(roleList, staffList)
 
-main.printWeekSchedule(schedule)
+printWeekSchedule(schedule)

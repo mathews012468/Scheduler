@@ -2,16 +2,13 @@ from classes import Weekdays, Role, Staff
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
-from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
+from input.worlddata import qualifiedStaff_Dec12
 
-#TODO: and practical things to go over tomorrow
+#TODO:
 
-# Move all hard-coded stuff to a seperate file, with respect to keeping staff data offline
-	#Staff.rolepreferences, qualifiedStaff, callTimes
+#figure out this qualifiedStaff thing
 
 #Re-write weekdaySorting in way that's not destructive to roleCollection
-
-#Cull and cleaning for front-end prep
 
 
 def shiftsRemaining(staff, roleStaffPairs):
