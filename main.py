@@ -5,17 +5,19 @@ logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
 from input.worlddata import qualifiedStaff_Dec12, rolepreference_Dec12
 
-#TODO:
-# Move all hard-coded stuff to a seperate file
+#Question about Staff._key:
+#You can create an attribute without defining it in the class initialization?
+	#Does it matter that it's '_private' in this case?
+
+
+#TODO: and practical things to go over tomorrow
+
+# Move all hard-coded stuff to a seperate file, with respect to keeping staff data offline
 	#Staff.rolepreferences, qualifiedStaff, callTimes
 
 #Re-write weekdaySorting in way that's not destructive to roleCollection
 
 #Cull and cleaning for front-end prep
-
-#Question about Staff._key:
-#You can create an attribute without defining it in the class initialization?
-	#Does it matter that it's '_private' in this case?
 
 class Weekdays(Enum):
 	MONDAY = 0
