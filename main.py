@@ -321,6 +321,43 @@ def logStats(roleStaffPairs, staffCollection):
 		logging.debug(f'{staff} shifts remaining: {shiftsRemaining(staff, roleStaffPairs)}')
 
 
-	#test cases to write:
-#are there any doubles?
-#does anyone exceed their maxshifts?
+#Observation functions written mostly to get last week's idea out of my head.
+#Moved them to a seperate branch, pasted here to share the idea and move on.
+
+#The idea is an observation like this extracts value from a role and staff collection,
+# prior to pairing individual staff and roles.
+def scheduleObservation_AvailableStaffForRoles(roleCollection, staffCollection):
+	"""Observe whether there is staff available for each callTime of a schedule's day"""
+	schedule_workdays = schedule_getWorkDays(roleCollection) #get the workdays of a schedule
+	for day in schedule_workdays:
+		rolesOfDay = [role for role in roleCollection if role.day == day]
+		callTimecounter = Counter(role.callTime for role in rolesOfDay) #get a Counter dict of counts for each callTime
+		#so now, from the staffCollection, see if how many staff are avaialbe for callTime
+		for callTime, count in callTimecounter.items(): #for each callTime, check that there are count number of unique staff that match with open availablity
+			availableStaff = [staff for staff in staffCollection if staff.isAvailable(Role(name='counting',day=day,callTime=callTime))]
+			if len(availableStaff) < count:
+				logging.warning(f'required staff for {callTime} on {day} is {count}:\n there are {len(availableStaff)} staff available') #log the callTimes that unable to be met.
+		
+		#The broad idea is that there is value within being able to observe the 'shape' of a collection of roles, a collection of staff, and all their combinations (internal and combined).
+		#Identifying an 'unideal scenario' like this, could allow for educated trade-offs to be made when staff are paired with roles.
+		#how/where to observe this kind of value is currently unclear.
+		#how to set up for those observations to programatically alter strategy of the role/staff pairing process is a further question.
+
+def schedule_getWorkDays(roleCollection):
+	"""get an unsorted set of workdays of a roleCollection"""
+	workDays = set()
+	for role in roleCollection:
+		workDays.add(role.day)
+	return workDays
+
+#Same idea as above, another basic observation that 'could' impact the way the roles are paired.
+def scheduleObservation_EnoughShifts(roleCollection, staffCollection):
+	"""
+	observe the sum of staffCollections maxShifts
+	and compare it to the number of shifts a roleCollection requires
+	"""
+	totalMaxShifts = 0
+	for staff in staffCollection:
+		totalMaxShifts += staff.maxShifts
+	if totalMaxShifts > len(roleCollection):
+		logging.warning(f'Not enough shifts to fill all roles.\nHave:{totalMaxShifts}, need{len(roleCollection)}')

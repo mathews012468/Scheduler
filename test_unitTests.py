@@ -273,3 +273,8 @@ class Test_sortKeys:
 
         assert sortedList[0] == oneRole
         assert sortedList[2] == fourRole
+
+
+#test cases to write:
+#are there any doubles?
+#does anyone exceed their maxshifts?
