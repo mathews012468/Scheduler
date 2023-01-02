@@ -245,6 +245,18 @@ class Test_repairDoubles:
         assert main.repairDoubles(schedule, staffList)[1][1] is not atlas
 
 class Test_sortKeys:
+
+    def sortKey_shiftsRemaining(staffList, roleStaffPairs):
+        """seperate function for testing"""
+        staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
+        return staffList
+
+    def sortKey_qualifiedStaff(roleCollection):
+        """seperate function for testing"""
+        roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
+        return roleCollection
+
+
     def test_0(self):
         """verifying staff is sorted by shifts remaining in descending order"""
         chell.maxShifts = 4
@@ -256,7 +268,7 @@ class Test_sortKeys:
             (role, chell), (role, chell), (role, chell),
             (role, pbody), (role, pbody), (role, pbody)
         ]
-        sortedList = main.sortKey_shiftsRemaining(staffList, schedule)
+        sortedList = Test_sortKeys.sortKey_shiftsRemaining(staffList, schedule)
 
         assert sortedList[0] == atlas
         assert sortedList[1] == chell
@@ -269,21 +281,10 @@ class Test_sortKeys:
         fourRole = main.Role(name='test', day=None, callTime='0', qualifiedStaff=[chell, atlas, pbody, staff])
         roleList = [twoRole, fourRole, oneRole]
 
-        sortedList = main.sortKey_qualifiedStaff(roleList)
+        sortedList = Test_sortKeys.sortKey_qualifiedStaff(roleList)
 
         assert sortedList[0] == oneRole
         assert sortedList[2] == fourRole
-
-
-def sortKey_shiftsRemaining(staffList, roleStaffPairs):
-	"""seperate function for testing"""
-	staffList.sort(key = lambda staff: shiftsRemaining(staff, roleStaffPairs), reverse=True)
-	return staffList
-
-def sortKey_qualifiedStaff(roleCollection):
-	"""seperate function for testing"""
-	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
-	return roleCollection
 
 #test cases to write:
 #are there any doubles?
