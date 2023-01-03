@@ -1,6 +1,10 @@
 import main
 import datetime
 import os
+import logging
+logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
+
+from input.worlddata import qualifiedStaff_Dec12
 
 def compileStaff(staffFileName):
     """compile staff from .txt file containing staff data"""
@@ -111,9 +115,44 @@ def printDaySchedule(schedule, weekday):
 	for pair in dayPairs:
 		print(pair[0].name, pair[1].name)
 
+
+def logStats(roleStaffPairs, staffCollection):
+	for staff in staffCollection:
+		logging.debug(f'{staff} shifts remaining: {staff.shiftsRemaining(roleStaffPairs)}')
+
+def createSchedule_debug(roleCollection, staffCollection):
+	"""returns a 'schedule' as a list of (role,staff) tuple pairs"""
+	roleCollection = qualifiedStaff_Dec12.setQualifiedStaff(roleCollection, staffCollection)
+	roleCollection.sort(key=lambda role: len(role.qualifiedStaff)) #sort roles by 'tightest' qualificiation list first.
+
+	roleStaffPairs = []
+	for role in roleCollection: # select the first role of the ordered role collection.
+		availableStaff = [staff for staff in role.qualifiedStaff if staff.isAvailable(role)] # from the qualified staff list, get a list of all qualified staff who are available.
+		availableStaff = [staff for staff in availableStaff if staff not in main.staffWorkingToday(roleStaffPairs, role.day)] # narrow list to staff not already scheduled that day.
+		availableStaff = [staff for staff in availableStaff if staff.shiftsRemaining(roleStaffPairs) > 0] # adhearing to maxShifts attribute
+		logging.info(f'{role} on {role.day.name} staff available, qualified, and not yet working: {availableStaff}')
+		if availableStaff == []:
+			logging.warning(f'No staff for {role} on {role.day.name}')
+			unassigned = main.Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
+			roleStaffPairs.append((role,unassigned))
+			continue
+		availableStaff = [staff for staff in availableStaff if role.name in staff.rolePreference] #narrow list down to include staff who has 'preference' for role
+		logging.info(f'narrow list to include role preference {availableStaff}')
+		if availableStaff == []:
+			logging.warning(f'no prefered staff for {role}')
+			unassigned = main.Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
+			roleStaffPairs.append((role,unassigned))
+			continue
+		availableStaff.sort(key = lambda staff: staff.shiftsRemaining(roleStaffPairs), reverse=True)# sort the list of available staff with highest shifts remaining at the front.
+		staff = availableStaff[0]
+		roleStaffPairs.append((role,staff))
+
+	logStats(roleStaffPairs, staffCollection)
+	return roleStaffPairs
+
 roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
 staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 
-schedule = main.createSchedule(roleList, staffList)
+schedule = createSchedule_debug(roleList, staffList)
 
 printWeekSchedule(schedule)
