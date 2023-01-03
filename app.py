@@ -4,6 +4,9 @@ from flask import url_for
 from flask import render_template
 
 import nonsense
+import main
+
+#Staff and role objects 'pre-processed?' 
 
 
 app = Flask(__name__)

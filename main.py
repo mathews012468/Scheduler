@@ -13,12 +13,12 @@ def staffWorkingToday(roleStaffPairs, weekday):
 def setAvailability(staff, input):
 	"""with input from request form, update staff availability dictionary"""
 	staff.availability = dict(input)
-	
 
-def createSchedule(roleCollection, StaffCollection):
+
+def createSchedule(roleCollection):
 	"""
 	returns a 'schedule as a list of (role,staff) pair tuples
-	Assumes Role and Staff object have been compiled from spreadsheet database
+	Assumes Role and Staff objects have been compiled from spreadsheet database
 	"""
 	roleCollection.sort(key=lambda role: len(role.qualifiedStaff))
 	roleStaffPairs = []
