@@ -78,3 +78,10 @@ class Staff:
 		if self not in role.qualifiedStaff:
 			return False
 		return True
+
+	def shiftsRemaining(self, roleStaffPairs):
+		shiftCount = 0
+		for pair in roleStaffPairs:
+			if pair[1] == self:
+				shiftCount += 1
+		return self.maxShifts - shiftCount
