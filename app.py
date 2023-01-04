@@ -11,20 +11,31 @@ import main
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET','POST'])
+#attempt to understand how a login could function...
+def valid_login(userDict, passDict):
+    pass
+
+@app.route('/login', methods=['POST','GET'])
 def login():
-    if request.method == 'GET':
-        return 'log in form'
+    error = None
     if request.method == 'POST':
-        return 'do log in'
+        if valid_login(request.form['username'],
+                       request.form['password']):
+            return f"logged in {request.form['username']}"
+        else:
+            error = 'Invalid username/password'
+    return render_template('login.html', error=error)
+        
 
 @app.route('/availability/<staff>')
 def availability(staff):
     return f'set {staff} availability'
 
-app.route('/createSchedule')
+
+@app.route('/createSchedule')
 def createSchedule():
     return f'create schedule'
+
 
 @app.route("/showsense")
 def sense():

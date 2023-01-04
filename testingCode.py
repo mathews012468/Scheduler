@@ -4,6 +4,7 @@ import os
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
+from classes import Weekdays, Role, Staff
 from input.worlddata import qualifiedStaff_Dec12
 
 def compileStaff(staffFileName):
@@ -31,7 +32,7 @@ def compileStaff(staffFileName):
                     requestLines.append(line.strip())
                 availability = setAvailability(requestLines) 
 
-                staffObject = main.Staff(name=name, maxShifts=int(maxShifts), availability=availability, rolePreference=rolePreference)
+                staffObject = Staff(name=name, maxShifts=int(maxShifts), availability=availability, rolePreference=rolePreference)
                 weekStaff.append(staffObject)
 
         return weekStaff
@@ -42,19 +43,19 @@ def setAvailability(requestLines):
     returns: dictionary for Staff object availabiltiy
     """
     availability = {
-            main.Weekdays.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            main.Weekdays.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
+            Weekdays.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
+            Weekdays.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
             }
 
     for line in requestLines:
         day, requestTimes = line.split(':')
         requestTimes = [hours for hours in requestTimes.split(',')]
-        availability[main.Weekdays[day.upper()]] =[] # clear Schedule.Weekdays's default availability
+        availability[Weekdays[day.upper()]] =[] # clear Schedule.Weekdays's default availability
 
         while requestTimes != []:
             start, end = requestTimes[:2]
@@ -62,8 +63,8 @@ def setAvailability(requestLines):
             startHour, startMinute = start.split('.')
             endHour, endMinute = end.split('.')
 
-            availability[main.Weekdays[day.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
-            availability[main.Weekdays[day.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
+            availability[Weekdays[day.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
+            availability[Weekdays[day.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
 
     return availability
 
@@ -80,7 +81,7 @@ def compileRoles(roleFileName):
         while line := file.readline():
             if line == '\n' or line.startswith('#'): #ignore empty and #comment lines
                 continue
-            day = main.Weekdays[line.upper().strip()]
+            day = Weekdays[line.upper().strip()]
 
             line = file.readline()
             roles = [role.strip() for role in line.split(',')]
@@ -97,13 +98,13 @@ def createRoles(compiledRoles):
     rolesOfWeek = []
     for dict in compiledRoles:
         for weekday ,roles in dict.items():
-            rolesOfDay = [main.Role(name=roleName.lower(), day=weekday) for roleName in roles]
+            rolesOfDay = [Role(name=roleName.lower(), day=weekday) for roleName in roles]
         for role in rolesOfDay: #lazy 'fix' to not store a list of lists for each weekday.
             rolesOfWeek.append(role)
     return rolesOfWeek
 
 def printWeekSchedule(schedule):
-	for day in main.Weekdays:
+	for day in Weekdays:
 		print(day.name)
 		dayPairs = [pair for pair in schedule if pair[0].day == day]
 		for pair in dayPairs:
@@ -133,14 +134,14 @@ def createSchedule_debug(roleCollection, staffCollection):
 		logging.info(f'{role} on {role.day.name} staff available, qualified, and not yet working: {availableStaff}')
 		if availableStaff == []:
 			logging.warning(f'No staff for {role} on {role.day.name}')
-			unassigned = main.Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
+			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
 			roleStaffPairs.append((role,unassigned))
 			continue
 		availableStaff = [staff for staff in availableStaff if role.name in staff.rolePreference] #narrow list down to include staff who has 'preference' for role
 		logging.info(f'narrow list to include role preference {availableStaff}')
 		if availableStaff == []:
 			logging.warning(f'no prefered staff for {role}')
-			unassigned = main.Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
+			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None) #pair with Unassigned
 			roleStaffPairs.append((role,unassigned))
 			continue
 		availableStaff.sort(key = lambda staff: staff.shiftsRemaining(roleStaffPairs), reverse=True)# sort the list of available staff with highest shifts remaining at the front.
