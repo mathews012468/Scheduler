@@ -47,6 +47,7 @@ class Role:
 
 	def __str__(self):
 		return f"{self.name}"
+		
 
 class Staff:
 	def __init__(self, name, maxShifts, availability, rolePreference=None, doubles=False):
