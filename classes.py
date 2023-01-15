@@ -12,13 +12,8 @@ class Weekdays(Enum):
 
 
 class Role:
-	def __init__(self, name, day, callTime=None, qualifiedStaff=None):
-		self.name = name
-		self.day = day
-		self.qualifiedStaff = qualifiedStaff
 
-
-		callTimes = {
+	callTimes = {
 		'lunch': datetime.time(hour=10, minute=30),
 		'brunch': datetime.time(hour=10, minute=30),
 		'brunchdoor': datetime.time(hour=12, minute=00),
@@ -38,7 +33,13 @@ class Role:
 		'shermans6pm': datetime.time(hour=18),
 		'aux': datetime.time(hour=18)
 		}
-		self.callTime = callTimes.get(name, callTime)
+
+	def __init__(self, name, day, callTime=None, qualifiedStaff=None):
+		self.name = name
+		self.day = day
+		self.qualifiedStaff = qualifiedStaff
+
+		self.callTime = Role.callTimes.get(name, callTime)
 		if self.callTime == None:
 			raise ValueError(f'provide callTime for {self.name}')
 		
