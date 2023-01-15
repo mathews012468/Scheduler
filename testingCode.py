@@ -151,8 +151,22 @@ def createSchedule_debug(roleCollection, staffCollection):
 	logStats(roleStaffPairs, staffCollection)
 	return roleStaffPairs
 
+def compileStaff_fromJSON(filePath):
+    """
+    input: JSON data from appscript output
+    output: list of Staff objects
+    """
+    staffList = []
+    with open(filePath) as f:
+        staffCollection = json.load(f)
+        for staffObject in staffCollection:
+            staffList.append(Staff(**staffObject))
+            print(staffList)
+    return staffList
+
+staffList = compileStaff_fromJSON('input/worlddata/staffCollection.JSON')
+
 roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
-staffList = compileStaff('worlddata/staff_Dec12_Week.txt')
 
 schedule = createSchedule_debug(roleList, staffList)
 
