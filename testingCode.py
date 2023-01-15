@@ -1,6 +1,7 @@
 import main
 import datetime
 import os
+import json
 import logging
 logging.basicConfig(filename='debug.log', filemode='w', level=logging.DEBUG)
 
@@ -161,12 +162,19 @@ def compileStaff_fromJSON(filePath):
         staffCollection = json.load(f)
         for staffObject in staffCollection:
             staffList.append(Staff(**staffObject))
-            print(staffList)
     return staffList
 
-staffList = compileStaff_fromJSON('input/worlddata/staffCollection.JSON')
+def compileRoles_fromJSON(filePath):
+    rolesOfWeek = []
+    with open(filePath) as f:
+        roleCollection = json.load(f)
+        for roleObject in roleCollection:
+            rolesOfWeek.append(Role(**roleObject))
+    return rolesOfWeek
 
-roleList = compileRoles('worlddata/roles_Dec12_Week.txt')
+
+staffList = compileStaff_fromJSON('input/worlddata/staffCollection.JSON')
+roleList = compileRoles_fromJSON('input/worlddata/roleCollection.JSON')
 
 schedule = createSchedule_debug(roleList, staffList)
 

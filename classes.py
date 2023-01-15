@@ -51,11 +51,11 @@ class Role:
 		
 
 class Staff:
-	def __init__(self, name, maxShifts, availability, rolePreference=None, doubles=False):
+	def __init__(self, name, maxShifts, availability=None, rolePreference=None, doubles=False):
 		self.name = name
 		self.maxShifts = maxShifts
 		self.availability = availability
-		self.rolePreference = rolePreference #coming from test input
+		self.rolePreference = rolePreference
 		self.doubles = doubles
 		
 
