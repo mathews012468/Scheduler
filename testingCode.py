@@ -23,48 +23,25 @@ def compileStaff(staffFileName):
                 line = f.readline() # move to role prefence line
                 rolePreference = eval(line.split(':')[1].strip())
 
-                line = f.readline() # move to request line
-                requestLines = []
-                while True: #store the next set of lines
-                    line = f.readline()
-                    if line.startswith('\n'):
-                        break
-                    requestLines.append(line.strip())
-                availability = setAvailability(requestLines) 
+                availability = setAvailability() 
 
                 staffObject = Staff(name=name, maxShifts=int(maxShifts), availability=availability, rolePreference=rolePreference)
                 weekStaff.append(staffObject)
 
         return weekStaff
 
-def setAvailability(requestLines):
-    """set availability from staff request lines
-    input: list of stripped request lines from staff .txt file
-    returns: dictionary for Staff object availabiltiy
-    """
+
+def setAvailability():
+    allCallTimes = set(Role.callTimes.values())
     availability = {
-            Weekdays.MONDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.TUESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.WEDNESDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.THURSDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.FRIDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.SATURDAY: [datetime.time(hour=8),datetime.time(hour=23)],
-            Weekdays.SUNDAY: [datetime.time(hour=8),datetime.time(hour=23)]
-            }
-
-    for line in requestLines:
-        day, requestTimes = line.split(':')
-        requestTimes = [hours for hours in requestTimes.split(',')]
-        availability[Weekdays[day.upper()]] =[] # clear Schedule.Weekdays's default availability
-
-        while requestTimes != []:
-            start, end = requestTimes[:2]
-            del requestTimes[:2]
-            startHour, startMinute = start.split('.')
-            endHour, endMinute = end.split('.')
-
-            availability[Weekdays[day.upper()]].append(datetime.time(int(startHour),int(startMinute) ) )
-            availability[Weekdays[day.upper()]].append(datetime.time(int(endHour),int(endMinute) ) )
+        Weekdays.MONDAY: [allCallTimes], #Question: is there a way to create this dict with automatically settings keys to one of each Weekdays?
+        Weekdays.TUESDAY: [allCallTimes],
+        Weekdays.WEDNESDAY: [allCallTimes],
+        Weekdays.THURSDAY: [allCallTimes],
+        Weekdays.FRIDAY: [allCallTimes],
+        Weekdays.SATURDAY: [allCallTimes],
+        Weekdays.SUNDAY: [allCallTimes]
+    }
 
     return availability
 
