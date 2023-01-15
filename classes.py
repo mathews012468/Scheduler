@@ -55,6 +55,7 @@ class Staff:
 		self.maxShifts = maxShifts
 		self.availability = availability
 		self.rolePreference = rolePreference #coming from test input
+		self.doubles = doubles
 		
 
 	def __repr__(self):
@@ -64,16 +65,11 @@ class Staff:
 		return f"{self.name}"
 
 	def isAvailable(self, role):
+		""""check role callTime is in staff availablity"""
 		dayAvailability = self.availability[role.day]
-		for i in range(0, len(dayAvailability), 2): # iterate through dayAvailability in 'chunks' of 2
-			availTimes = dayAvailability[i:i+2]
-			startTime = availTimes[0]
-			endTime = availTimes[1]
-			if role.callTime >= startTime and role.callTime <= endTime:
-				return True
-			else:
-				continue
-		return False
+		if role.callTime not in dayAvailability:
+			return False
+		return True
 
 	def isQualified(self, role):
 		if self not in role.qualifiedStaff:
