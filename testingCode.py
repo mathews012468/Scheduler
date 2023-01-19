@@ -164,6 +164,9 @@ def compileStaff_fromJSON(filePath):
             staffList.append(Staff(**staffObject))
     return staffList
 
+#Unpacking like this is quite fragile, assumes JSON data is ordered the same as Role/Staff arguments.
+#How to 'unpack' the JSON data and assign it by name value? Then ordering wouldn't matter.
+
 def compileRoles_fromJSON(filePath):
     rolesOfWeek = []
     with open(filePath) as f:

@@ -11,6 +11,10 @@ app = Flask(__name__)
 def valid_login(userDict, passDict):
     pass
 
+@app.route('/')
+def welcomemessage():
+    return 'string value'
+
 @app.route('/login', methods=['POST','GET'])
 def login():
     error = None
