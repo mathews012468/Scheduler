@@ -3,7 +3,8 @@ from flask import request
 from flask import url_for
 from flask import render_template
 
-import nonsense
+from classes import Staff, Role
+import json
 
 app = Flask(__name__)
 
@@ -12,8 +13,19 @@ def valid_login(userDict, passDict):
     pass
 
 @app.route('/')
-def welcomemessage():
-    return 'string value'
+def traditions():
+    return 'hello world'
+
+@app.route('/JSON', methods = ['GET', 'POST'])
+def receiveData(roleStaffData):
+    return roleStaffData
+
+    staffList = []
+    roleStaffObjects = json.load(roleStaffData)
+    for staff in roleStaffObjects['staff']:
+        staffObj = Staff(name= staff['name'], maxShifts= staff['maxShifts'], rolePreference= staff['rolePreference'], doubles= staff['doubles'])
+        
+    
 
 @app.route('/login', methods=['POST','GET'])
 def login():
