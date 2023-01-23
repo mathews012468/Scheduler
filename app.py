@@ -8,10 +8,6 @@ import json
 
 app = Flask(__name__)
 
-#attempt to understand how a login could function...
-def valid_login(userDict, passDict):
-    pass
-
 @app.route('/query_example')
 def query_example():
     language = request.args.get('language')
@@ -45,7 +41,7 @@ def form_example():
 @app.route('/json_example', methods=['POST'])
 def json_example():
     requestData = request.get_json()
-    
+
     #It's like .get() without .get()
     language = None
     framework = None
@@ -87,3 +83,16 @@ def availability(staff):
 @app.route('/hello/<name>')
 def template(name=None):
     return render_template('hello.html', name=name)
+
+@app.route('/staffObjects', methods= ['GET','POST'])
+def compileStaff():
+    if request.method == 'POST':
+        requestData = request.get_json()
+        staffData= None
+        if 'staff' in requestData:
+            staffData = requestData['staff']
+    staffObjects = []
+    for staff in staffData:
+        staffObjects.append(Staff(name=staff['name'], maxShifts=staff['maxShifts'],
+        rolePreference=staff['rolePreference'], doubles=staff['doubles']))
+    return staffObjects
