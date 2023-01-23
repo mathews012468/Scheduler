@@ -12,58 +12,52 @@ app = Flask(__name__)
 def valid_login(userDict, passDict):
     pass
 
+@app.route('/query_example')
+def query_example():
+    language = request.args.get('language')
+    framework = request.args.get('framework')
+    website = request.args.get('website')
+
+    return f"""
+    <h1>The language value is: {language}</h1>
+    <p>The framework value is: {framework}</p>
+    The website value is: {website}
+    """
+
+@app.route('/form_example', methods=['GET','POST'])
+def form_example():
+    if request.method == 'POST':
+        language = request.form.get('language')
+        framework = request.form.get('framework')
+        return f'''
+        <p>The language value is: {language}</p>
+        The framework value is: {framework}'''
+    #else handle the 'GET' request
+    #return html to display a form which POSTS on submit
+    return """
+    <form method='POST'>
+    <div><label>Langue: <input type='text' name='language'></label</div>
+    <div><label>Framework: <input type'text' name='framework'</label></div>
+    <input type='submit' value='Submit'>
+    </form>"""
+
+
+@app.route('/json_example', methods=['POST'])
+def json_example():
+    return 'JSON Object Example'
+
+
 @app.route('/')
 def traditions():
     return 'hello world'
 
-@app.route('/JSON', methods = ['GET', 'POST'])
-def receiveData(roleStaffData):
-    return roleStaffData
-
-    staffList = []
-    roleStaffObjects = json.load(roleStaffData)
-    for staff in roleStaffObjects['staff']:
-        staffObj = Staff(name= staff['name'], maxShifts= staff['maxShifts'], rolePreference= staff['rolePreference'], doubles= staff['doubles'])
         
-    
-
-@app.route('/login', methods=['POST','GET'])
-def login():
-    error = None
-    if request.method == 'POST':
-        if valid_login(request.form['username'],
-                       request.form['password']):
-            return f"logged in {request.form['username']}"
-        else:
-            error = 'Invalid username/password'
-    return render_template('login.html', error=error)
-        
-
 @app.route('/availability/<staff>')
 def availability(staff):
     return f'set {staff} availability'
 
 
-@app.route('/createSchedule')
-def createSchedule():
-    return f'create schedule'
-
-
-@app.route("/showsense")
-def sense():
-    name = request.args.get("name")
-    preferredRole = request.args.get("role")
-    return nonsense.nonsense(name=name, role=preferredRole)
-
-@app.route('/profile/<username>')
-def profile(username):
-    return f'{username}\'s profile'
-
 @app.route('/hello/')
 @app.route('/hello/<name>')
 def template(name=None):
     return render_template('hello.html', name=name)
-
-with app.test_request_context():
-    print(url_for('login'))
-    print(url_for('availability', staff='TBody'))
