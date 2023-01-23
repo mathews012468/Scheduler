@@ -44,8 +44,34 @@ def form_example():
 
 @app.route('/json_example', methods=['POST'])
 def json_example():
-    return 'JSON Object Example'
+    requestData = request.get_json()
+    
+    #It's like .get() without .get()
+    language = None
+    framework = None
+    pythonVersion = None
+    example = None
+    booleanTest = None
 
+    if requestData:
+        if 'language' in requestData:
+            language = requestData['language']
+        if 'framework' in requestData:
+            framework = requestData['framework']
+        if 'version_info' in requestData:
+            pythonVersion = requestData['version_info']['python']
+        if 'examples' in requestData:
+            example = requestData['examples'][0]
+        if 'boolean_test' in requestData:
+            booleanTest = requestData['boolean_test']
+
+    return f'''
+    The language value is: {language}
+    The framework value is: {framework}
+    The Python version is: {pythonVersion}
+    The item at index 0 of "examples" is: {example}
+    The boolean test value is: {booleanTest}
+    '''
 
 @app.route('/')
 def traditions():
