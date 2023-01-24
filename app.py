@@ -87,18 +87,5 @@ def template(name=None):
 @app.route('/staffObjects', methods= ['POST'])
 def compileStaff():
     requestData = request.get_json()
-    staffData= None
-    if 'staff' in requestData:
-        staffData = requestData['staff']
 
-    staffObjects = []
-    for staff in staffData:
-        staffObjects.append(Staff(name=staff['name'], maxShifts=staff['maxShifts'],
-        rolePreference=staff['rolePreference'], doubles=staff['doubles']))
-
-    return f'''
-    {staffObjects}
-    {staffObjects[0]}
-    {staffObjects[0].name}
-    {staffObjects[0]['maxShifts']}
-    '''
+    return f'{requestData}'
