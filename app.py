@@ -84,8 +84,13 @@ def availability(staff):
 def template(name=None):
     return render_template('hello.html', name=name)
 
-@app.route('/staffObjects', methods= ['POST'])
+@app.route('/schedule', methods= ['POST'])
 def compileStaff():
     requestData = request.get_json()
+    #maybe do some checking to make sure the data is there
+    roles = requestData["roles"]
+    staff = requestData["staff"]
+    print(roles)
+    print(staff)
 
     return f'{requestData}'
