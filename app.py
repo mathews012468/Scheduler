@@ -89,9 +89,7 @@ def template(name=None):
 def compileStaff():
     requestData = request.get_json()
     #maybe do some checking to make sure the data is there
-    roles = requestData["roles"]
-    print(roles)
-    staff = requestData["staff"]
-    print(staff)
-    
+    roles = [Role(name=role["name"], day=role["day"], calltime=role["callTime"], qualifiedStaff=role["qualifiedStaff"]) for role in requestData["roles"]]
+    staff = [Staff(name=staff["name"], maxShifts=staff["maxShifts"], rolePreference=staff["rolePreference"], doubles=staff["doubles"]) for staff in requestData["staff"]]
+
     return main.createSchedule(roles, staff)
