@@ -86,6 +86,18 @@ def availability(staff):
 def template(name=None):
     return render_template('hello.html', name=name)
 
+def getAllCallTimes(roles):
+    """
+    List of Role objects
+    """
+    dayAndCallTimes = {(role.day, role.callTime) for role in roles}
+    callTimes = {weekday: [] for weekday in Weekdays}
+    for dayCallTime in dayAndCallTimes:
+        weekday = dayCallTime[0]
+        callTime = dayCallTime[1]
+        callTimes[weekday].append(callTime)
+    return callTimes
+
 def parseRole(role):
     """
     Takes in role as dictionary from google sheets app script
@@ -104,20 +116,25 @@ def parseRole(role):
     except ValueError:
         raise ValueError(f"Call time {role['callTime']} not in a valid format")
     qualifiedStaff = role["qualifiedStaff"]
-    return Role(name=name, day=day, callTime=callTime, qualifiedStaff=qualifiedStaff)
 
-def parseStaff(staff):
+    return Role(name=name, day=weekday, callTime=callTime, qualifiedStaff=qualifiedStaff)
+
+def parseStaff(staff, defaultAvail):
     name = staff["name"]
     maxShifts = staff["maxShifts"]
     rolePreference = staff["rolePreference"]
     doubles = staff["doubles"]
-    return Staff(name=name, maxShifts=maxShifts, rolePreference=rolePreference, doubles=doubles)
+    return Staff(name=name, maxShifts=maxShifts, availability=defaultAvail, rolePreference=rolePreference, doubles=doubles)
 
 @app.route('/schedule', methods=["POST"])
 def compileStaff():
     requestData = request.get_json()
     #maybe do some checking to make sure the data is there
     roles = [parseRole(role) for role in requestData["roles"]]
-    staffs = [parseStaff(staff) for staff in requestData["staff"]]
 
-    return main.createSchedule(roles, staffs)
+    defaultAvail = getAllCallTimes(roles)
+    staffs = [parseStaff(staff, defaultAvail) for staff in requestData["staff"]]
+
+    schedule = main.createSchedule(roles, staffs)
+    print(schedule)
+    return schedule
