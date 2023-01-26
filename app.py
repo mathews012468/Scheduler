@@ -3,8 +3,9 @@ from flask import request
 from flask import url_for
 from flask import render_template
 import main
+import datetime
 
-from classes import Staff, Role
+from classes import Staff, Role, Weekdays
 import json
 
 app = Flask(__name__)
@@ -85,11 +86,38 @@ def availability(staff):
 def template(name=None):
     return render_template('hello.html', name=name)
 
+def parseRole(role):
+    """
+    Takes in role as dictionary from google sheets app script
+    Returns Role object
+    """
+    name = role["name"]
+    try:
+        day = role["day"].upper().strip()
+        weekday = Weekdays[day]
+    except KeyError:
+        raise ValueError(f"Role {name} does not have a valid weekday. Weekday passed was {day}.")
+    try:
+        hour, minutes = role["callTime"].split(":")
+        hour, minutes = int(hour), int(minutes)
+        callTime = datetime.time(hour=hour, minute=minutes)
+    except ValueError:
+        raise ValueError(f"Call time {role['callTime']} not in a valid format")
+    qualifiedStaff = role["qualifiedStaff"]
+    return Role(name=name, day=day, callTime=callTime, qualifiedStaff=qualifiedStaff)
+
+def parseStaff(staff):
+    name = staff["name"]
+    maxShifts = staff["maxShifts"]
+    rolePreference = staff["rolePreference"]
+    doubles = staff["doubles"]
+    return Staff(name=name, maxShifts=maxShifts, rolePreference=rolePreference, doubles=doubles)
+
 @app.route('/schedule', methods=["POST"])
 def compileStaff():
     requestData = request.get_json()
     #maybe do some checking to make sure the data is there
-    roles = [Role(name=role["name"], day=role["day"], calltime=role["callTime"], qualifiedStaff=role["qualifiedStaff"]) for role in requestData["roles"]]
-    staff = [Staff(name=staff["name"], maxShifts=staff["maxShifts"], rolePreference=staff["rolePreference"], doubles=staff["doubles"]) for staff in requestData["staff"]]
+    roles = [parseRole(role) for role in requestData["roles"]]
+    staffs = [parseStaff(staff) for staff in requestData["staff"]]
 
-    return main.createSchedule(roles, staff)
+    return main.createSchedule(roles, staffs)
