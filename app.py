@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask import url_for
 from flask import render_template
+import main
 
 from classes import Staff, Role
 import json
@@ -90,7 +91,5 @@ def compileStaff():
     #maybe do some checking to make sure the data is there
     roles = requestData["roles"]
     staff = requestData["staff"]
-    print(roles)
-    print(staff)
-
-    return f'{requestData}'
+    
+    return main.createSchedule(roles, staff)

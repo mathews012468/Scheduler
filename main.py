@@ -35,3 +35,4 @@ def createSchedule(roleCollection, staffCollection):
 		availableStaff.sort(key = lambda staff: staff.shiftsRemaining(roleStaffPairs), reverse=True)
 		staff = availableStaff[0]
 		roleStaffPairs.append((role,staff))
+	return roleStaffPairs
