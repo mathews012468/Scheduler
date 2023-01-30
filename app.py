@@ -1,6 +1,5 @@
 from flask import Flask
 from flask import request
-from flask import url_for
 from flask import render_template
 import main
 import datetime
@@ -8,7 +7,30 @@ import datetime
 from classes import Staff, Role, Weekdays
 import json
 
+#TODO: format availability from incoming json
+
+schema = {
+    "roles": [
+        {
+            "name": str(),
+            "callTime": str(),
+            "qualifiedStaff": list(),
+            "day": str()
+        }
+    ],
+    "staff": [
+        {
+            "name": str(),
+            "maxShifts": int(),
+            "availability": dict(),
+            "rolePreference": list(),
+            "doubles": bool()
+        }
+    ]
+}
+
 app = Flask(__name__)
+app.config['activeSchema'] = schema #TODO: config from seperate file
 
 @app.route('/query_example')
 def query_example():
@@ -105,36 +127,53 @@ def parseRole(role):
     """
     name = role["name"]
     try:
-        day = role["day"].upper().strip()
-        weekday = Weekdays[day]
-    except KeyError:
-        raise ValueError(f"Role {name} does not have a valid weekday. Weekday passed was {day}.")
-    try:
         hour, minutes = role["callTime"].split(":")
         hour, minutes = int(hour), int(minutes)
         callTime = datetime.time(hour=hour, minute=minutes)
     except ValueError:
         raise ValueError(f"Call time {role['callTime']} not in a valid format")
     qualifiedStaff = role["qualifiedStaff"]
+    try:
+        day = role["day"].upper().strip()
+        weekday = Weekdays[day]
+    except KeyError:
+        raise ValueError(f"Role {name} does not have a valid weekday. Weekday passed was {day}.")
 
     return Role(name=name, day=weekday, callTime=callTime, qualifiedStaff=qualifiedStaff)
 
-def parseStaff(staff, defaultAvail):
+def parseStaff(staff):
     name = staff["name"]
     maxShifts = staff["maxShifts"]
+    availability = staff["availability"]
     rolePreference = staff["rolePreference"]
     doubles = staff["doubles"]
-    return Staff(name=name, maxShifts=maxShifts, availability=defaultAvail, rolePreference=rolePreference, doubles=doubles)
+    return Staff(name=name, maxShifts=maxShifts, availability=availability, rolePreference=rolePreference, doubles=doubles)
 
 @app.route('/schedule', methods=["POST"])
 def compileStaff():
     requestData = request.get_json()
-    #maybe do some checking to make sure the data is there
-    roles = [parseRole(role) for role in requestData["roles"]]
+    if requestData == None:
+        return 'Alert: Check payload header'
+    validatePayload(requestData)
+    roleCollection = (parseRole(role) for role in requestData["roles"])
 
-    defaultAvail = getAllCallTimes(roles)
-    staffs = [parseStaff(staff, defaultAvail) for staff in requestData["staff"]]
+    #TODO: defaultAvail = getAllCallTimes(roles)
+    staffCollection = [parseStaff(staff) for staff in requestData["staff"]]
 
-    schedule = main.createSchedule(roles, staffs)
+    schedule = main.createSchedule(roleCollection, staffCollection)
     print(schedule)
     return schedule
+
+def validatePayload(payload):
+    """ Takes in payload and checks key/value pairs against a schema """
+    schema = app.config['activeSchema']
+    roleCollection, staffCollection = payload.keys()
+    
+    for role in payload[roleCollection]:
+        for (schemaKey, schemaValue), (roleKey, roleValue) in zip(schema[roleCollection][0].items(), role.items(), strict=True):
+            assert schemaKey == roleKey
+            assert type(schemaValue) == type(roleValue)
+    for staff in payload[staffCollection]:
+        for (schemaKey, schemaValue), (staffKey, staffValue) in zip(schema[staffCollection][0].items(), staff.items(), strict=True):
+            assert schemaKey == staffKey
+            assert type(schemaValue) == type(staffValue)
