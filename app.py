@@ -26,7 +26,7 @@ schema = {
 }
 
 app = Flask(__name__)
-app.config['activeSchema'] = schema #TODO: config from seperate file
+app.config['roleStaffSchema'] = schema #TODO: config from seperate file
 
 @app.route('/')
 def traditions():
@@ -58,17 +58,19 @@ def parseRole(role):
         raise ValueError(f"Call time {role['callTime']} not in a valid format")
     qualifiedStaff = role["qualifiedStaff"]
     try:
-        day = role["day"].upper().strip()
+        day = role["day"]
         weekday = Weekdays[day]
     except KeyError:
-        raise ValueError(f"Role {name} does not have a valid weekday. Weekday passed was {day}.")
-
+        raise ValueError(f"Day: {day} for Role: {name} not in valid format.")
     return Role(name=name, day=weekday, callTime=callTime, qualifiedStaff=qualifiedStaff)
 
 def parseStaff(staff):
     name = staff["name"]
     maxShifts = staff["maxShifts"]
-    availability = staff["availability"]
+    try:
+        availability = formatAvailability(staff["availability"])
+    except ValueError:
+        raise ValueError(f"Invalid format for Staff: {name} availability.")
     rolePreference = staff["rolePreference"]
     doubles = staff["doubles"]
     return Staff(name=name, maxShifts=maxShifts, availability=availability, rolePreference=rolePreference, doubles=doubles)
@@ -88,9 +90,24 @@ def compileStaff():
     print(schedule)
     return schedule
 
+@app.route('/input', methods=['POST'])
+def validateResponse():
+    requestData = request.get_json()
+    if requestData == None:
+        return 'Alert: Check payload header'
+    validatePayload(requestData)
+    roleCollection = [parseRole(role) for role in requestData['roles']]
+    staffCollection = [parseStaff(staff) for staff in requestData['staff']]
+
+    schedule = main.createSchedule(roleCollection, staffCollection)
+    print(schedule)
+    
+    return 'okay'
+    
+
 def validatePayload(payload):
     """ Takes in payload and checks key/value pairs against a schema """
-    schema = app.config['activeSchema']
+    schema = app.config['roleStaffSchema']
     roleCollection, staffCollection = payload.keys()
     
     for role in payload[roleCollection]:
@@ -101,3 +118,19 @@ def validatePayload(payload):
         for (schemaKey, schemaValue), (staffKey, staffValue) in zip(schema[staffCollection][0].items(), staff.items(), strict=True):
             assert schemaKey == staffKey
             assert type(schemaValue) == type(staffValue)
+
+def formatAvailability(availability):
+    staffAvailability = {}
+    for day, callTimes in availability.items():
+        weekday = Weekdays[day]
+        weekdayCalltimes = [] #There's something here about creating a new empty list, when 'callTimes' is already a list that feels off...
+        for callTime in callTimes:
+            hour, minutes = callTime.split(':')
+            hour = int(hour)
+            minutes = int(minutes[0:2])
+            if hour < 12 and 'PM' in callTime:
+                hour += 12
+            callTime = datetime.time(hour,minutes)
+            weekdayCalltimes.append(callTime)
+        staffAvailability[weekday] = weekdayCalltimes
+    return staffAvailability
