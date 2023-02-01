@@ -1,5 +1,6 @@
 from enum import Enum
 import datetime
+import json
 
 class Weekdays(Enum):
 	MONDAY = 0
@@ -48,6 +49,11 @@ class Role:
 
 	def __str__(self):
 		return f"{self.name}"
+
+	def toJSON(self):
+		self.day = self.day.name
+		self.callTime = str(self.callTime)
+		return json.dumps(self.__dict__, indent=4)
 		
 
 class Staff:
