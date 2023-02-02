@@ -10,7 +10,9 @@ schema = {
         {
             "name": str(),
             "callTime": str(),
-            "qualifiedStaff": list(),
+            "qualifiedStaff": [
+                str()
+            ],
             "day": str()
         }
     ],
@@ -18,8 +20,32 @@ schema = {
         {
             "name": str(),
             "maxShifts": int(),
-            "availability": dict(),
-            "rolePreference": list(),
+            "availability": {
+                "MONDAY": [
+                    str()
+                ],
+                "TUESDAY": [
+                    str()
+                ],
+                "WEDNESDAY": [
+                    str()
+                ],
+                "THURSDAY": [
+                    str()
+                ],
+                "FRIDAY": [
+                    str()
+                ],
+                "SATURDAY": [
+                    str()
+                ],
+                "SUNDAY": [
+                    str()
+                ]
+            },
+            "rolePreference": [
+                str()
+            ],
             "doubles": bool()
         }
     ]
@@ -148,6 +174,7 @@ def validatePayload(payload, schema):
         return isValid
     
     if schemaType == list:
+        print(schemaValue)
         isValid = True
         for payloadValue in payload:
             schemaValue = schema[0]
