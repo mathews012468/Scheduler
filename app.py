@@ -93,6 +93,7 @@ def compileStaff():
 @app.route('/input', methods=['POST'])
 def validateResponse():
     requestData = request.get_json()
+    print(requestData)
     if requestData == None:
         return 'Alert: Check payload header'
     validatePayload(requestData)
