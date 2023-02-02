@@ -113,13 +113,11 @@ def compileStaff():
     staffCollection = [parseStaff(staff) for staff in requestData["staff"]]
 
     schedule = main.createSchedule(roleCollection, staffCollection)
-    print(schedule)
     return schedule
 
 @app.route('/input', methods=['POST'])
 def validateResponse():
     requestData = request.get_json()
-    print(requestData)
     if requestData == None:
         return 'Alert: Check payload header'
     isValid = validatePayload(requestData, app.config["roleStaffSchema"])
