@@ -10,7 +10,9 @@ schema = {
         {
             "name": str(),
             "callTime": str(),
-            "qualifiedStaff": list(),
+            "qualifiedStaff": [
+                str()
+            ],
             "day": str()
         }
     ],
@@ -18,8 +20,32 @@ schema = {
         {
             "name": str(),
             "maxShifts": int(),
-            "availability": dict(),
-            "rolePreference": list(),
+            "availability": {
+                "MONDAY": [
+                    str()
+                ],
+                "TUESDAY": [
+                    str()
+                ],
+                "WEDNESDAY": [
+                    str()
+                ],
+                "THURSDAY": [
+                    str()
+                ],
+                "FRIDAY": [
+                    str()
+                ],
+                "SATURDAY": [
+                    str()
+                ],
+                "SUNDAY": [
+                    str()
+                ]
+            },
+            "rolePreference": [
+                str()
+            ],
             "doubles": bool()
         }
     ]
@@ -87,7 +113,6 @@ def compileStaff():
     staffCollection = [parseStaff(staff) for staff in requestData["staff"]]
 
     schedule = main.createSchedule(roleCollection, staffCollection)
-    print(schedule)
     return schedule
 
 @app.route('/input', methods=['POST'])
@@ -95,7 +120,9 @@ def validateResponse():
     requestData = request.get_json()
     if requestData == None:
         return 'Alert: Check payload header'
-    validatePayload(requestData)
+    isValid = validatePayload(requestData, app.config["roleStaffSchema"])
+    if not isValid:
+        return {"error": 'not valid input'}, 400
     roleCollection = [parseRole(role) for role in requestData['roles']]
     staffCollection = [parseStaff(staff) for staff in requestData['staff']]
 
@@ -126,20 +153,31 @@ def printWeekSchedule(schedule):
 		for pair in dayPairs:
 			print(pair[0].name, pair[1].name)
     
-
-def validatePayload(payload):
+#if dict, check that keys are the same and schema of values are the same
+#if list, check that schema of values are the same
+#if plain value, check that type is the same
+def validatePayload(payload, schema):
     """ Takes in payload and checks key/value pairs against a schema """
-    schema = app.config['roleStaffSchema']
-    roleCollection, staffCollection = payload.keys()
+    payloadType, schemaType = type(payload), type(schema)
+    if payloadType != schemaType:
+        return False
     
-    for role in payload[roleCollection]:
-        for (schemaKey, schemaValue), (roleKey, roleValue) in zip(schema[roleCollection][0].items(), role.items(), strict=True):
-            assert schemaKey == roleKey
-            assert type(schemaValue) == type(roleValue)
-    for staff in payload[staffCollection]:
-        for (schemaKey, schemaValue), (staffKey, staffValue) in zip(schema[staffCollection][0].items(), staff.items(), strict=True):
-            assert schemaKey == staffKey
-            assert type(schemaValue) == type(staffValue)
+    isValid = True
+    if schemaType == dict:
+        if list(schema.keys()) != list(payload.keys()):
+            return False
+        for key in schema.keys():
+            payloadValue, schemaValue = payload[key], schema[key]
+            isValueValid = validatePayload(payloadValue, schemaValue)
+            isValid = isValid and isValueValid
+    
+    if schemaType == list:
+        for payloadValue in payload:
+            schemaValue = schema[0]
+            isValueValid = validatePayload(payloadValue, schemaValue)
+            isValid = isValid and isValueValid
+    
+    return isValid
 
 def formatAvailability(availability):
     staffAvailability = {}
