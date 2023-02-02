@@ -174,7 +174,6 @@ def validatePayload(payload, schema):
         return isValid
     
     if schemaType == list:
-        print(schemaValue)
         isValid = True
         for payloadValue in payload:
             schemaValue = schema[0]
