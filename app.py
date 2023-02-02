@@ -123,7 +123,8 @@ def validateResponse():
     if requestData == None:
         return 'Alert: Check payload header'
     isValid = validatePayload(requestData, app.config["roleStaffSchema"])
-    print(isValid)
+    if not isValid:
+        return {"error": 'not valid input'}, 400
     roleCollection = [parseRole(role) for role in requestData['roles']]
     staffCollection = [parseStaff(staff) for staff in requestData['staff']]
 
