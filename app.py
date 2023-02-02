@@ -127,20 +127,32 @@ def printWeekSchedule(schedule):
 		for pair in dayPairs:
 			print(pair[0].name, pair[1].name)
     
-
-def validatePayload(payload):
+#if dict, check that keys are the same and schema of values are the same
+#if list, check that schema of values are the same
+#if plain value, check that type is the same
+def validatePayload(payload, schema):
     """ Takes in payload and checks key/value pairs against a schema """
-    schema = app.config['roleStaffSchema']
-    roleCollection, staffCollection = payload.keys()
+    payloadType, schemaType = type(payload), type(schema)
+    if payloadType != schemaType:
+        return False
     
-    for role in payload[roleCollection]:
-        for (schemaKey, schemaValue), (roleKey, roleValue) in zip(schema[roleCollection][0].items(), role.items(), strict=True):
-            assert schemaKey == roleKey
-            assert type(schemaValue) == type(roleValue)
-    for staff in payload[staffCollection]:
-        for (schemaKey, schemaValue), (staffKey, staffValue) in zip(schema[staffCollection][0].items(), staff.items(), strict=True):
-            assert schemaKey == staffKey
-            assert type(schemaValue) == type(staffValue)
+    if schemaType == dict:
+        if list(schema.keys()) != list(payload.keys()):
+            return False
+        isValid = True
+        for key in schema.keys():
+            payloadValue, schemaValue = payload[key], schema[key]
+            isValueValid = validatePayload(payloadValue, schemaValue)
+            isValid = isValid and isValueValid
+        return isValid
+    
+    if schemaType == list:
+        isValid = True
+        for payloadValue in payload:
+            schemaValue = schema[0]
+            isValueValid = validatePayload(payloadValue, schemaValue)
+            isValid = isValid and isValueValid
+        return isValid
 
 def formatAvailability(availability):
     staffAvailability = {}
