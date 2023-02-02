@@ -163,23 +163,22 @@ def validatePayload(payload, schema):
     if payloadType != schemaType:
         return False
     
+    isValid = True
     if schemaType == dict:
         if list(schema.keys()) != list(payload.keys()):
             return False
-        isValid = True
         for key in schema.keys():
             payloadValue, schemaValue = payload[key], schema[key]
             isValueValid = validatePayload(payloadValue, schemaValue)
             isValid = isValid and isValueValid
-        return isValid
     
     if schemaType == list:
-        isValid = True
         for payloadValue in payload:
             schemaValue = schema[0]
             isValueValid = validatePayload(payloadValue, schemaValue)
             isValid = isValid and isValueValid
-        return isValid
+    
+    return isValid
 
 def formatAvailability(availability):
     staffAvailability = {}
