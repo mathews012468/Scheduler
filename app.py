@@ -100,9 +100,31 @@ def validateResponse():
     staffCollection = [parseStaff(staff) for staff in requestData['staff']]
 
     schedule = main.createSchedule(roleCollection, staffCollection)
-    print(schedule)
+
+    scheduleAsJson = scheduleToJSON(schedule)
     
-    return 'okay'
+    return scheduleAsJson
+
+def scheduleToJSON(schedule):
+    scheduleJSON = []
+    for pair in schedule:
+        role = pair[0]
+        staff = pair[1]
+        role.qualifiedStaff = [] # size down the character count for testing.
+        role.staff = staff.name
+        scheduleJSON.append(role.toJSON())
+    
+    for obj in scheduleJSON: #this does not seem to work here.
+        obj.replace('\\"','') #while it works in the python interpreter to clean the dumped escape characters
+
+    return scheduleJSON
+
+def printWeekSchedule(schedule):
+	for day in Weekdays:
+		print(day.name)
+		dayPairs = [pair for pair in schedule if pair[0].day == day]
+		for pair in dayPairs:
+			print(pair[0].name, pair[1].name)
     
 
 def validatePayload(payload):

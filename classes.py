@@ -53,7 +53,7 @@ class Role:
 	def toJSON(self):
 		self.day = self.day.name
 		self.callTime = str(self.callTime)
-		return json.dumps(self.__dict__, indent=4)
+		return json.dumps(self.__dict__,)
 		
 
 class Staff:

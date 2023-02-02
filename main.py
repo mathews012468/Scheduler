@@ -26,7 +26,7 @@ def createSchedule(roleCollection, staffCollection):
 	roleStaffPairs = []
 	for role in roleCollection:
 		availableStaff = [staff for staff in staffCollection if staff.name in role.qualifiedStaff and staff.isAvailable(role) and staff not in staffWorkingToday(roleStaffPairs, role.day)] # I don't like how long this line is.
-		availableStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
+		#availableStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
 		availableStaff = [staff for staff in availableStaff if staff.shiftsRemaining(roleStaffPairs) > 0]
 		if availableStaff == []:
 			unassigned = Staff(name='Unassigned',maxShifts=None, availability=None)
