@@ -25,6 +25,10 @@ schema = {
         {
             "name": str(),
             "maxShifts": int(),
+            "rolePreference": [
+                str()
+            ],
+            "doubles": bool(),
             "availability": {
                 "MONDAY": [
                     str()
@@ -47,11 +51,7 @@ schema = {
                 "SUNDAY": [
                     str()
                 ]
-            },
-            "rolePreference": [
-                str()
-            ],
-            "doubles": bool()
+            }
         }
     ]
 }
@@ -172,6 +172,10 @@ def createSchedule():
     isValid = validatePayload(roleStaffData,roleStaffSchema)
     if not isValid:
         return {"error": 'invalid input'}, 400
+        #In an attempt to return more satisfying error messages
+        #I started to raise exceptions in test_validatePayload
+        #However I don't really understand what I'm doing, and would like your input
+        #on where/when and how to raise exceptions.
 
     roleCollection = (parseRole(role) for role in roleStaffData["roles"])
     staffCollection = [parseStaff(staff) for staff in roleStaffData["staff"]]
