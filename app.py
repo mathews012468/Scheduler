@@ -177,7 +177,7 @@ def createSchedule():
         #However I don't really understand what I'm doing, and would like your input
         #on where/when and how to raise exceptions.
 
-    roleCollection = (parseRole(role) for role in roleStaffData["roles"])
+    roleCollection = [parseRole(role) for role in roleStaffData["roles"]]
     staffCollection = [parseStaff(staff) for staff in roleStaffData["staff"]]
 
     schedule = main.createSchedule(roleCollection, staffCollection)
