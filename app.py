@@ -77,12 +77,12 @@ def validatePayload(payload, schema):
     """ Takes in payload and checks key/value pairs against a schema """
     payloadType, schemaType = type(payload), type(schema)
     if payloadType != schemaType:
-        return False
+        raise ValueError(f'payload: {payload} type does not match schema: {schema}')
     
     isValid = True
     if schemaType == dict:
         if list(schema.keys()) != list(payload.keys()):
-            return False
+            raise ValueError(f'payload: {payload.keys()} does not match schema: {schema.keys()}')
         for key in schema.keys():
             payloadValue, schemaValue = payload[key], schema[key]
             isValueValid = validatePayload(payloadValue, schemaValue)
@@ -168,7 +168,10 @@ def createSchedule():
     roleStaffSchema = app.config["roleStaffSchema"]
     if roleStaffData == None:
         return 'Alert: Check payload header'
-    isValid = validatePayload(roleStaffData,roleStaffSchema)
+    try:
+        isValid = validatePayload(roleStaffData,roleStaffSchema)
+    except ValueError as err:
+        return (err.message)
     if not isValid:
         return {"error": 'invalid input'}, 400
         #In an attempt to return more satisfying error messages
