@@ -14,6 +14,10 @@ class DefaultConfig(object):
             {
                 "name": str(),
                 "maxShifts": int(),
+                "rolePreference": [
+                    str()
+                ],
+                "doubles": bool(),
                 "availability": {
                     "MONDAY": [
                         str()
@@ -36,11 +40,7 @@ class DefaultConfig(object):
                     "SUNDAY": [
                         str()
                     ]
-                },
-                "rolePreference": [
-                    str()
-                ],
-                "doubles": bool()
+                }
             }
         ]
     }
