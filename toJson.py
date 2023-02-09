@@ -1,6 +1,5 @@
 from classes import Role, Staff, Weekdays
 import datetime
-import json
 
 staff = Staff('Tbody',3,{Weekdays.FRIDAY: []},['Support'],True)
 role = Role('Support',Weekdays.TUESDAY,datetime.time(12,29),['Tbody','Dazzle','Engineer'])

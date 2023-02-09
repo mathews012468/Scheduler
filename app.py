@@ -5,8 +5,6 @@ import datetime
 
 from classes import Staff, Role, Weekdays
 
-#TODO: defaultAvail = getAllCallTimes(roles)
-    #decide where to have this happen, on the Appscript side.
 #TODO: config from seperate file
 
 
@@ -62,10 +60,11 @@ app.config['roleStaffSchema'] = schema
 # https://flask.palletsprojects.com/en/2.2.x/config/
 
 #However, I don't really understand it
-#TODO: write out current understanding and where I'm stuck.
 
 #app.config.from_object('kikischeduler.config')
 #app.config.from_envvar('KIKISCHEDULER_SETTINGS')
+#app.config.from_pyfile('yourconfig.cfg')
+
 
 @app.route('/')
 def traditions():
