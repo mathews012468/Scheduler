@@ -5,17 +5,10 @@ import datetime
 
 from classes import Staff, Role, Weekdays
 
-#TODO: config from seperate file
-
 app = Flask(__name__)
 app.config.from_object('config.DefaultConfig')
-#app.config['roleStaffSchema'] = schema
-#I'd like to follow the documentation for seperating the config settings:
 # https://flask.palletsprojects.com/en/2.2.x/config/
-
-#However, I don't really understand it
 #app.config.from_envvar('KIKISCHEDULER_SETTINGS')
-#app.config.from_pyfile('yourconfig.cfg')
 
 
 @app.route('/')
@@ -31,22 +24,19 @@ def validatePayload(payload, schema):
     if payloadType != schemaType:
         raise ValueError(f'payload: {payload} type does not match schema: {schema}')
     
-    isValid = True
     if schemaType == dict:
         if list(schema.keys()) != list(payload.keys()):
             raise ValueError(f'payload: {payload.keys()} does not match schema: {schema.keys()}')
         for key in schema.keys():
             payloadValue, schemaValue = payload[key], schema[key]
-            isValueValid = validatePayload(payloadValue, schemaValue)
-            isValid = isValid and isValueValid
+            validatePayload(payloadValue, schemaValue)
     
     if schemaType == list:
         for payloadValue in payload:
             schemaValue = schema[0]
-            isValueValid = validatePayload(payloadValue, schemaValue)
-            isValid = isValid and isValueValid
+            validatePayload(payloadValue, schemaValue)
     
-    return isValid
+    return True
 
 
 def parseRole(role):
@@ -123,7 +113,7 @@ def createSchedule():
     try:
         isValid = validatePayload(roleStaffData,roleStaffSchema)
     except ValueError as err:
-        return (err.message) #TODO: return as JSON
+        return {"error": str(err)}
 
     roleCollection = [parseRole(role) for role in roleStaffData["roles"]]
     staffCollection = [parseStaff(staff) for staff in roleStaffData["staff"]]
