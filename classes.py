@@ -51,9 +51,7 @@ class Role:
 		return f"{self.name}"
 
 	def toJSON(self):
-		self.day = self.day.name
-		self.callTime = str(self.callTime)
-		return json.dumps(self.__dict__,)
+		return json.dumps(self.__dict__, default=lambda x: getattr(x, '__dict__', str(x))()) #TODO: sort this out.
 		
 
 class Staff:
