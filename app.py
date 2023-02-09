@@ -7,61 +7,13 @@ from classes import Staff, Role, Weekdays
 
 #TODO: config from seperate file
 
-
-schema = {
-    "roles": [
-        {
-            "name": str(),
-            "callTime": str(),
-            "qualifiedStaff": [
-                str()
-            ],
-            "day": str()
-        }
-    ],
-    "staff": [
-        {
-            "name": str(),
-            "maxShifts": int(),
-            "rolePreference": [
-                str()
-            ],
-            "doubles": bool(),
-            "availability": {
-                "MONDAY": [
-                    str()
-                ],
-                "TUESDAY": [
-                    str()
-                ],
-                "WEDNESDAY": [
-                    str()
-                ],
-                "THURSDAY": [
-                    str()
-                ],
-                "FRIDAY": [
-                    str()
-                ],
-                "SATURDAY": [
-                    str()
-                ],
-                "SUNDAY": [
-                    str()
-                ]
-            }
-        }
-    ]
-}
-
 app = Flask(__name__)
-app.config['roleStaffSchema'] = schema
+app.config.from_object('config.DefaultConfig')
+#app.config['roleStaffSchema'] = schema
 #I'd like to follow the documentation for seperating the config settings:
 # https://flask.palletsprojects.com/en/2.2.x/config/
 
 #However, I don't really understand it
-
-#app.config.from_object('kikischeduler.config')
 #app.config.from_envvar('KIKISCHEDULER_SETTINGS')
 #app.config.from_pyfile('yourconfig.cfg')
 
@@ -165,19 +117,13 @@ def scheduleToJSON(schedule):
 @app.route('/schedule', methods=["POST"])
 def createSchedule():
     roleStaffData = request.get_json()
-    roleStaffSchema = app.config["roleStaffSchema"]
+    roleStaffSchema = app.config["SCHEMA"]
     if roleStaffData == None:
         return 'Alert: Check payload header'
     try:
         isValid = validatePayload(roleStaffData,roleStaffSchema)
     except ValueError as err:
-        return (err.message)
-    if not isValid:
-        return {"error": 'invalid input'}, 400
-        #In an attempt to return more satisfying error messages
-        #I started to raise exceptions in test_validatePayload
-        #However I don't really understand what I'm doing, and would like your input
-        #on where/when and how to raise exceptions.
+        return (err.message) #TODO: return as JSON
 
     roleCollection = [parseRole(role) for role in roleStaffData["roles"]]
     staffCollection = [parseStaff(staff) for staff in roleStaffData["staff"]]
