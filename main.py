@@ -110,11 +110,10 @@ def scheduleToJSON(schedule):
     for pair in schedule:
         role = pair[0]
         staff = pair[1]
-        role.qualifiedStaff = [] # size down the character count for testing.
-        role.staff = staff.name
-        scheduleJSON.append(role.toJSON())
-    
-    for obj in scheduleJSON: #this does not seem to work here.
-        obj.replace('\\"','') #while it works in the python interpreter to clean the dumped escape characters
-
+        jsonObject = {}
+        jsonObject['name'] = role.name
+        jsonObject['staff'] = staff.name
+        jsonObject['day'] = role.day.name
+        jsonObject['callTime'] = role.callTime.strftime('%H:%M')
+        scheduleJSON.append(jsonObject)
     return scheduleJSON
