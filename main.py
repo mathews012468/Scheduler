@@ -1,10 +1,6 @@
 import datetime
 from classes import Staff, Role, Weekdays
 
-
-# main is sparse and clean.
-# All the indecision has been shoved under the rug of testingCode.
-
 def staffWorkingToday(roleStaffPairs, weekday):
 	scheduledStaff = set()
 	for pair in roleStaffPairs:
