@@ -1,6 +1,5 @@
 from enum import Enum
 import datetime
-import json
 
 class Weekdays(Enum):
 	MONDAY = 0
