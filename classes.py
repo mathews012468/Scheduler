@@ -49,9 +49,6 @@ class Role:
 
 	def __str__(self):
 		return f"{self.name}"
-
-	def toJSON(self):
-		return json.dumps(self.__dict__, default=lambda x: getattr(x, '__dict__', str(x))()) #TODO: sort this out.
 		
 
 class Staff:
