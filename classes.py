@@ -73,7 +73,7 @@ class Staff:
 		return True
 
 	def isQualified(self, role):
-		if self not in role.qualifiedStaff:
+		if self.name not in role.qualifiedStaff:
 			return False
 		return True
 
