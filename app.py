@@ -26,6 +26,10 @@ def createSchedule():
     staffCollection = [main.parseStaff(staff) for staff in roleStaffData["staff"]]
 
     schedule = main.createSchedule(roleCollection, staffCollection)
+
+    #Would like to call this 'logging' outside of this fuction.
+    #Unsure where and what that looks like.
+    main.logSchedule(schedule)
     scheduleJSON = main.scheduleToJSON(schedule)
 
     return scheduleJSON

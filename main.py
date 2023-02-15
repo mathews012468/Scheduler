@@ -21,6 +21,25 @@ def createSchedule(roleCollection, staffCollection):
         roleStaffPairs.append((role,staff))
     return roleStaffPairs
 
+#is this a logging or testing functionality?
+def logSchedule(schedule):
+    with open('output', 'w') as f:
+        doubleOutput = log_hasDoubles(schedule)
+        f.write(doubleOutput)
+
+def log_hasDoubles(schedule):
+    #return 'yes' or 'no'
+    dayStaffPairs = []
+    for pair in schedule:
+        day = pair[0].day
+        staff = pair[1]
+        if (day,staff) in dayStaffPairs:
+            return 'yes'
+        else:
+            dayStaffPairs.append((day,staff))
+    return 'no'
+
+
 
 def validatePayload(payload, schema):
     """ Takes in payload and checks key/value pairs against a schema """
