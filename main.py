@@ -48,7 +48,7 @@ def validatePayload(payload, schema):
         raise ValueError(f'payload: {payload} type does not match schema: {schema}')
     
     if schemaType == dict:
-        if list(schema.keys()) != list(payload.keys()):
+        if set(schema.keys()) != set(payload.keys()):
             raise ValueError(f'payload: {payload.keys()} does not match schema: {schema.keys()}')
         for key in schema.keys():
             payloadValue, schemaValue = payload[key], schema[key]
