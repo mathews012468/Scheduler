@@ -1,5 +1,7 @@
 import datetime
+import logging
 from classes import Staff, Role, Weekdays
+logger = logging.getLogger(__name__)
 
 def staffWorkingToday(roleStaffPairs, weekday):
 	scheduledStaff = set()
@@ -13,6 +15,7 @@ def createSchedule(roleCollection, staffCollection):
     roleStaffPairs = []
     for role in roleCollection:
         availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)]
+        logger.info(f'Available staff for {role.name} on {role.day.name}: {availableStaff}')
         preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
         if preferedStaff != []:
             availableStaff = preferedStaff
