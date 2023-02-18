@@ -12,17 +12,23 @@ def staffWorkingToday(roleStaffPairs, weekday):
 
 
 def createSchedule(roleCollection, staffCollection):
-    roleStaffPairs = []
+    schedule = []
     for role in roleCollection:
         availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)]
         logger.info(f'Available staff for {role.name} on {role.day.name}: {availableStaff}')
         preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
         if preferedStaff != []:
             availableStaff = preferedStaff
-        availableStaff.sort(key= lambda staff: staff.shiftsRemaining(roleStaffPairs), reverse= True)
-        staff = availableStaff[0]
-        roleStaffPairs.append((role,staff))
-    return roleStaffPairs
+        staff = selectStaff(availableStaff,schedule)
+        schedule.append((role,staff))
+    return schedule
+
+def selectStaff(staffPool, schedule):
+    staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
+    staff = staffPool[0]
+    
+    return staff
+    
 
 #is this a logging or testing functionality?
 def logSchedule(schedule):
