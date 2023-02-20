@@ -19,15 +19,22 @@ def createSchedule(roleCollection, staffCollection):
         preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
         if preferedStaff != []:
             availableStaff = preferedStaff
-        staff = selectStaff(availableStaff,schedule)
+        staff = selectStaff(availableStaff,schedule, role)
         schedule.append((role,staff))
     return schedule
 
-def selectStaff(staffPool, schedule):
+def selectStaff(staffPool, schedule, role):
     staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
-    staff = staffPool[0]
-    
-    return staff
+    for staff in staffPool:
+        if staff.isScheduled(role, schedule) == False:
+            return staff
+        if staff.doubles == True:
+            logger.info(f'{staff.name} has doubles as {True}')
+            return staff
+        else:
+            continue
+    logger.warning('No staff found')
+    raise IndexError('No staff found')
     
 
 #is this a logging or testing functionality?
