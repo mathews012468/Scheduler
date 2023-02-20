@@ -1,6 +1,9 @@
 from enum import Enum
 import datetime
 
+import logging
+logger = logging.get(__name__)
+
 class Weekdays(Enum):
 	MONDAY = 0
 	TUESDAY = 1
@@ -76,6 +79,14 @@ class Staff:
 		if self.name not in role.qualifiedStaff:
 			return False
 		return True
+
+	def isScheduled(self, role, schedule):
+		for pair in schedule:
+			if pair[0].day == role.day and pair[1] == self:
+				logging.info(f'{self.name} already scheduled for {pair[0]}')
+				return True
+			return False
+		
 
 	def shiftsRemaining(self, roleStaffPairs):
 		shiftCount = 0
