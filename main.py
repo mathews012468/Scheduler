@@ -13,6 +13,7 @@ def staffWorkingToday(roleStaffPairs, weekday):
 
 def createSchedule(roleCollection, staffCollection):
     schedule = []
+    roleCollection.sort(key= lambda role: len(role.qualifiedStaff))
     for role in roleCollection:
         availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)]
         logger.info(f'Available staff for {role.name} on {role.day.name}: {availableStaff}')
