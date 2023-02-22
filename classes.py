@@ -47,10 +47,10 @@ class Role:
 			raise ValueError(f'provide callTime for {self.name}')
 		
 	def __repr__(self):
-		return "{self.__class__.__name__}({self.name},{self.day})".format(self=self)
+		return "{self.__class__.__name__}({self.name},{self.day.name})".format(self=self)
 
 	def __str__(self):
-		return f"{self.name}"
+		return f"{self.name},{self.day.name}"
 		
 
 class Staff:
@@ -63,7 +63,7 @@ class Staff:
 		
 
 	def __repr__(self):
-		return "{self.__class__.__name__}({self.name},{self.maxShifts})".format(self=self)
+		return "{self.__class__.__name__}({self.name})".format(self=self)
 
 	def __str__(self):
 		return f"{self.name}"
