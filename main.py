@@ -20,7 +20,8 @@ def createSchedule(roleCollection, staffCollection):
         preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
         if preferedStaff != []:
             availableStaff = preferedStaff
-        staff = selectStaff(availableStaff,schedule, role)
+        #staff = selectStaff(availableStaff,schedule, role)
+        staff = availableStaff[0]
         schedule.append((role,staff))
     return schedule
 
@@ -35,7 +36,7 @@ def selectStaff(staffPool, schedule, role):
         else:
             continue
     logger.warning('No staff found')
-    raise IndexError('No staff found')
+    return Staff('Unassigned',99)
     
 
 def validatePayload(payload, schema):
