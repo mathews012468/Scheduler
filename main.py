@@ -20,15 +20,14 @@ def createSchedule(roleCollection, staffCollection):
         preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
         if preferedStaff != []:
             availableStaff = preferedStaff
-        #staff = selectStaff(availableStaff,schedule, role)
-        staff = availableStaff[0]
+        staff = selectStaff(availableStaff,schedule, role)
         schedule.append((role,staff))
     return schedule
 
 def selectStaff(staffPool, schedule, role):
     staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
     for staff in staffPool:
-        if staff.isScheduled(role, schedule) == False:
+        if staff.isScheduled(role, schedule) == False: 
             return staff
         if staff.doubles == True:
             logger.info(f'{staff.name} has doubles as {True}')
