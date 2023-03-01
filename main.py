@@ -10,32 +10,61 @@ def staffWorkingToday(roleStaffPairs, weekday):
 			scheduledStaff.add(pair[1])
 	return scheduledStaff
 
+def getPossibleStaff(role, staffCollection):
+    availableStaff = [staff for staff in staffCollection if staff.isAvailable(role)]
+    if availableStaff == []:
+        logger.warning(f'no available staff for {role}')
+    logger.info(f'available staff for {role}:\n{availableStaff}')
+    qualifiedStaff = [staff for staff in staffCollection if staff.isQualified(role)]
+    if qualifiedStaff == []:
+        logger.warning(f'no qualified staff for {role}')
+    logger.info(f'qualified staff for {role}:\n{qualifiedStaff}')
+
+    #TODO: move list of schedule restrictions (filters?) to another place and pass the list these functions.
+    possibleStaff = [staff for staff in availableStaff and qualifiedStaff]
+    logger.info(f'possible staff for {role}:\n{possibleStaff}')
+    return possibleStaff
+
+def getStaffPool(role, possibleStaff, schedule):
+    noDoubles = [
+    staff for staff in possibleStaff if
+    staff.isScheduled(role, schedule) == False
+    or
+    staff.isScheduled(role, schedule) == True and staff.doubles == True
+    ]
+    if noDoubles == []:
+        logger.warning(f'no staff without a double for {role}')
+    logger.info(f'staff without a double for {role}:\n{noDoubles}')
+    shiftsRemaining = [staff for staff in possibleStaff if staff.shiftsRemaining(schedule) > 0]
+    if shiftsRemaining == []:
+        logger.warning(f'no staff with shifts remaining for {role}')
+    logger.info(f'staff with shifts remaining for {role}:\n{shiftsRemaining}')
+
+    staffPool = [staff for staff in noDoubles and shiftsRemaining]
+    logger.info(f'staff pool for {role}:')
+    for staff in staffPool:
+        logger.info(f'{staff}, {staff.shiftsRemaining(schedule)}')
+    return staffPool
+
+def selectStaff(role, staffPool, schedule):
+    if staffPool == []:
+        unassigned = Staff('Unassigned',99)
+        logger.error(f'{role} paired with Unassigned Staff')
+        return unassigned
+
+    staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
+    staff = staffPool[0]
+    logger.info(f'selected staff for {role}: {staff}')
+    return staff
 
 def createSchedule(roleCollection, staffCollection):
     schedule = []
-    roleCollection.sort(key= lambda role: len(role.qualifiedStaff))
     for role in roleCollection:
-        availableStaff = [staff for staff in staffCollection if staff.isAvailable(role) and staff.isQualified(role)]
-        logger.info(f'Available staff for {role.name} on {role.day.name}: {availableStaff}')
-        preferedStaff = [staff for staff in availableStaff if role.name in staff.rolePreference]
-        if preferedStaff != []:
-            availableStaff = preferedStaff
-        staff = selectStaff(availableStaff,schedule, role)
+        possibleStaff = getPossibleStaff(role, staffCollection)
+        staffPool = getStaffPool(role, possibleStaff, schedule)
+        staff = selectStaff(role, staffPool, schedule)
         schedule.append((role,staff))
     return schedule
-
-def selectStaff(staffPool, schedule, role):
-    staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
-    for staff in staffPool:
-        if staff.isScheduled(role, schedule) == False: 
-            return staff
-        if staff.doubles == True:
-            logger.info(f'{staff.name} has doubles as {True}')
-            return staff
-        else:
-            continue
-    logger.warning('No staff found')
-    return Staff('Unassigned',99)
     
 
 def validatePayload(payload, schema):
