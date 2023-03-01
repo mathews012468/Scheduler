@@ -67,6 +67,7 @@ def selectStaff(role, staffPool, schedule):
 def createSchedule(roleCollection, staffCollection):
     schedule = []
     roleCollection = random.sample(roleCollection, k=len(roleCollection))
+    roleCollection.sort(key= lambda role: len(role.preferredStaff), reverse= True)
     for role in roleCollection:
         possibleStaff = getPossibleStaff(role, staffCollection)
         staffPool = getStaffPool(role, possibleStaff, schedule)
