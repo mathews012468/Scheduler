@@ -1,5 +1,6 @@
 import datetime
 import logging
+import random
 from classes import Staff, Role, Weekdays
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,7 @@ def selectStaff(role, staffPool, schedule):
 
 def createSchedule(roleCollection, staffCollection):
     schedule = []
+    roleCollection = random.sample(roleCollection, k=len(roleCollection))
     for role in roleCollection:
         possibleStaff = getPossibleStaff(role, staffCollection)
         staffPool = getStaffPool(role, possibleStaff, schedule)
