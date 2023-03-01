@@ -43,6 +43,10 @@ def getStaffPool(role, possibleStaff, schedule):
 
     staffPool = [staff for staff in noDoubles and shiftsRemaining]
     logger.info(f'staff pool for {role}:')
+    if staffPool == []:
+        logger.warning(f'staff pool empty- opening restrictions')
+        staffPool = [staff for staff in noDoubles]
+
     for staff in staffPool:
         logger.info(f'{staff}, {staff.shiftsRemaining(schedule)}')
     return staffPool

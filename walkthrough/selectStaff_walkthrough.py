@@ -73,7 +73,9 @@ def createSchedule(roleCollection, staffCollection):
 #this step can be passed by, by finding new staff at the point where Unassigned staff would be created.
 #So what does that look like?
 
-#loosening the restrictions
+#When staffPool is empty.
+#take a staffPool with one less restriction until staffPool is not empty
+
 
 
 
