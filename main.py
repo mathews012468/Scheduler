@@ -52,6 +52,12 @@ def selectStaff(role, staffPool, schedule):
         logger.error(f'{role} paired with Unassigned Staff')
         return unassigned
 
+    preferredStaff = [staff for staff in staffPool if staff.name in role.preferredStaff]
+    if preferredStaff == []:
+        logger.warning(f'no prefered staff available')
+    if preferredStaff != []:
+        logger.info(f'selecting from preferred staff')
+        staffPool = preferredStaff
     staffPool.sort(key= lambda staff: staff.shiftsRemaining(schedule), reverse= True)
     staff = staffPool[0]
     logger.info(f'selected staff for {role}: {staff}')
@@ -101,12 +107,13 @@ def parseRole(role):
     except ValueError:
         raise ValueError(f"Call time {role['callTime']} not in a valid format")
     qualifiedStaff = role["qualifiedStaff"]
+    preferredStaff = role["preferredStaff"]
     try:
         day = role["day"]
         weekday = Weekdays[day]
     except KeyError:
         raise ValueError(f"Day: {day} for Role: {name} not in valid format.")
-    return Role(name=name, day=weekday, callTime=callTime, qualifiedStaff=qualifiedStaff)
+    return Role(name=name, day=weekday, callTime=callTime, qualifiedStaff=qualifiedStaff, preferredStaff=preferredStaff)
 
 
 def parseStaff(staff):
