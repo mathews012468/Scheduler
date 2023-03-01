@@ -32,17 +32,12 @@ def getStaffPool(role, possibleStaff, schedule):
 
 #right now noDoubles does not take into account the Staff.doubles attribute.
 # so noDoubles can be expanded to include it:
-def getStaffPool(role, possibleStaff, schedule):
-    noDoubles = [
-    staff for staff in possibleStaff if
-    staff.isScheduled(role, schedule) == False
-    or
-    staff.isScheduled(role, schedule) == True and staff.doubles == True
+noDoubles = [
+staff for staff in possibleStaff if
+staff.isScheduled(role, schedule) == False
+or
+staff.isScheduled(role, schedule) == True and staff.doubles == True
 ]
-    shiftsRemaining = [staff for staff in possibleStaff if staff.shiftsRemaining > 0]
-
-    staffPool = [staff for staff in noDoubles and shiftsRemaining]
-    return staffPool
 
 #Here's a function to start the last requirement:
 #A schedule where all roles are paired with a staff
@@ -65,16 +60,13 @@ def createSchedule(roleCollection, staffCollection):
     return schedule
 
 #Now unassigned's need to be taken care of.
-#So this puts me in the same spot as the schedule iterations approach.
-
-#When unassigned staff end up in the schedule, iterate over the schedule
-#find all unassigned staff
-# and reassign them.
-#this step can be passed by, by finding new staff at the point where Unassigned staff would be created.
-#So what does that look like?
+#find new staff at the point where Unassigned staff would be created.
 
 #When staffPool is empty.
 #take a staffPool with one less restriction until staffPool is not empty
+staffPool = [staff for staff in noDoubles and shiftsRemaining]
+if staffPool == []:
+    staffPool = [staff for staff in noDoubles]
 
 
 
