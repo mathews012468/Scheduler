@@ -37,10 +37,11 @@ class Role:
 		'aux': datetime.time(hour=18)
 		}
 
-	def __init__(self, name, day, callTime=None, qualifiedStaff=None):
+	def __init__(self, name, day, callTime=None, qualifiedStaff=None, preferredStaff=None):
 		self.name = name
 		self.day = day
 		self.qualifiedStaff = qualifiedStaff
+		self.preferredStaff = preferredStaff
 
 		self.callTime = Role.callTimes.get(name, callTime)
 		if self.callTime == None:
