@@ -7,9 +7,6 @@ class DefaultConfig(object):
                 "qualifiedStaff": [
                     str()
                 ],
-                "preferredStaff": [
-                    str()
-                ],
                 "day": str()
             }
         ],

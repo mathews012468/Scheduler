@@ -4,7 +4,7 @@ def startSchedule(roleCollection, staffCollection):
     schedule = []
     for role in roleCollection:
         staff = random.choice(staffCollection)
-        schedule.appened((role,staff))
+        schedule.append((role,staff))
     return schedule
 
 
