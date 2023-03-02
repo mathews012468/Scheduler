@@ -16,14 +16,14 @@ def createSchedule(roleCollection, staffCollection):
     schedule = repairPreferences(schedule)
     return schedule
 
-def repairDoubles():
-    pass
+def repairDoubles(schedule):
+    return schedule
 
-def repairMaxShifts():
-    pass
+def repairMaxShifts(schedule):
+    return schedule
 
-def repairAvailability():
-    pass
+def repairAvailability(schedule):
+    return schedule
 
-def repairPreferences():
-    pass
+def repairPreferences(schedule):
+    return schedule
