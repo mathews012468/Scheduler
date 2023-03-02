@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request
 import main
+import iterations
 import logging
 #logger config, timestamp and message
 logging.basicConfig(filename='activity.log', filemode='w', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%H:%M:%S')
@@ -29,7 +30,7 @@ def createSchedule():
     roleCollection = [main.parseRole(role) for role in roleStaffData["roles"]]
     staffCollection = [main.parseStaff(staff) for staff in roleStaffData["staff"]]
 
-    schedule = main.createSchedule(roleCollection, staffCollection)
+    schedule = iterations.createSchedule(roleCollection, staffCollection)
 
     scheduleJSON = main.scheduleToJSON(schedule)
 
