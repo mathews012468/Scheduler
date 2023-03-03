@@ -1,17 +1,52 @@
-def repairDouble(schedule, double):
-    role = double[0]
-    assignedStaff=double[1]
+from classes import Weekdays
 
-    #for possible swaps
-    #find all staff not working on role.day
-        #those possible people to swap with
+def staffNotWorking(schedule, doubleRole):
+    notWorkingStaff = set()
+    workingDay = doubleRole.day
+    for role, staff in schedule:
+        if role.day != workingDay:
+            notWorkingStaff.add(staff)
+    return list(notWorkingStaff)
 
-    #for assigned staff
-    #find all the days that assigned is not working
 
-    #find all roles where assignedstaff is not working on role.day
-    #and where role in question is on a day that assigned staff is not working
+def getDaysNotWorking(schedule, staff):
+    daysNotWorking = []
+    daysWorking = set()
+    for pair in schedule:
+        if pair[1] == staff:
+            daysWorking.add(pair[0].day)
+    for day in Weekdays:
+        if day not in daysWorking:
+            daysNotWorking.append(day)
+    return daysNotWorking
 
-    #select random
-    #make swap
+def getPossibleSwaps(schedule, daysNotWorking, staffNotWorking):
+    possibleSwaps = []
+    for index, pair in enumerate(schedule):
+        if pair[0].day in daysNotWorking and pair[1] in staffNotWorking:
+            possibleSwaps.append((index,pair))
+    return possibleSwaps
+
+
+def swapDouble(schedule, doubleIndex):
+    double = schedule[doubleIndex]
+    #assigned role/staff
+    doubleRole = double[0]
+    doubleStaff = double[1]
+
+    #get a list of all staff from the schedule not working on assigned staff's role.day.
+    staffNotWorking = staffNotWorking(schedule, doubleRole)
+
+    #for assigned staff get days not working
+    daysNotWorking = getDaysNotWorking(schedule, doubleStaff)
+
+    possibleSwaps = getPossibleSwaps(schedule, daysNotWorking, staffNotWorking)
+    #sort possible swaps by staff's shifts remaining- highest at front.
+    possibleSwaps.sort(key= lambda pair: pair[1][1].shiftsRemaining(schedule), reverse= True)
+    swapIndex, swapRole, swapStaff= possibleSwaps[0] #(index,staff) tuple
+
+    schedule[doubleIndex] = (doubleRole, swapStaff)
+    schedule[swapIndex] = (swapRole, doubleStaff)
+    
+    return schedule
 
