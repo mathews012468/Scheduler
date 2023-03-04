@@ -56,15 +56,15 @@ def identifyDoubles(roleStaffPairs):
 
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
-    logger.debug(f'before: {[schedule[index] for index in identifyDoubles(schedule)]}')
+    for index in identifyDoubles(schedule):
+        logger.debug(f'before: {(index, schedule[index])}')
     schedule = repairDoubles(schedule)
-    logger.debug(f'after: {[schedule[index] for index in identifyDoubles(schedule)]}')
-    schedule = repairDoubles(schedule)
-    logger.debug(f'after: {[schedule[index] for index in identifyDoubles(schedule)]}')
-    schedule = repairDoubles(schedule)
-    logger.debug(f'after: {[schedule[index] for index in identifyDoubles(schedule)]}')
-    schedule = repairDoubles(schedule)
-    logger.debug(f'after: {[schedule[index] for index in identifyDoubles(schedule)]}')
+    if identifyDoubles(schedule) == []:
+        logger.debug(f'No Doubles!')
+    else:
+        for index in identifyDoubles(schedule):
+            logger.debug(f'after: {(index, schedule[index])}')
+    
 
     schedule = repairMaxShifts(schedule)
     schedule = repairAvailability(schedule)
@@ -76,16 +76,31 @@ def repairDoubles(schedule):
     logger.debug([schedule[index] for index in doublesIndices])
     for doubleIndex in doublesIndices:
         swapDouble(schedule, doubleIndex)
+        afterSwapIndices = identifyDoubles(schedule)
+        if doubleIndex in afterSwapIndices:
+            logger.debug('hold up')
 
     return schedule
 
+#to find staff who 
+#a list of staff who is does not have role.day in their set of shifts
+#a list of shifts per staff
+#then get a list of staff who don't have role.day in their list of shifts
+#a dictionary key.setdefault(staff.name)
+#dict[staff.name].add(role)
+
 def getStaffNotWorking(schedule, doubleRole):
-    notWorkingStaff = set()
+    RolesPerStaff = {}
+    notWorkingStaff = []
     workingDay = doubleRole.day
     for role, staff in schedule:
-        if role.day != workingDay:
-            notWorkingStaff.add(staff)
-    return list(notWorkingStaff)
+        RolesPerStaff.setdefault(staff,[])
+        RolesPerStaff[staff].append(role.day)
+    for staff in RolesPerStaff:
+        if workingDay not in RolesPerStaff[staff]:
+            notWorkingStaff.append(staff)
+    logger.debug(f'staff not working on {doubleRole.day}: {notWorkingStaff}')
+    return notWorkingStaff
 
 
 def getDaysNotWorking(schedule, staff):
@@ -97,6 +112,7 @@ def getDaysNotWorking(schedule, staff):
     for day in Weekdays:
         if day not in daysWorking:
             daysNotWorking.append(day)
+    logger.debug(f'Double Staff: daysNotWorking:{daysNotWorking}')
     return daysNotWorking
 
 def getPossibleSwaps(schedule, daysNotWorking, staffNotWorking):
@@ -126,7 +142,13 @@ def swapDouble(schedule, doubleIndex):
     swapRole, swapStaff = swapShift
 
     schedule[doubleIndex] = (doubleRole, swapStaff)
+    logger.debug(f'double index:{doubleIndex}')
+    logger.debug(f'doubleStaff: {doubleStaff}')
+    logger.debug(f'doubleRole: {doubleRole}')
     schedule[swapIndex] = (swapRole, doubleStaff)
+    logger.debug(f'swap Index: {swapIndex}')
+    logger.debug(f'swapStaff: {swapStaff}')
+    logger.debug(f'swapRole: {swapRole}')
     
     return schedule
 
