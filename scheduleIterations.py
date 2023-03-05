@@ -110,6 +110,8 @@ def repairDoubles(schedule):
         doubles = identifyDoubles(schedule)
 
         attempts += 1
+        if attempts == 99:
+            logger.warning('Max Attempts reached')
 
     return schedule
 
