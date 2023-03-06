@@ -136,6 +136,16 @@ def identifyDoubles(roleStaffPairs):
 	return doubles
 
 def repairAvailability(schedule):
+    #An outline to repair roles with respect to staff availablity and nothing else:
+
+    #Find all pairs in the schedule where staff are paired with roles they are unavailable for.
+    #for each UnavailablePair:
+        #get a list of pairs from the schedule where staff is available for the Unavailable role.
+        #from that list of possibleSwapPairs, get all the pairs that the current Unavailable Staff is available for
+        #if no matching pair available, skip this unavailble pair for now
+            #return schedule as is
+        #if there is a matching pair, make the swap.
+
     return schedule
 
 def repairPreferences(schedule):
