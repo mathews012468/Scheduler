@@ -37,7 +37,6 @@ def startSchedule(roleCollection, staffCollection):
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
     schedule = repairDoubles(schedule)
-    schedule = repairMaxShifts(schedule)
     schedule = repairAvailability(schedule)
     schedule = repairPreferences(schedule)
 
@@ -135,9 +134,6 @@ def identifyDoubles(roleStaffPairs):
 		else:
 			staffDays.add(staffDay)
 	return doubles
-
-def repairMaxShifts(schedule):
-    return schedule
 
 def repairAvailability(schedule):
     return schedule
