@@ -76,8 +76,9 @@ def repairDouble(schedule, double):
         logger.info(f"{double} cannot be resolved at the moment.")
         return schedule
     
-    #pick a random role from that list as the swap
-    swapPair = random.choice(possibleSwapPairs)
+    #select staff with highest shifts remaining from possibleSwapPairs
+    possibleSwapPairs.sort(key= lambda pair: pair[1].shiftsRemaining(schedule), reverse= True)
+    swapPair = possibleSwapPairs[0]
 
     #to make swap
     #1. remove pairs to be changed
