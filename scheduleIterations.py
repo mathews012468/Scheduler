@@ -105,7 +105,7 @@ def repairDoubles(schedule):
         #but hopefully that's unlikely. To take care of that
         #issue, I've added a max attempts that stops this
         #if it goes on too long.
-        doubleToRepair = random.choice(doubles)
+        doubleToRepair = random.choice(doubles) #Question: why random choice over iterating through the list in order?
         schedule = repairDouble(schedule, doubleToRepair)
         doubles = identifyDoubles(schedule)
 
