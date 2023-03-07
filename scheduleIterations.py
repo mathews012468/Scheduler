@@ -150,46 +150,53 @@ def identifyUnavailablePairs(schedule):
     return unAvailablePairs
 
 def swapShifts(schedule, shift1, shift2):
+    logger.info(f'swapping {shift1} with {shift2}')
     #1. swap staff of pairs
     newPair1 = (shift1[0], shift2[1])
     newPair2 = (shift2[0], shift1[1])
+    logger.debug(f'swapped pairs created.')
     #2. add new pairs to schedule
     schedule.append(newPair1)
+    logger.debug(f'added {newPair1}')
     schedule.append(newPair2)
+    logger.debug(f'added {newPair2}')
     #3. remove old pairs from schedule
     schedule.remove(shift1)
+    logger.debug(f'removed old pair {shift1}')
     schedule.remove(shift2)
+    logger.debug(f'removed old pair {shift2}')
+    logger.info('pairs swapped')
     return schedule
 
 
 def repairUnavailable(unAvailablePair, schedule):
     repairRole = unAvailablePair[0]
+    logger.debug(f'role to repair: {repairRole}')
     repairStaff = unAvailablePair[1]
+    logger.debug(f'staff to repair: {repairStaff}')
     #get a list of available staff pairs
     availableStaffPairs = [pair for pair in schedule if pair[1].isAvailable(repairRole)]
+    logger.debug(f'available staff pairs: {availableStaffPairs}')
     #get list of possible swap pairs
     possibleSwapPairs = [pair for pair in availableStaffPairs if repairStaff.isAvailable(pair[0])]
+    logger.debug(f'possible swap pairs: {possibleSwapPairs}')
     if possibleSwapPairs == []:
         logger.warning(f'no swap pair for {unAvailablePair}')
         return schedule
     swapPair = random.choice(possibleSwapPairs)
+    logger.debug(f'selected {swapPair} as target swap')
     schedule = swapShifts(schedule, unAvailablePair, swapPair)
     return schedule
 
 def repairAvailability(schedule):
-    #An outline to repair roles with respect to staff availablity and nothing else:
-
-    #Find all pairs in the schedule where staff are paired with roles they are unavailable for.
+    'Repair roles with respect to staff availablity and nothing else'
     unAvailablePairs = identifyUnavailablePairs(schedule)
+    logger.debug(f'BEFORE: number of unavailable pairs:{len(unAvailablePairs)}\n{unAvailablePairs}')
     for pair in unAvailablePairs:
+        logger.info(f'repairing: {pair}')
         repairUnavailable(pair, schedule)
-    #for each UnavailablePair:
-        #get a list of pairs from the schedule where staff is available for the Unavailable role.
-        #from that list of possibleSwapPairs, get all the pairs that the current Unavailable Staff is available for
-        #if no matching pair available, skip this unavailble pair for now
-            #return schedule as is
-        #if there is a matching pair, make the swap.
-
+    unAvailablePairs = identifyUnavailablePairs(schedule)
+    logger.debug(f'AFTER: number of unavailable pairs:{len(unAvailablePairs)}\n{unAvailablePairs}')
     return schedule
 
 def repairPreferences(schedule):
