@@ -141,7 +141,13 @@ def identifyUnavailablePairs(schedule):
     Produce a list of pairs from the schedule
     where staff are paired with roles they are unavailable for
     """
-    pass
+    unAvailablePairs = []
+    #for pair in schedule check if the role's calltime is in staff's availability.
+    #if not, then append to list of unavailablePairs
+    for role, staff in schedule:
+        if not staff.isAvailable(role):
+            unAvailablePairs.append((role,staff))
+    return unAvailablePairs
 
 def repairUnavailable(pair, schedule):
     pass
