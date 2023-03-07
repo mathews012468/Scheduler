@@ -192,10 +192,19 @@ def repairAvailability(schedule):
     'Repair roles with respect to staff availablity and nothing else'
     unAvailablePairs = identifyUnavailablePairs(schedule)
     logger.debug(f'BEFORE: number of unavailable pairs:{len(unAvailablePairs)}\n{unAvailablePairs}')
-    for pair in unAvailablePairs:
-        logger.info(f'repairing: {pair}')
-        repairUnavailable(pair, schedule)
+    
+    MAX_ATTEMPTS = 100
+    attempts = 0
+    while unAvailablePairs != [] and attempts < MAX_ATTEMPTS:
+        selectedPair = random.choice(unAvailablePairs)
+        logger.debug(f'selected {selectedPair} to repair')
+        schedule = repairUnavailable(selectedPair, schedule)
+        unAvailablePairs = identifyUnavailablePairs(schedule)
+        attempts += 1
+        if attempts == 99:
+            logger.warning('Max Attempts reached')
     unAvailablePairs = identifyUnavailablePairs(schedule)
+
     logger.debug(f'AFTER: number of unavailable pairs:{len(unAvailablePairs)}\n{unAvailablePairs}')
     return schedule
 
