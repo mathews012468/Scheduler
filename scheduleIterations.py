@@ -149,8 +149,32 @@ def identifyUnavailablePairs(schedule):
             unAvailablePairs.append((role,staff))
     return unAvailablePairs
 
-def repairUnavailable(pair, schedule):
-    pass
+def swapShifts(schedule, shift1, shift2):
+    #1. swap staff of pairs
+    newPair1 = (shift1[0], shift2[1])
+    newPair2 = (shift2[0], shift1[1])
+    #2. add new pairs to schedule
+    schedule.append(newPair1)
+    schedule.append(newPair2)
+    #3. remove old pairs from schedule
+    schedule.remove(shift1)
+    schedule.remove(shift2)
+    return schedule
+
+
+def repairUnavailable(unAvailablePair, schedule):
+    repairRole = unAvailablePair[0]
+    repairStaff = unAvailablePair[1]
+    #get a list of available staff pairs
+    availableStaffPairs = [pair for pair in schedule if pair[1].isAvailable(repairRole)]
+    #get list of possible swap pairs
+    possibleSwapPairs = [pair for pair in availableStaffPairs if repairStaff.isAvailable(pair[0])]
+    if possibleSwapPairs == []:
+        logger.warning(f'no swap pair for {unAvailablePair}')
+        return schedule
+    swapPair = random.choice(possibleSwapPairs)
+    schedule = swapShifts(schedule, unAvailablePair, swapPair)
+    return schedule
 
 def repairAvailability(schedule):
     #An outline to repair roles with respect to staff availablity and nothing else:
