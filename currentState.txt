@@ -1,0 +1,8 @@
+repair Availability functions.
+
+Currently, it only respects availablity so that means it probably creates a lot of doubles
+The idea of completely moduler repair functions that can be called in any order on a schedule sounds nice,
+though I can't think of a way to make it work in practice.
+
+So, that means, adding double checks to the repairAvailability function?
+This seems messy. Maybe there's another way? Something to discuss.
