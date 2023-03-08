@@ -213,6 +213,45 @@ def repairAvailability(schedule):
     #Role preference: staff which the Role preferres
     #Staff preference: roles which the staff preferres
 def repairRolePreference(schedule):
+    #for each pair in the schedule,
+    # identify the pairs where assigned staff is not in the role's preference list
+    # for each of those pairs,
+    # find staff who is in the role's preference list
+        #However, it seems Maxshifts, Doubles, and Availability ought to be taken into account
+        #As we're abiding by the function calls that came before
+        #So, with that in mind,
+        # find staff who is available for the role,
+        # from that list check for staff who has shifts remaining-
+        # can take the role without incuring a double (not yet working on Role's day)-
+        # when such staff exists- they'd be an ideal 'open canditate' for the Role.
+
+        #Then what to do with the currently paired staff?
+        # I do not know.
+            #replacing the current staff with an ideal candidate leaves currently assigned staff open-
+            # now that staff may be a prefered candiate for another role...
+            # I don't know what to do with that.
+        #When a staff who happens to match all the requirements above, does not exist at this point.
+        #then, it's possible to look at the other pairs within the schedule and check for suitable staff from other pairs-
+        #From possible swaps, find a swap where the currently 'unprefered staff' matches with the target swap Role's prefered list-
+        #(this is the repairDoubles framework)
+
+        #when that list comes up empty,
+        # does the current Role still get swapped with a staff from within the schedule-
+        # leaving the currently unprefered staff open again without a shift?
+        # Does de-pairing staff without an immedaite swap move the schedule forward?
+        # Is there a way to get de-paired Staff to get into the mix again?
+        # Is that even important? I don't know.
+
+        #An idea that is coming forward, from this schedule iteration approach is-
+        #re-pairing staff from within the schedule-
+        # is a seperate processes than finding 'ideal' staff from outside of the schedule like in the select staff approach.
+        # This seems like a useful process to partition out as it's own function.
+        # Rather, this might be useful-
+        # after first understanding how to move the schedule forward with a 'RepairPrefernces' function...
+
+        #Question: How do you see a repairPreference function moving the schedule forward?
+         
+        
     return schedule
 
 def repairStaffPreference(schedule):
