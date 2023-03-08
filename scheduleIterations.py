@@ -208,5 +208,12 @@ def repairAvailability(schedule):
     logger.debug(f'AFTER: number of unavailable pairs:{len(unAvailablePairs)}\n{unAvailablePairs}')
     return schedule
 
-def repairPreferences(schedule):
+
+#There are two kinds of preference:
+    #Role preference: staff which the Role preferres
+    #Staff preference: roles which the staff preferres
+def repairRolePreference(schedule):
+    return schedule
+
+def repairStaffPreference(schedule):
     return schedule
