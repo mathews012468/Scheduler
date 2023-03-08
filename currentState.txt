@@ -6,3 +6,8 @@ though I can't think of a way to make it work in practice.
 
 So, that means, adding double checks to the repairAvailability function?
 This seems messy. Maybe there's another way? Something to discuss.
+
+Update for repairPreferences:
+The questions and uncertainties above apply to repairPreferences
+and any repair function that may come after- The bulk of comments shows as much.
+This is something to discuss.
