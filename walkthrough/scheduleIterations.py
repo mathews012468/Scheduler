@@ -41,7 +41,9 @@ def createSchedule(roleCollection, staffCollection):
     schedule = repairPreferences(schedule)
 
     logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
-    logger.debug(f"Remaining unavailabilities: {identifyUnavailables(schedule)}")
+    unavailables = identifyUnavailables(schedule)
+    logger.debug(f"Remaining unavailabilities: {unavailables}")
+    logger.debug(f"Number of unavailables: {len(unavailables)}")
     
     return schedule
 
@@ -138,6 +140,7 @@ def identifyDoubles(roleStaffPairs):
 def repairUnavailables(schedule):
     unavailables = identifyUnavailables(schedule)
     logger.debug(f"Unavailables to fix: {unavailables}")
+    logger.debug(f"Number of unavailables: {len(unavailables)}")
 
     MAX_ATTEMPTS = 100
     attempts = 0
