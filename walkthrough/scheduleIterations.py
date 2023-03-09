@@ -49,6 +49,7 @@ def repairDouble(schedule, double):
     """
     Take in schedule, and the role-staff pair to reassign
     """
+    logger.info(f"Double to be resolved: {double}")
     dayOfDoubleShift = double[0].day
     staffWorkingDoubles = double[1]
     #find all staff not working on day of the role to be reassigned,
@@ -70,6 +71,11 @@ def repairDouble(schedule, double):
     #the staff member working the double shift is not working
     possibleSwapPairs = [pair for pair in schedule if pair[0].day in possibleSwapDays and pair[1] in possibleSwapPartners]
 
+    if possibleSwapPairs == []:
+        #no way to resolve this double (for now), so just return the current schedule as is
+        logger.info(f"{double} cannot be resolved at the moment.")
+        return schedule
+    
     #pick a random role from that list as the swap
     swapPair = random.choice(possibleSwapPairs)
 
@@ -84,13 +90,28 @@ def repairDouble(schedule, double):
     schedule.append(newPair1)
     schedule.append(newPair2)
 
+    logger.info(f"Double resolved: {double}")
     return schedule
 
 def repairDoubles(schedule):
     doubles = identifyDoubles(schedule)
-    while doubles != []:
-        schedule = repairDouble(schedule, doubles[0])
+    logger.debug(f"Doubles to take care of: {doubles}")
+    MAX_ATTEMPTS = 100
+    attempts = 0
+    #It's probably possible that there will be some doubles 
+    # that can't be resolved, but hopefully that's unlikely. 
+    # To take care of that issue, I've added a max attempts 
+    # that stops this if it goes on too long.
+    while doubles != [] and attempts < MAX_ATTEMPTS:
+        #if a double can't be repaired, picking a random 
+        # double to fix (instead of always picking the first, 
+        # for example) allows us to take care of another double
+        # in the meantime.
+        doubleToRepair = random.choice(doubles)
+        schedule = repairDouble(schedule, doubleToRepair)
         doubles = identifyDoubles(schedule)
+
+        attempts += 1
 
     return schedule
 
