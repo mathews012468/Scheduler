@@ -37,10 +37,11 @@ def startSchedule(roleCollection, staffCollection):
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
     schedule = repairDoubles(schedule)
-    schedule = repairAvailability(schedule)
+    schedule = repairUnavailables(schedule)
     schedule = repairPreferences(schedule)
 
     logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
+    logger.debug(f"Remaining unavailabilities: {identifyUnavailables(schedule)}")
     
     return schedule
 
@@ -134,8 +135,72 @@ def identifyDoubles(roleStaffPairs):
 			staffDays.add(staffDay)
 	return doubles
 
-def repairAvailability(schedule):
+def repairUnavailables(schedule):
+    unavailables = identifyUnavailables(schedule)
+    logger.debug(f"Unavailables to fix: {unavailables}")
+
+    MAX_ATTEMPTS = 100
+    attempts = 0
+
+    while unavailables != [] and attempts < MAX_ATTEMPTS:
+        unavailableToRepair = random.choice(unavailables)
+        schedule = repairUnavailable(schedule, unavailableToRepair)
+        unavailables = identifyUnavailables(schedule)
+
+        attempts += 1
+
     return schedule
+
+def repairUnavailable(schedule, unavailableToRepair):
+    logger.info(f"Unavailable pair to be resolved: {unavailableToRepair}")
+    unavailableRole = unavailableToRepair[0]
+    unavailableStaff = unavailableToRepair[1]
+
+    #find all staff not working on day of unavailability 
+    # and are available for the role to be repaired
+    allStaff = {pair[1] for pair in schedule}
+    staffWorkingThatDay = {pair[1] for pair in schedule if pair[0].day is unavailableRole.day}
+    staffAvailableForRole = {pair[1] for pair in schedule if pair[1].isAvailable(unavailableRole)}
+    possibleSwapPartners = (allStaff - staffWorkingThatDay) & staffAvailableForRole
+
+    #find all days where unavailable staff isn't working
+    allDays = {day for day in Weekdays}
+    daysWhenUnavailableStaffIsWorking = {pair[0].day for pair in schedule if pair[1] is unavailableStaff}
+    possibleSwapDays = allDays - daysWhenUnavailableStaffIsWorking
+
+    #list of roles unavailable staff could work that are currently being staffed
+    #by one of the possible swap partners
+    possibleSwapPairs = [pair for pair in schedule if pair[0].day in possibleSwapDays and unavailableStaff.isAvailable(pair[0]) and pair[1] in possibleSwapPartners]
+    logger.debug(f"Possible swap pairs (availability): {possibleSwapPairs}")
+
+    if possibleSwapPairs == []:
+        #no way to resolve this unavailability, so just return the schedule as is
+        logger.info(f"{unavailableToRepair} cannot be resolved at the moment.")
+        return schedule
+    
+    #pick a random role from that list as the swap
+    swapPair = random.choice(possibleSwapPairs)
+
+    #to make swap
+    #1. remove pairs to be changed
+    schedule.remove(unavailableToRepair)
+    schedule.remove(swapPair)
+    #2. swap staff
+    newPair1 = (unavailableRole, swapPair[1])
+    newPair2 = (swapPair[0], unavailableStaff)
+    #3. add fixed pairs back to schedule
+    schedule.append(newPair1)
+    schedule.append(newPair2)
+
+    logger.info(f"Unavailability resolved: {unavailableToRepair}")
+    return schedule
+
+def identifyUnavailables(schedule):
+    """
+    Return list of all role-staff pairs where the staff is
+    unavailable to work the role
+    """
+    return [pair for pair in schedule if not pair[1].isAvailable(pair[0])]
 
 def repairPreferences(schedule):
     return schedule
