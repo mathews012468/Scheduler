@@ -1,7 +1,6 @@
 from flask import Flask
 from flask import request
 import main
-import iterations
 import scheduleIterations
 import logging
 #logger config, timestamp and message
