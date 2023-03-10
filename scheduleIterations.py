@@ -38,7 +38,6 @@ def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
     schedule = repairDoubles(schedule)
     schedule = repairAvailability(schedule)
-    schedule = repairPreferences(schedule)
 
     logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
     
