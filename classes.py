@@ -80,6 +80,11 @@ class Staff:
 		if self.name not in role.qualifiedStaff:
 			return False
 		return True
+	
+	def hasPreference(self, role):
+		if role.name not in self.rolePreference:
+			return False
+		return True
 
 	def isScheduled(self, role, schedule):
 		for pair in schedule:
