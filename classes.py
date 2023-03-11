@@ -94,9 +94,9 @@ class Staff:
 		return False
 		
 
-	def shiftsRemaining(self, roleStaffPairs):
+	def shiftsRemaining(self, schedule):
 		shiftCount = 0
-		for pair in roleStaffPairs:
+		for pair in schedule:
 			if pair[1] == self:
 				shiftCount += 1
 		return self.maxShifts - shiftCount
