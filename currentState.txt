@@ -1,0 +1,24 @@
+Things todo in schedule iteration:
+* respect the function call that came before in selecting staff
+* generate a graph to walk through for each function call
+
+
+Looking at repairDoubles specifically.
+I don't understand how the graph is to be used to find a pair to swap with.
+
+between lines 50-70 what happens is:
+* possibleSwapPartners = a list of all staff open to work on the double role's day.
+* possibleSwapDays = a list days the current double-staff is not working.
+* possibleSwapPairs =  pairs from the schedule were the staff is in possibleSwapPairs,
+and the role's day is in possibleSwapDays.
+These are suitable pairs to repair the double'd shift.
+
+Question: At what point in this process is the graph supposed to take shape?
+
+With repairAvailablity, I added a filter to the list of staff with respect to repairDoubles
+and ended up with lines 180-185
+Here as well I am struggling to grasp where the graph fits in.
+
+I thought I understood the graph when it was presented,
+now that I'm trying to work with it, I am lost in the specifics.
+Are you able to reiterate the purpose of introducing the graph again?
