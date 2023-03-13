@@ -176,8 +176,16 @@ def repairUnavailable(unAvailablePair, schedule):
     #get a list of available staff pairs
     availableStaffPairs = [pair for pair in schedule if pair[1].isAvailable(repairRole)]
     logger.debug(f'available staff pairs: {availableStaffPairs}')
+
+    #respect the previous call to repairDoubles
+    #narrow the list to pairs of staff who are not working on repairRole's day.
+    availableStaffPairs_withRespectToDoubles= [pair for pair in availableStaffPairs if pair[0].day != repairRole.day]
+    #Unless staff is paired with a role they are unavailable for, in which case it does not matter that they are working this day- they will get re-assigned anyway.
+    availableStaffPairs_withRespectToAvailability = [pair for pair in availableStaffPairs if not pair[1].isAvailable(pair[0])]
+    actuallyAvailableStaffPairs = availableStaffPairs_withRespectToDoubles + availableStaffPairs_withRespectToAvailability
+
     #get list of possible swap pairs
-    possibleSwapPairs = [pair for pair in availableStaffPairs if repairStaff.isAvailable(pair[0])]
+    possibleSwapPairs = [pair for pair in actuallyAvailableStaffPairs if repairStaff.isAvailable(pair[0])]
     logger.debug(f'possible swap pairs: {possibleSwapPairs}')
     if possibleSwapPairs == []:
         logger.warning(f'no swap pair for {unAvailablePair}')
