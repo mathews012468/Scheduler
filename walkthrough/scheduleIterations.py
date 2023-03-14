@@ -38,13 +38,19 @@ def startSchedule(roleCollection, staffCollection):
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
     schedule = repairDoubles(schedule)
-    schedule = repairUnavailables(schedule)
-    schedule = repairPreferences(schedule)
-
     logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
     unavailables = identifyUnavailables(schedule)
     logger.debug(f"Remaining unavailabilities: {unavailables}")
     logger.debug(f"Number of unavailables: {len(unavailables)}")
+    schedule = repairUnavailables(schedule)
+    schedule = repairPreferences(schedule)
+
+    beforeUnavailables = len(unavailables)
+    logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
+    unavailables = identifyUnavailables(schedule)
+    logger.debug(f"Remaining unavailabilities: {unavailables}")
+    logger.debug(f"Number of unavailables: {len(unavailables)}")
+    logger.debug(f"Unavailables removed: {beforeUnavailables - len(unavailables)}")
     
     return schedule
 
@@ -144,38 +150,73 @@ def couldWorkRole(staff, role, schedule):
     possibleSwapDays = allDays - staffWorkingDays
     staffAlreadyWorksRole = False
     for pair in schedule:
-        if pair[1] == staff and pair[0] == role:
+        if pair[1] is staff and pair[0] is role:
             staffAlreadyWorksRole = True
             break
 
     return (role.day in possibleSwapDays or staffAlreadyWorksRole) and staff.isAvailable(role)
 
 def repairUnavailables(schedule):
-    graph = [[couldWorkRole(pair1[1], pair2[0], schedule) for pair1 in schedule] for pair2 in schedule]
+    graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
     logger.debug(f"graph: {graph}")
     unavailables = [i for i in range(len(graph)) if not graph[i][i]]
     
-    MAX_ATTEMPTS = 1
+    MAX_ATTEMPTS = 100
     attempts = 0
     while unavailables != [] and attempts < MAX_ATTEMPTS:
         indexOfUnavailableToRepair = random.choice(unavailables)
         schedule = repairUnavailable(schedule, indexOfUnavailableToRepair)
-        graph = [[couldWorkRole(pair1[1], pair2[0], schedule) for pair1 in schedule] for pair2 in schedule]
+        graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
         unavailables = [i for i in range(len(graph)) if not graph[i][i]]
 
         attempts += 1
+        logger.debug(f"attempts: {attempts}")
 
     logger.debug(f"Unavailables: {unavailables}")
     return schedule
 
 def repairUnavailable(schedule, indexOfUnavailableToRepair):
-    graph = [[1 if couldWorkRole(pair1[1], pair2[0], schedule) else 0 for pair1 in schedule] for pair2 in schedule]
+    graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
     length = 2
-    path = [indexOfUnavailableToRepair]
-    visited = [False for i in range(len(schedule))]
-    visited[indexOfUnavailableToRepair] = True
-    allCycles = allCyclesOfLength(graph, length, path, visited)
-    logger.debug(f"allCycles: {allCycles}")
+    MAX_LENGTH = 4
+    cycles = []
+    while cycles == [] and length < MAX_LENGTH:
+        path = [indexOfUnavailableToRepair]
+        visited = [False for i in range(len(schedule))]
+        visited[indexOfUnavailableToRepair] = True
+        allCycles = allCyclesOfLength(graph, length, path, visited)
+        logger.debug(f"allCycles: {allCycles}")
+        if allCycles == []:
+            length += 1
+            continue
+
+        cycle = random.choice(allCycles)
+        logger.debug(f"Repairing: {schedule[indexOfUnavailableToRepair]}, Cycle: {cycle}, Cycle with info: {[schedule[i] for i in cycle]}")
+        schedule = cycleSwap(schedule, cycle)
+        logger.debug(f"Doubles: {identifyDoubles(schedule)}")
+        break
+
+    return schedule
+
+def cycleSwap(schedule, cycle):
+    """
+    Perform the sequence of swaps indicated by the cycle
+    If cycle is [4, 10, 3, 4], 4->10, 10->3, 3->4
+    [10,4,3,10]
+    [3,4,10,3]
+    [3,4,10,3]
+    """
+    for i in range(1,len(cycle)-1):
+        logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
+        pair1 = schedule[cycle[0]]
+        pair2 = schedule[cycle[i]]
+        newPair1 = (pair1[0], pair2[1])
+        newPair2 = (pair2[0], pair1[1])
+        schedule.insert(cycle[0], newPair1)
+        schedule.insert(cycle[1], newPair2)
+        schedule.remove(pair1)
+        schedule.remove(pair2)
+        logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
     return schedule
 
 def allCyclesOfLength(graph, length, path, visited):
