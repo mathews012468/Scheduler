@@ -157,17 +157,14 @@ def couldWorkRole(staff, role, schedule):
     return (role.day in possibleSwapDays or staffAlreadyWorksRole) and staff.isAvailable(role)
 
 def repairUnavailables(schedule):
-    graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
-    logger.debug(f"graph: {graph}")
-    unavailables = [i for i in range(len(graph)) if not graph[i][i]]
+    unavailables = identifyUnavailables(schedule)
     
     MAX_ATTEMPTS = 100
     attempts = 0
     while unavailables != [] and attempts < MAX_ATTEMPTS:
         indexOfUnavailableToRepair = random.choice(unavailables)
         schedule = repairUnavailable(schedule, indexOfUnavailableToRepair)
-        graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
-        unavailables = [i for i in range(len(graph)) if not graph[i][i]]
+        unavailables = identifyUnavailables(schedule)
 
         attempts += 1
         logger.debug(f"attempts: {attempts}")
@@ -212,10 +209,15 @@ def cycleSwap(schedule, cycle):
         pair2 = schedule[cycle[i]]
         newPair1 = (pair1[0], pair2[1])
         newPair2 = (pair2[0], pair1[1])
-        schedule.insert(cycle[0], newPair1)
-        schedule.insert(cycle[1], newPair2)
         schedule.remove(pair1)
         schedule.remove(pair2)
+        #should insert smaller index first, since inserting something before will change the index
+        if cycle[0] > cycle[i]:
+            schedule.insert(cycle[1], newPair2)
+            schedule.insert(cycle[0], newPair1)
+        else:
+            schedule.insert(cycle[0], newPair1)
+            schedule.insert(cycle[i], newPair2)
         logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
     return schedule
 
