@@ -182,10 +182,10 @@ def repairUnavailables(schedule):
 
 def repairUnavailable(schedule, indexOfUnavailableToRepair):
     graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
-    length = 2
+
     MAX_LENGTH = 4
     cycles = []
-    while cycles == [] and length < MAX_LENGTH:
+    for length in range(2,MAX_LENGTH):
         path = [indexOfUnavailableToRepair]
         visited = [False for i in range(len(schedule))]
         visited[indexOfUnavailableToRepair] = True
