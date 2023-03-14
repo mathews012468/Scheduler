@@ -13,7 +13,8 @@ def startSchedule(roleCollection, staffCollection):
     #and values are list of employees with that number of shifts
     staffByShifts = {}
     for staff in staffCollection:
-        shiftsRemaining = staff.maxShifts
+        shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
+        logger.debug(f"Staff: {staff}, shifts remaining: {shiftsRemaining}, max shifts: {staff.maxShifts}, days could work: {numberOfDaysCouldWork(staff)}")
         staffByShifts.setdefault(shiftsRemaining, [])
         staffByShifts[shiftsRemaining].append(staff)
     maxRemainingShifts = max(staffByShifts)
@@ -34,6 +35,13 @@ def startSchedule(roleCollection, staffCollection):
         schedule.append((role,staff))
     logger.debug(staffByShifts)
     return schedule
+
+def numberOfDaysCouldWork(staff):
+    days = 0
+    for times in staff.availability.values():
+        if times != []:
+            days += 1
+    return days
 
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
