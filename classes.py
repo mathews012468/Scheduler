@@ -1,5 +1,6 @@
 from enum import Enum
 import datetime
+from collections import defaultdict
 
 import logging
 logger = logging.getLogger(__name__)
@@ -100,3 +101,59 @@ class Staff:
 			if pair[1] == self:
 				shiftCount += 1
 		return self.maxShifts - shiftCount
+
+class Graph(object):
+	""" Graph data structure, undirected by default """
+
+	def __init__(self, connections, directed=False):
+		self.graph = defaultdict(set)
+		self.directed = directed
+		self.add_connections(connections)
+
+	def add_connections(self, connections):
+		""" Add connections (list of tuple pairs) to grap """
+
+		for node1, node2 in connections:
+			self.add(node1, node2)
+
+	def add(self, node1, node2):
+		""" Add connection between node1 and node2 """
+
+		self.graph[node1].add(node2)
+		if not self.directed:
+			self.graph[node2].add(node1)
+
+	def remove(self, node):
+		""" Remove all references to node"""
+		
+		for n, cxns in self.graph.items():
+			try:
+				cxns.remove(node)
+			except KeyError:
+				pass
+		try:
+			del self.graph[node]
+		except KeyError:
+			pass
+
+	def is_connected(self, node1, node2):
+		""" Is node1 directly connected to node2"""
+
+		return node1 in self.graph and node2 in self.graph[node1]
+
+	def find_path(self, node1, node2, pathMemory=[]):
+		""" Find any path between node1 and node2 """
+		path = pathMemory + [node1]
+		if node1 == node2:
+			return path
+		if node1 not in self.graph:
+			print(f'no path out from {node1}')
+			return None
+		for node in self.graph[node1]:
+			if node not in path:
+				newpath = self.find_path(node, node2, path)
+				if newpath: return newpath
+		return None
+
+	def __str__(self):
+		return('{}({})').format(self.__class__.__name__, dict(self.graph))
