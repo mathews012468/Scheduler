@@ -155,5 +155,39 @@ class Graph(object):
 				if newpath: return newpath
 		return None
 
+	def find_all_paths(self, node1, node2, pathMemory=[]):
+		""" find all paths from node1 to node2 """
+
+		path = pathMemory + [node1]
+		if node1 == node2:
+			return [path]
+		if node1 not in self.graph:
+			print(f'In {path} no arc out from {node1}')
+			return []
+		paths = []
+		for node in self.graph[node1]:
+			if node not in path:
+				newPaths = self.find_all_paths(node, node2, path)
+				for newPath in newPaths:
+					paths.append(newPath)
+		return paths
+
+	def find_shortest_path(self, node1, node2, pathMemory=[]):
+		""" find shortest path from node1 to node2"""
+
+		path = pathMemory + [node1]
+		if node1 == node2:
+			return path
+		if node1 not in self.graph:
+			return(f'no arc out from {node1}')
+		shortest = None
+		for node in self.graph[node1]:
+			if node not in path:
+				newPath = self.find_shortest_path(node, node2, path)
+				if newPath:
+					if not shortest or len(newPath) < len(shortest):
+						shortest = newPath
+		return shortest
+
 	def __str__(self):
 		return('{}({})').format(self.__class__.__name__, dict(self.graph))
