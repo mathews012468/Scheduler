@@ -235,15 +235,12 @@ def cycleSwap(schedule, cycle):
         pair2 = schedule[cycle[i]]
         newPair1 = (pair1[0], pair2[1])
         newPair2 = (pair2[0], pair1[1])
+
         schedule.remove(pair1)
+        schedule.insert(cycle[0], newPair1)
+
         schedule.remove(pair2)
-        #should insert smaller index first, since inserting something before will change the index
-        if cycle[0] > cycle[i]:
-            schedule.insert(cycle[1], newPair2)
-            schedule.insert(cycle[0], newPair1)
-        else:
-            schedule.insert(cycle[0], newPair1)
-            schedule.insert(cycle[i], newPair2)
+        schedule.insert(cycle[1], newPair2)
         logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
     return schedule
 
