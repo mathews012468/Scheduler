@@ -181,8 +181,25 @@ def repairUnavailables(schedule):
     return schedule
 
 def repairUnavailable(schedule, indexOfUnavailableToRepair):
+    """
+    The staff at schedule[indexOfUnavailableToRepair] should not be available to work the current role
+    they're assigned to. This function performs a series of swaps within the schedule fix this unavailability.
+    Return the fixed schedule.
+    """
+
+    """
+    graph is an adjacency matrix, it describes which role-staff pairs are connected to other role-staff pairs
+    graph is an array of arrays, where each array's length is the number of pairs in the schedule
+    The element at row i and column j is True if the staff of pair i could work the role of pair j,
+    i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
+    """
     graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
 
+    """
+    We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
+    Try to change this to 8 to see how long it takes! (You might be able to get away with 5 or 6, just remember
+    the point of this is to give us a wider range of options for fixing the schedule)
+    """
     MAX_LENGTH = 4
     cycles = []
     for length in range(2,MAX_LENGTH):
@@ -207,9 +224,10 @@ def cycleSwap(schedule, cycle):
     """
     Perform the sequence of swaps indicated by the cycle
     If cycle is [4, 10, 3, 4], 4->10, 10->3, 3->4
-    [10,4,3,10]
-    [3,4,10,3]
-    [3,4,10,3]
+    It turns out that every cycle can be broken down into direct swaps (official term is transposition).
+    There's more than one way to do this, but the way it's being done in this function is to swap the
+    first with the second, the first with the third, the first with the fourth, and so on, and that ends
+    up performing the cycle we want.
     """
     for i in range(1,len(cycle)-1):
         logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
