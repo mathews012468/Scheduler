@@ -223,13 +223,13 @@ def repairUnavailable(schedule, indexOfUnavailableToRepair):
 def cycleSwap(schedule, cycle):
     """
     Perform the sequence of swaps indicated by the cycle
-    If cycle is [4, 10, 3, 4], 4->10, 10->3, 3->4
+    If cycle is [4, 10, 3], 4->10, 10->3, 3->4
     It turns out that every cycle can be broken down into direct swaps (official term is transposition).
     There's more than one way to do this, but the way it's being done in this function is to swap the
     first with the second, the first with the third, the first with the fourth, and so on, and that ends
     up performing the cycle we want.
     """
-    for i in range(1,len(cycle)-1):
+    for i in range(1,len(cycle)):
         logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
         pair1 = schedule[cycle[0]]
         pair2 = schedule[cycle[i]]
@@ -261,7 +261,6 @@ def allCyclesOfLength(graph, length, path, visited):
         startNode = path[0]
         #only add path to cycles if the current node connects to the start node
         if graph[currentNode][startNode]:
-            path = path + [startNode]
             cycles.append(path)
         return cycles
     
