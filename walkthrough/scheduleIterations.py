@@ -228,6 +228,10 @@ def cycleSwap(schedule, cycle):
     There's more than one way to do this, but the way it's being done in this function is to swap the
     first with the second, the first with the third, the first with the fourth, and so on, and that ends
     up performing the cycle we want.
+
+    There's some math here, basically we're just using the identity mentioned in this stack exchange post: https://math.stackexchange.com/q/3358722
+    For more info you can look up "decomposing cycles as a product of transpositions" or take a look at the lecture
+    notes mentioned in that post.
     """
     for i in range(1,len(cycle)):
         logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
