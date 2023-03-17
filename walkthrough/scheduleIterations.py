@@ -188,25 +188,13 @@ def repairUnavailable(schedule, indexOfUnavailableToRepair):
     """
 
     """
-    graph is an adjacency matrix, it describes which role-staff pairs are connected to other role-staff pairs
-    graph is an array of arrays, where each array's length is the number of pairs in the schedule
-    The element at row i and column j is True if the staff of pair i could work the role of pair j,
-    i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
-    """
-    graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
-
-    """
     We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
     Try to change this to 8 to see how long it takes! (You might be able to get away with 5 or 6, just remember
     the point of this is to give us a wider range of options for fixing the schedule)
     """
     MAX_LENGTH = 4
-    cycles = []
     for length in range(2,MAX_LENGTH):
-        path = [indexOfUnavailableToRepair]
-        visited = [False for i in range(len(schedule))]
-        visited[indexOfUnavailableToRepair] = True
-        allCycles = allCyclesOfLength(graph, length, path, visited)
+        allCycles = allCyclesOfLength(schedule, indexOfUnavailableToRepair, length)
         logger.debug(f"allCycles: {allCycles}")
         if allCycles == []:
             length += 1
@@ -248,7 +236,37 @@ def cycleSwap(schedule, cycle):
         logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {schedule[cycle[0]]}, {schedule[cycle[i]]}")
     return schedule
 
-def allCyclesOfLength(graph, length, path, visited):
+def allCyclesOfLength(schedule, indexOfUnavailableToRepair, length):
+    """
+    Find all groups of role-staff pairs in 'schedule' of size 'length' involving the pair at index 'indexOfUnavailableToRepair'
+    where the staff can be shuffled around while respecting doubles and availability.
+
+    For example, if we're trying to find a group of size 3, we want to find three role-staff pairs where
+    staff1 could work role2, staff2 could work role3, and staff3 could work role1.
+
+    This is like a wrapper around the 'allCyclesOfLengthHelper' function to avoid setting up the graph, path, and visited lists
+    in the 'repairUnavailable' function.
+
+    Return list[list of indices of the pairs in the schedule forming the cycle]
+    """
+
+    """
+    graph is an adjacency matrix, it describes which role-staff pairs are connected to other role-staff pairs
+    graph is an array of arrays, where each array's length is the number of pairs in the schedule
+    The element at row i and column j is True if the staff of pair i could work the role of pair j,
+    i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
+    """
+    graph = [[couldWorkRole(pair2[1], pair1[0], schedule) for pair1 in schedule] for pair2 in schedule]
+
+    path = [indexOfUnavailableToRepair]
+    #at the start, nothing but the node we're repairing has been visited, 
+    # since the cycle we're looking for should start with that node
+    visited = [False for i in range(len(schedule))]
+    visited[indexOfUnavailableToRepair] = True
+
+    return allCyclesOfLengthHelper(graph, length, path, visited)
+    
+def allCyclesOfLengthHelper(graph, length, path, visited):
     """
     Find all paths of length 'length' in 'graph' building off of path 
     and ending at the start of path (which makes a cycle). 
@@ -273,12 +291,10 @@ def allCyclesOfLength(graph, length, path, visited):
     for neighbor in unvisitedNeighbors:
         newVisited = copy.deepcopy(visited)
         newVisited[neighbor] = True
-        newCycles = allCyclesOfLength(graph, length-1, path + [neighbor], newVisited)
+        newCycles = allCyclesOfLengthHelper(graph, length-1, path + [neighbor], newVisited)
         logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
         cycles.extend(newCycles)
     return cycles
-
-             
 
 def identifyUnavailables(schedule):
     """
