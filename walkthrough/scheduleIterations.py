@@ -13,6 +13,7 @@ def startSchedule(roleCollection, staffCollection):
     #and values are list of employees with that number of shifts
     staffByShifts = {}
     for staff in staffCollection:
+        #makes sure shifts remaining aligns with a staff's indicated availability
         shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
         logger.debug(f"Staff: {staff}, shifts remaining: {shiftsRemaining}, max shifts: {staff.maxShifts}, days could work: {numberOfDaysCouldWork(staff)}")
         staffByShifts.setdefault(shiftsRemaining, [])
