@@ -206,17 +206,17 @@ class Schedule:
         The element at row i and column j is True if the staff of pair i could work the role of pair j,
         i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
         """
-        graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+        self.graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
 
         path = [unavailableRole]
         #at the start, nothing but the node we're repairing has been visited, 
         # since the cycle we're looking for should start with that node
-        visited = {role: False for role in graph}
+        visited = {role: False for role in self.graph}
         visited[unavailableRole] = True
 
-        return self.allCyclesOfLengthHelper(graph, length, path, visited)
+        return self.allCyclesOfLengthHelper(length, path, visited)
         
-    def allCyclesOfLengthHelper(self, graph, length, path, visited):
+    def allCyclesOfLengthHelper(self, length, path, visited):
         """
         Find all paths of length 'length' in 'graph' building off of path 
         and ending at the start of path (which makes a cycle). 
@@ -233,11 +233,11 @@ class Schedule:
         if length == 1:
             startNode = path[0]
             #only add path to cycles if the current node connects to the start node
-            if graph[currentNode][startNode]:
+            if self.graph[currentNode][startNode]:
                 cycles.append(path)
             return cycles
         
-        unvisitedNeighbors = [role for role in visited if graph[currentNode][role] and not visited[role]]
+        unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
         logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
             #can't do a deepcopy of visited because that changes the identity of the roles,
@@ -245,7 +245,7 @@ class Schedule:
             newVisited = {role: didVisit for role, didVisit in visited.items()}
             newVisited[neighbor] = True
             logger.debug(f"currentNode: {currentNode}, neighbor: {neighbor}")
-            newCycles = self.allCyclesOfLengthHelper(graph, length-1, path + [neighbor], newVisited)
+            newCycles = self.allCyclesOfLengthHelper(length-1, path + [neighbor], newVisited)
             logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
             cycles.extend(newCycles)
         return cycles
