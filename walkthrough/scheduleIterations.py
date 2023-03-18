@@ -136,7 +136,7 @@ class Schedule:
     def repairUnavailables(self):
         unavailables = self.identifyUnavailables()
         
-        MAX_ATTEMPTS = 100
+        MAX_ATTEMPTS = 500
         attempts = 0
         while unavailables != [] and attempts < MAX_ATTEMPTS:
             unavailableRole = random.choice(unavailables)
@@ -160,7 +160,7 @@ class Schedule:
         the point of this is to give us a wider range of options for fixing the schedule)
         """
         logger.info(f"Unavailable role to fix: {unavailableRole}")
-        MAX_LENGTH = 4
+        MAX_LENGTH = 5
         for length in range(2,MAX_LENGTH):
             allCycles = self.allCyclesOfLength(unavailableRole, length)
             logger.debug(f"allCycles: {allCycles}")
