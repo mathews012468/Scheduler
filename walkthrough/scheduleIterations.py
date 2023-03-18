@@ -5,37 +5,110 @@ import copy
 
 logger = logging.getLogger(__name__)
 
-def startSchedule(roleCollection, staffCollection):
-    """
-    For each role, pick random employee with max shifts remaining
-    """
-    #generate dictionary where keys are shifts remaining
-    #and values are list of employees with that number of shifts
-    staffByShifts = {}
-    for staff in staffCollection:
-        #makes sure shifts remaining aligns with a staff's indicated availability
-        shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
-        logger.debug(f"Staff: {staff}, shifts remaining: {shiftsRemaining}, max shifts: {staff.maxShifts}, days could work: {numberOfDaysCouldWork(staff)}")
-        staffByShifts.setdefault(shiftsRemaining, [])
-        staffByShifts[shiftsRemaining].append(staff)
-    maxRemainingShifts = max(staffByShifts)
+class Schedule:
+    def __init__(self, roles, staff):
+        self.roles = roles
+        self.staff = staff
+        self.schedule = self.startSchedule()
 
-    #shuffle role collection
-    roles = random.sample(roleCollection, k=len(roleCollection))
-    schedule = []
-    for role in roles:
-        staff = random.choice(staffByShifts[maxRemainingShifts])
-        #move staff to lower key, possibly remove key and update max
-        #if that was the last staff with that number of shifts remaining
-        staffByShifts[maxRemainingShifts].remove(staff)
-        staffByShifts.setdefault(maxRemainingShifts-1, [])
-        staffByShifts[maxRemainingShifts-1].append(staff)
-        if staffByShifts[maxRemainingShifts] == []:
-            del staffByShifts[maxRemainingShifts]
-            maxRemainingShifts -= 1
-        schedule.append((role,staff))
-    logger.debug(staffByShifts)
-    return schedule
+    def startSchedule(self):
+        """
+        For each role, pick random employee with max shifts remaining
+        """
+        #generate dictionary where keys are shifts remaining
+        #and values are list of employees with that number of shifts
+        staffByShifts = {}
+        for staff in self.staff:
+            #makes sure shifts remaining aligns with a staff's indicated availability
+            shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
+            logger.debug(f"Staff: {staff}, shifts remaining: {shiftsRemaining}, max shifts: {staff.maxShifts}, days could work: {numberOfDaysCouldWork(staff)}")
+            staffByShifts.setdefault(shiftsRemaining, [])
+            staffByShifts[shiftsRemaining].append(staff)
+        maxRemainingShifts = max(staffByShifts)
+
+        #shuffle role collection
+        roles = random.sample(self.roles, k=len(self.roles))
+        schedule = []
+        for role in roles:
+            staff = random.choice(staffByShifts[maxRemainingShifts])
+            #move staff to lower key, possibly remove key and update max
+            #if that was the last staff with that number of shifts remaining
+            staffByShifts[maxRemainingShifts].remove(staff)
+            staffByShifts.setdefault(maxRemainingShifts-1, [])
+            staffByShifts[maxRemainingShifts-1].append(staff)
+            if staffByShifts[maxRemainingShifts] == []:
+                del staffByShifts[maxRemainingShifts]
+                maxRemainingShifts -= 1
+            schedule.append((role,staff))
+        logger.debug(staffByShifts)
+        return schedule
+    
+    def repairDoubles(self):
+        doubles = identifyDoubles(self.schedule)
+        logger.debug(f"Doubles to take care of: {doubles}")
+        MAX_ATTEMPTS = 100
+        attempts = 0
+        #It's probably possible that there will be some doubles 
+        # that can't be resolved, but hopefully that's unlikely. 
+        # To take care of that issue, I've added a max attempts 
+        # that stops this if it goes on too long.
+        while doubles != [] and attempts < MAX_ATTEMPTS:
+            #if a double can't be repaired, picking a random 
+            # double to fix (instead of always picking the first, 
+            # for example) allows us to take care of another double
+            # in the meantime.
+            doubleToRepair = random.choice(doubles)
+            self.repairDouble(doubleToRepair)
+            doubles = identifyDoubles(self.schedule)
+
+            attempts += 1
+        
+    def repairDouble(self, double):
+        """
+        Take in schedule, and the role-staff pair to reassign
+        """
+        logger.info(f"Double to be resolved: {double}")
+        dayOfDoubleShift = double[0].day
+        staffWorkingDoubles = double[1]
+        #find all staff not working on day of the role to be reassigned,
+        #these are the possible swap partners
+        allStaff = {pair[1] for pair in self.schedule}
+        staffWorkingOnDoubleDay = {pair[1] for pair in self.schedule if pair[0].day is dayOfDoubleShift}
+        possibleSwapPartners = allStaff - staffWorkingOnDoubleDay
+        logger.debug(f"Possible swap partners: {possibleSwapPartners}")
+
+        #find all days the staff member currently working the double shift 
+        # is not currently working
+        #these are the days we can reassign that staff
+        allDays = {day for day in Weekdays}
+        daysWhenDoubledStaffIsWorking = {pair[0].day for pair in self.schedule if pair[1] is staffWorkingDoubles}
+        possibleSwapDays = allDays - daysWhenDoubledStaffIsWorking
+        logger.debug(f"Possible swap days: {possibleSwapDays}")
+
+        #get a list of all roles filled by the possible swap partners on the days
+        #the staff member working the double shift is not working
+        possibleSwapPairs = [pair for pair in self.schedule if pair[0].day in possibleSwapDays and pair[1] in possibleSwapPartners]
+
+        if possibleSwapPairs == []:
+            #no way to resolve this double (for now), so do nothing with the schedule
+            logger.info(f"{double} cannot be resolved at the moment.")
+            return
+        
+        #pick a random role from that list as the swap
+        swapPair = random.choice(possibleSwapPairs)
+
+        #to make swap
+        #1. remove pairs to be changed
+        self.schedule.remove(double)
+        self.schedule.remove(swapPair)
+        #2. swap staff
+        newPair1 = (double[0], swapPair[1])
+        newPair2 = (swapPair[0], double[1])
+        #3. add fixed pairs back to schedule
+        self.schedule.append(newPair1)
+        self.schedule.append(newPair2)
+
+        logger.info(f"Double resolved: {double}")
 
 def numberOfDaysCouldWork(staff):
     days = 0
@@ -45,8 +118,11 @@ def numberOfDaysCouldWork(staff):
     return days
 
 def createSchedule(roleCollection, staffCollection):
-    schedule = startSchedule(roleCollection, staffCollection)
-    schedule = repairDoubles(schedule)
+    schedule = Schedule(roles=roleCollection, staff=staffCollection)
+    schedule.repairDoubles()
+
+    schedule = schedule.schedule
+    
     logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
     unavailables = identifyUnavailables(schedule)
     logger.debug(f"Remaining unavailabilities: {unavailables}")
@@ -63,75 +139,6 @@ def createSchedule(roleCollection, staffCollection):
     
     return schedule
 
-def repairDouble(schedule, double):
-    """
-    Take in schedule, and the role-staff pair to reassign
-    """
-    logger.info(f"Double to be resolved: {double}")
-    dayOfDoubleShift = double[0].day
-    staffWorkingDoubles = double[1]
-    #find all staff not working on day of the role to be reassigned,
-    #these are the possible swap partners
-    allStaff = {pair[1] for pair in schedule}
-    staffWorkingOnDoubleDay = {pair[1] for pair in schedule if pair[0].day is dayOfDoubleShift}
-    possibleSwapPartners = allStaff - staffWorkingOnDoubleDay
-    logger.debug(f"Possible swap partners: {possibleSwapPartners}")
-
-    #find all days the staff member currently working the double shift 
-    # is not currently working
-    #these are the days we can reassign that staff
-    allDays = {day for day in Weekdays}
-    daysWhenDoubledStaffIsWorking = {pair[0].day for pair in schedule if pair[1] is staffWorkingDoubles}
-    possibleSwapDays = allDays - daysWhenDoubledStaffIsWorking
-    logger.debug(f"Possible swap days: {possibleSwapDays}")
-
-    #get a list of all roles filled by the possible swap partners on the days
-    #the staff member working the double shift is not working
-    possibleSwapPairs = [pair for pair in schedule if pair[0].day in possibleSwapDays and pair[1] in possibleSwapPartners]
-
-    if possibleSwapPairs == []:
-        #no way to resolve this double (for now), so just return the current schedule as is
-        logger.info(f"{double} cannot be resolved at the moment.")
-        return schedule
-    
-    #pick a random role from that list as the swap
-    swapPair = random.choice(possibleSwapPairs)
-
-    #to make swap
-    #1. remove pairs to be changed
-    schedule.remove(double)
-    schedule.remove(swapPair)
-    #2. swap staff
-    newPair1 = (double[0], swapPair[1])
-    newPair2 = (swapPair[0], double[1])
-    #3. add fixed pairs back to schedule
-    schedule.append(newPair1)
-    schedule.append(newPair2)
-
-    logger.info(f"Double resolved: {double}")
-    return schedule
-
-def repairDoubles(schedule):
-    doubles = identifyDoubles(schedule)
-    logger.debug(f"Doubles to take care of: {doubles}")
-    MAX_ATTEMPTS = 100
-    attempts = 0
-    #It's probably possible that there will be some doubles 
-    # that can't be resolved, but hopefully that's unlikely. 
-    # To take care of that issue, I've added a max attempts 
-    # that stops this if it goes on too long.
-    while doubles != [] and attempts < MAX_ATTEMPTS:
-        #if a double can't be repaired, picking a random 
-        # double to fix (instead of always picking the first, 
-        # for example) allows us to take care of another double
-        # in the meantime.
-        doubleToRepair = random.choice(doubles)
-        schedule = repairDouble(schedule, doubleToRepair)
-        doubles = identifyDoubles(schedule)
-
-        attempts += 1
-
-    return schedule
 
 def identifyDoubles(roleStaffPairs):
 	"""
