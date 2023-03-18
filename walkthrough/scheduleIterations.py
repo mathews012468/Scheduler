@@ -103,6 +103,14 @@ class Schedule:
 
     def swap(self, role1, role2):
         self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
+        try:
+            self.graph
+        except AttributeError:
+            return
+        self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
+        for role in self.graph:
+            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
+
 
     def tupleRepresentation(self):
         return [(role,staff) for role, staff in self.schedule.items()]
@@ -206,7 +214,11 @@ class Schedule:
         The element at row i and column j is True if the staff of pair i could work the role of pair j,
         i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
         """
-        self.graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+        #only do this once
+        try:
+            self.graph
+        except AttributeError:
+            self.graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
 
         path = [unavailableRole]
         #at the start, nothing but the node we're repairing has been visited, 
