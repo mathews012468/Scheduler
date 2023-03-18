@@ -287,6 +287,9 @@ def numberOfDaysCouldWork(staff):
     for times in staff.availability.values():
         if times != []:
             days += 1
+    if days == 0:
+        #don't want someone with no availability to work
+        days = -10
     return days
 
 def createSchedule(roleCollection, staffCollection):
