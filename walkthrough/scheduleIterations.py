@@ -1,7 +1,6 @@
 import random
 import logging
 from classes import Weekdays
-import copy
 
 logger = logging.getLogger(__name__)
 
