@@ -101,7 +101,11 @@ class Schedule:
         logger.info(f"Double resolved: {double}")
 
     def swap(self, role1, role2):
+        #swap the staff in the schedule
         self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
+
+        #update the graph to reflect the swap. The rows and columns involving role1 and role2 need to be swapped.
+        #This should only be done once we start fixing availabilites, so if self.graph doesn't exist, we exit.
         try:
             self.graph
         except AttributeError:
@@ -150,13 +154,12 @@ class Schedule:
     def repairUnavailable(self, unavailableRole):
         """
         The staff at schedule[unavailableRole] should not be available to work the current role
-        they're assigned to. This function performs a series of swaps within the schedule fix this unavailability.
+        they're assigned to. This function performs a series of swaps within the schedule to fix this unavailability.
         """
 
         """
         We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
-        Try to change this to 8 to see how long it takes! (You might be able to get away with 5 or 6, just remember
-        the point of this is to give us a wider range of options for fixing the schedule)
+        Try to change this to 8 to see how long it takes! (just remember the point of this is to give us a wider range of options for fixing the schedule)
         """
         logger.info(f"Unavailable role to fix: {unavailableRole}")
         MAX_LENGTH = 5
@@ -169,8 +172,7 @@ class Schedule:
 
             cycle = random.choice(allCycles)
             logger.debug(f"Repairing: {unavailableRole}-{self.schedule[unavailableRole]}, Cycle: {[(role, self.schedule[role]) for role in cycle]}")
-            schedule = self.cycleSwap(cycle)
-            # logger.debug(f"Doubles: {self.identifyDoubles()}")
+            self.cycleSwap(cycle)
             return
         
         logger.info(f"Currently no way of repairing {unavailableRole}")
@@ -201,7 +203,7 @@ class Schedule:
         For example, if we're trying to find a group of size 3, we want to find three roles where
         staff1 could work role2, staff2 could work role3, and staff3 could work role1.
 
-        This is like a wrapper around the 'allCyclesOfLengthHelper' function to avoid setting up the graph, path, and visited lists
+        This is like a wrapper around the 'allCyclesOfLengthHelper' function to avoid setting up the path, and visited lists
         in the 'repairUnavailable' function.
 
         Return list[list of roles in the schedule forming the cycle]
@@ -209,11 +211,12 @@ class Schedule:
 
         """
         graph is an adjacency matrix, it describes which role-staff pairs are connected to other role-staff pairs
-        graph is an array of arrays, where each array's length is the number of pairs in the schedule
-        The element at row i and column j is True if the staff of pair i could work the role of pair j,
-        i.e. it's saying that staff i could be reassigned to role j without breaking doubles/availability
+        graph is an dict of dicts, it's structured so that self.graph[role1][role2] tells you if the staff
+        working role1 could work role2. If that's true, then staff1 could be reassigned to role2 without breaking
+        doubles/availability.
         """
         #only do this once
+        #rebuilding the graph every time we fix a role-staff pair was making this program run VERY slow
         try:
             self.graph
         except AttributeError:
@@ -229,14 +232,14 @@ class Schedule:
         
     def allCyclesOfLengthHelper(self, length, path, visited):
         """
-        Find all paths of length 'length' in 'graph' building off of path 
+        Find all paths of length 'length' in 'self.graph' building off of path 
         and ending at the start of path (which makes a cycle). 
-        Graph is a list of lists, is an adjacency matrix. 
-        Path is a list of the elements in the path so far (list[int])
+        Graph is an adjacency matrix. self.graph[role1][role2] tells you if the staff working role1 could work role2
+        Path is a list of the elements in the path so far (list[role])
         Length is an int representing how many more nodes we need to walk along in the path
-        visited is a list of bools letting us know which nodes have been visited (so we don't visit them again)
+        visited is a dictionary letting us know which nodes have been visited (so we don't visit them again)
 
-        Return a list[list[int]]
+        Return a list[list[role]]
         """
         logger.debug(f"start of allCyclesOfLengthHelper. length: {length}, path: {path}")
         cycles = []
@@ -251,8 +254,8 @@ class Schedule:
         unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
         logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
-            #can't do a deepcopy of visited because that changes the identity of the roles,
-            #which is currently being used as the hash
+            #we need a copy of visited because we don't want changes to visited in one function
+            #call to mess with visited in another function call
             newVisited = {role: didVisit for role, didVisit in visited.items()}
             newVisited[neighbor] = True
             logger.debug(f"currentNode: {currentNode}, neighbor: {neighbor}")
@@ -263,8 +266,7 @@ class Schedule:
         
     def identifyUnavailables(self):
         """
-        Return list of all roles where the staff is
-        unavailable to work the role
+        Return list of all roles where the staff is unavailable to work the role
         """
         return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
 
