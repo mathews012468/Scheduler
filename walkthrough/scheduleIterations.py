@@ -186,7 +186,7 @@ class Schedule:
     def cycleSwap(self, cycle):
         """
         Perform the sequence of swaps indicated by the cycle
-        If cycle is [4, 10, 3], 4->10, 10->3, 3->4
+        If cycle is [role1, role2, role3], staff working role1 gets reassigned to role2, staff working role2 gets reassigned to role3, staff working role3 gets reassigned to role1
         It turns out that every cycle can be broken down into direct swaps (official term is transposition).
         There's more than one way to do this, but the way it's being done in this function is to swap the
         first with the second, the first with the third, the first with the fourth, and so on, and that ends
