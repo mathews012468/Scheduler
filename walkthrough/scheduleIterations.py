@@ -62,6 +62,21 @@ class Schedule:
             doubles = self.identifyDoubles()
 
             attempts += 1
+    
+    def repairUnavailables(self):
+        unavailables = self.identifyUnavailables()
+        
+        MAX_ATTEMPTS = 100
+        attempts = 0
+        while unavailables != [] and attempts < MAX_ATTEMPTS:
+            unavailableRole = random.choice(unavailables)
+            self.repairUnavailable(unavailableRole)
+            unavailables = self.identifyUnavailables()
+
+            attempts += 1
+            logger.debug(f"attempts: {attempts}")
+
+        logger.debug(f"Unavailables: {unavailables}")
         
     def repairDouble(self, double):
         """
@@ -100,57 +115,6 @@ class Schedule:
 
         logger.info(f"Double resolved: {double}")
 
-    def swap(self, role1, role2):
-        #swap the staff in the schedule
-        self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
-
-        #update the graph to reflect the swap. The rows and columns involving role1 and role2 need to be swapped.
-        #This should only be done once we start fixing availabilites, so if self.graph doesn't exist, we exit.
-        try:
-            self.graph
-        except AttributeError:
-            return
-        self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
-        for role in self.graph:
-            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
-
-
-    def tupleRepresentation(self):
-        return [(role,staff) for role, staff in self.schedule.items()]
-    
-    def identifyDoubles(self):
-        """
-        return list of roles that need to be reassigned to avoid doubles
-        """
-        
-        #if staff has already worked that day, then it's a double
-        doubles = []
-        staffDays = set() #set of staff day pairs
-        for role, staff in self.schedule.items():
-            day = role.day
-            staffDay = (staff, day)
-
-            if staffDay in staffDays:
-                doubles.append(role)
-            else:
-                staffDays.add(staffDay)
-        return doubles
-
-    def repairUnavailables(self):
-        unavailables = self.identifyUnavailables()
-        
-        MAX_ATTEMPTS = 500
-        attempts = 0
-        while unavailables != [] and attempts < MAX_ATTEMPTS:
-            unavailableRole = random.choice(unavailables)
-            self.repairUnavailable(unavailableRole)
-            unavailables = self.identifyUnavailables()
-
-            attempts += 1
-            logger.debug(f"attempts: {attempts}")
-
-        logger.debug(f"Unavailables: {unavailables}")
-
     def repairUnavailable(self, unavailableRole):
         """
         The staff at schedule[unavailableRole] should not be available to work the current role
@@ -176,6 +140,48 @@ class Schedule:
             return
         
         logger.info(f"Currently no way of repairing {unavailableRole}")
+
+    def identifyDoubles(self):
+        """
+        return list of roles that need to be reassigned to avoid doubles
+        """
+        
+        #if staff has already worked that day, then it's a double
+        doubles = []
+        staffDays = set() #set of staff day pairs
+        for role, staff in self.schedule.items():
+            day = role.day
+            staffDay = (staff, day)
+
+            if staffDay in staffDays:
+                doubles.append(role)
+            else:
+                staffDays.add(staffDay)
+        return doubles
+
+    def identifyUnavailables(self):
+        """
+        Return list of all roles where the staff is unavailable to work the role
+        """
+        return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
+
+    def swap(self, role1, role2):
+        #swap the staff in the schedule
+        self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
+
+        #update the graph to reflect the swap. The rows and columns involving role1 and role2 need to be swapped.
+        #This should only be done once we start fixing availabilites, so if self.graph doesn't exist, we exit.
+        try:
+            self.graph
+        except AttributeError:
+            return
+        self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
+        for role in self.graph:
+            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
+
+
+    def tupleRepresentation(self):
+        return [(role,staff) for role, staff in self.schedule.items()]
 
     def cycleSwap(self, cycle):
         """
@@ -263,12 +269,6 @@ class Schedule:
             logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
             cycles.extend(newCycles)
         return cycles
-        
-    def identifyUnavailables(self):
-        """
-        Return list of all roles where the staff is unavailable to work the role
-        """
-        return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
 
     def couldWorkRole(self, testStaff, testRole):
         allDays = {day for day in Weekdays}
