@@ -1,6 +1,7 @@
 import random
 import logging
-from classes import Weekdays
+from classes import Weekdays, Graph
+from implementGraph import findConnections
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +37,10 @@ def startSchedule(roleCollection, staffCollection):
 
 def createSchedule(roleCollection, staffCollection):
     schedule = startSchedule(roleCollection, staffCollection)
-    schedule = repairDoubles(schedule)
-    schedule = repairAvailability(schedule)
+    #schedule = repairDoubles(schedule)
+    #schedule = repairAvailability(schedule)
 
-    logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
+    #logger.debug(f"Remaining doubles: {identifyDoubles(schedule)}")
     
     return schedule
 

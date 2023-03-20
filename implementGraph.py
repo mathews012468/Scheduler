@@ -1,5 +1,5 @@
 import random
-from classes import Graph
+from classes import Graph, Weekdays
 
 def repairUnavailables(schedule):
     unavailables = findUnavailables(schedule) #list of all pairs that have been assigned with unavailable staff
@@ -18,6 +18,20 @@ def repairUnavailable(schedule, unavailable):
 
 def findUnavailables(schedule):
     return list()
+
+def findConnections(schedule):
+    connections = []
+    for pair in schedule:
+        staff = pair[1]
+
+        allDays = {day for day in Weekdays}
+        daysStaffIsWorking = {pair[0].day for pair in schedule if pair[1] is staff}
+        daysNotWorking = allDays - daysStaffIsWorking
+
+        for connectedPair in schedule:
+            if connectedPair[0].day in daysNotWorking:
+                connections.append((pair,connectedPair))
+    return connections
 
 def dfs_withoutYield(graph, start, end):
     result = []

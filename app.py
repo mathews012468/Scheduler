@@ -2,6 +2,9 @@ from flask import Flask
 from flask import request
 import main
 import scheduleIterations
+
+from classes import Graph, Weekdays
+from implementGraph import findConnections
 import logging
 #logger config, timestamp and message
 logging.basicConfig(filename='activity.log', filemode='w', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s', datefmt='%H:%M:%S')
@@ -31,6 +34,11 @@ def createSchedule():
     staffCollection = [main.parseStaff(staff) for staff in roleStaffData["staff"]]
 
     schedule = scheduleIterations.createSchedule(roleCollection, staffCollection)
+
+    #attempt to create a graph from the schedule
+    # with nodes connected when one pair's staff is able to work another's pair's role.day 
+    connections = findConnections(schedule)
+    graph = Graph(connections, directed=True)
 
     scheduleJSON = main.scheduleToJSON(schedule)
 

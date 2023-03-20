@@ -1,15 +1,1 @@
-Working toward finding cycles in a graph.
-
-Two things:
-On understanding the different graph algorithms.
-Right now they make sense in an abstracted way.
-dfs travels through the graph from node to it's neighbors
-producing a depth-first path for each node
-
-Stepping through the dfs code is complicated by not fully grasping yield.
-I do understand that yield returns a generator,
-which when iterated over, then runs the code to return the yielded value...
-No, I don't really understand that.
-
-calling dfs and working with dfs to find cycles is now complicated.
-
+A mess.
