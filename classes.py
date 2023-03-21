@@ -103,6 +103,7 @@ class Staff:
 		return self.maxShifts - shiftCount
 
 class Graph(object):
+	#https://stackoverflow.com/questions/19472530/representing-graphs-data-structure-in-python
 	""" Graph data structure, undirected by default """
 
 	def __init__(self, connections, directed=False):

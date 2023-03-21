@@ -20,6 +20,10 @@ def findUnavailables(schedule):
     return list()
 
 def findConnections(schedule):
+    '''
+    connection based on staff in one pair being open to work
+    (not yet working on the day) another pair's role
+    '''
     connections = []
     for pair in schedule:
         staff = pair[1]
