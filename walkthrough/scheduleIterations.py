@@ -126,7 +126,7 @@ class Schedule:
         Try to change this to 8 to see how long it takes! (just remember the point of this is to give us a wider range of options for fixing the schedule)
         """
         logger.info(f"Unavailable role to fix: {unavailableRole}")
-        MAX_LENGTH = 5
+        MAX_LENGTH = 4
         for length in range(2,MAX_LENGTH):
             allCycles = self.allCyclesOfLength(unavailableRole, length)
             logger.debug(f"allCycles: {allCycles}")
@@ -176,8 +176,6 @@ class Schedule:
         except AttributeError:
             return
         self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
-        for role in self.graph:
-            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
 
 
     def tupleRepresentation(self):
