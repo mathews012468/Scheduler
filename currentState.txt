@@ -1,14 +1,1 @@
-Summary of learning about graphs so far:
-
-Started by following along the article that's listed at the top of graph.py.
-From there, collected a few examples from stackExchange to move toward
-using a graph with schedule data.
-
-Generators and recursion came up again. Understandable as concepts,
-while still a challange to work and think with writing anything specific.
-
-Using someone's exmaple of a Graph class I got to the point of forming
-what I think may be a traversable graph from schedule data.
-
-This graph comes from findConnections() in implementGraph.py
-and is called in app.py so I could roughly inspect it with VSCode/Flask debugging.
+Clean to prep for importing Mat's cycle code
