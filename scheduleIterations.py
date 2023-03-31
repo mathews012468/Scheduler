@@ -5,6 +5,23 @@ from classes import Weekdays
 logger = logging.getLogger(__name__)
 
 
+def createSchedule(roleCollection, staffCollection):
+    schedule = Schedule(roles=roleCollection, staff=staffCollection)
+
+    unavailables = schedule.identifyUnavailables()
+    logger.debug(f"Remaining unavailabilities: {unavailables}")
+    logger.debug(f"Number of unavailables: {len(unavailables)}")
+    schedule.repairUnavailables()
+
+    beforeUnavailables = len(unavailables)
+    unavailables = schedule.identifyUnavailables()
+    logger.debug(f"Remaining unavailabilities: {unavailables}")
+    logger.debug(f"Number of unavailables: {len(unavailables)}")
+    logger.debug(f"Unavailables removed: {beforeUnavailables - len(unavailables)}")
+
+    tupleSchedule = schedule.tupleRepresentation()
+    
+    return tupleSchedule
 
 class Schedule:
     def __init__(self, roles, staff):
@@ -175,7 +192,7 @@ class Schedule:
             cycles.extend(newCycles)
         return cycles
 
-def cycleSwap(self, cycle):
+    def cycleSwap(self, cycle):
         """
         Perform the sequence of swaps indicated by the cycle
         If cycle is [role1, role2, role3], staff working role1 gets reassigned to role2, staff working role2 gets reassigned to role3, staff working role3 gets reassigned to role1
@@ -193,6 +210,22 @@ def cycleSwap(self, cycle):
             self.swap(cycle[0], cycle[i])
             logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
 
+    def swap(self, role1, role2):
+        #swap the staff in the schedule
+        self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
+
+        #update the graph to reflect the swap. The rows and columns involving role1 and role2 need to be swapped.
+        #This should only be done once we start fixing availabilites, so if self.graph doesn't exist, we exit.
+        try:
+            self.graph
+        except AttributeError:
+            return
+        self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
+        for role in self.graph:
+            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
+
+    def tupleRepresentation(self):
+        return [(role,staff) for role, staff in self.schedule.items()]
 
 def numberOfDaysCouldWork(staff):
     days = 0
@@ -203,21 +236,3 @@ def numberOfDaysCouldWork(staff):
         #don't want someone with no availability to work
         days = -10
     return days
-
-def createSchedule(roleCollection, staffCollection):
-    schedule = Schedule(roles=roleCollection, staff=staffCollection)
-
-    unavailables = schedule.identifyUnavailables()
-    logger.debug(f"Remaining unavailabilities: {unavailables}")
-    logger.debug(f"Number of unavailables: {len(unavailables)}")
-    schedule.repairUnavailables()
-
-    beforeUnavailables = len(unavailables)
-    unavailables = schedule.identifyUnavailables()
-    logger.debug(f"Remaining unavailabilities: {unavailables}")
-    logger.debug(f"Number of unavailables: {len(unavailables)}")
-    logger.debug(f"Unavailables removed: {beforeUnavailables - len(unavailables)}")
-
-    tupleSchedule = schedule.tupleRepresentation()
-    
-    return tupleSchedule
