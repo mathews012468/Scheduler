@@ -4,6 +4,8 @@ from classes import Weekdays
 
 logger = logging.getLogger(__name__)
 
+
+
 class Schedule:
     def __init__(self, roles, staff):
         self.roles = roles
@@ -190,3 +192,14 @@ def cycleSwap(self, cycle):
             logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
             self.swap(cycle[0], cycle[i])
             logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
+
+
+def numberOfDaysCouldWork(staff):
+    days = 0
+    for times in staff.availability.values():
+        if times != []:
+            days += 1
+    if days == 0:
+        #don't want someone with no availability to work
+        days = -10
+    return days
