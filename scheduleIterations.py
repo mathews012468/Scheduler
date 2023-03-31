@@ -206,17 +206,13 @@ def numberOfDaysCouldWork(staff):
 
 def createSchedule(roleCollection, staffCollection):
     schedule = Schedule(roles=roleCollection, staff=staffCollection)
-    schedule.repairDoubles()
-    logger.debug(f"Remaining doubles: {schedule.identifyDoubles()}")
 
     unavailables = schedule.identifyUnavailables()
     logger.debug(f"Remaining unavailabilities: {unavailables}")
     logger.debug(f"Number of unavailables: {len(unavailables)}")
     schedule.repairUnavailables()
-    # schedule = repairPreferences(schedule)
 
     beforeUnavailables = len(unavailables)
-    logger.debug(f"Remaining doubles: {Schedule.identifyDoubles(schedule)}")
     unavailables = schedule.identifyUnavailables()
     logger.debug(f"Remaining unavailabilities: {unavailables}")
     logger.debug(f"Number of unavailables: {len(unavailables)}")
