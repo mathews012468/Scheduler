@@ -91,3 +91,38 @@ class Schedule:
             return
         
         logger.info(f"Currently no way of repairing {unavailableRole}")
+
+    def allCyclesOfLength(self, unavailableRole, length):
+        """
+        Find all groups of roles in the schedule of size 'length' involving the 'unavailableRole'
+        where the staff can be shuffled around while respecting doubles and availability.
+
+        For example, if we're trying to find a group of size 3, we want to find three roles where
+        staff1 could work role2, staff2 could work role3, and staff3 could work role1.
+
+        This is like a wrapper around the 'allCyclesOfLengthHelper' function to avoid setting up the path, and visited lists
+        in the 'repairUnavailable' function.
+
+        Return list[list of roles in the schedule forming the cycle]
+        """
+
+        """
+        graph is an adjacency matrix, it describes which role-staff pairs are connected to other role-staff pairs
+        graph is an dict of dicts, it's structured so that self.graph[role1][role2] tells you if the staff
+        working role1 could work role2. If that's true, then staff1 could be reassigned to role2 without breaking
+        doubles/availability.
+        """
+        #only do this once
+        #rebuilding the graph every time we fix a role-staff pair was making this program run VERY slow
+        try:
+            self.graph
+        except AttributeError:
+            self.graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+
+        path = [unavailableRole]
+        #at the start, nothing but the node we're repairing has been visited, 
+        # since the cycle we're looking for should start with that node
+        visited = {role: False for role in self.graph}
+        visited[unavailableRole] = True
+
+        return self.allCyclesOfLengthHelper(length, path, visited)
