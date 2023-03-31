@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 import main
 import scheduleIterations
+import json
 
 from classes import Weekdays
 import logging
@@ -36,4 +37,4 @@ def createSchedule():
 
     scheduleJSON = main.scheduleToJSON(schedule)
 
-    return scheduleJSON
+    return json.dumps(scheduleJSON)
