@@ -92,6 +92,18 @@ class Schedule:
         
         logger.info(f"Currently no way of repairing {unavailableRole}")
 
+    def couldWorkRole(self, testStaff, testRole):
+            allDays = {day for day in Weekdays}
+            staffWorkingDays = {role.day for role, staff in self.schedule.items() if staff is testStaff}
+            possibleSwapDays = allDays - staffWorkingDays
+            staffAlreadyWorksRole = False
+            for role, staff in self.schedule.items():
+                if staff is testStaff and role is testRole:
+                    staffAlreadyWorksRole = True
+                    break
+
+            return (testRole.day in possibleSwapDays or staffAlreadyWorksRole) and testStaff.isAvailable(testRole)
+
     def allCyclesOfLength(self, unavailableRole, length):
         """
         Find all groups of roles in the schedule of size 'length' involving the 'unavailableRole'
@@ -160,15 +172,3 @@ class Schedule:
             logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
             cycles.extend(newCycles)
         return cycles
-
-    def couldWorkRole(self, testStaff, testRole):
-        allDays = {day for day in Weekdays}
-        staffWorkingDays = {role.day for role, staff in self.schedule.items() if staff is testStaff}
-        possibleSwapDays = allDays - staffWorkingDays
-        staffAlreadyWorksRole = False
-        for role, staff in self.schedule.items():
-            if staff is testStaff and role is testRole:
-                staffAlreadyWorksRole = True
-                break
-
-        return (testRole.day in possibleSwapDays or staffAlreadyWorksRole) and testStaff.isAvailable(testRole)
