@@ -126,3 +126,37 @@ class Schedule:
         visited[unavailableRole] = True
 
         return self.allCyclesOfLengthHelper(length, path, visited)
+
+    def allCyclesOfLengthHelper(self, length, path, visited):
+        """
+        Find all paths of length 'length' in 'self.graph' building off of path 
+        and ending at the start of path (which makes a cycle). 
+        Graph is an adjacency matrix. self.graph[role1][role2] tells you if the staff working role1 could work role2
+        Path is a list of the elements in the path so far (list[role])
+        Length is an int representing how many more nodes we need to walk along in the path
+        visited is a dictionary letting us know which nodes have been visited (so we don't visit them again)
+
+        Return a list[list[role]]
+        """
+        logger.debug(f"start of allCyclesOfLengthHelper. length: {length}, path: {path}")
+        cycles = []
+        currentNode = path[-1]
+        if length == 1:
+            startNode = path[0]
+            #only add path to cycles if the current node connects to the start node
+            if self.graph[currentNode][startNode]:
+                cycles.append(path)
+            return cycles
+        
+        unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
+        logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
+        for neighbor in unvisitedNeighbors:
+            #we need a copy of visited because we don't want changes to visited in one function
+            #call to mess with visited in another function call
+            newVisited = {role: didVisit for role, didVisit in visited.items()}
+            newVisited[neighbor] = True
+            logger.debug(f"currentNode: {currentNode}, neighbor: {neighbor}")
+            newCycles = self.allCyclesOfLengthHelper(length-1, path + [neighbor], newVisited)
+            logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
+            cycles.extend(newCycles)
+        return cycles
