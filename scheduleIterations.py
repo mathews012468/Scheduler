@@ -64,3 +64,30 @@ class Schedule:
             logger.debug(f"attempts: {attempts}")
 
         logger.debug(f"Unavailables: {unavailables}")
+
+    
+    def repairUnavailable(self, unavailableRole):
+        """
+        The staff at schedule[unavailableRole] should not be available to work the current role
+        they're assigned to. This function performs a series of swaps within the schedule to fix this unavailability.
+        """
+
+        """
+        We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
+        Try to change this to 8 to see how long it takes! (just remember the point of this is to give us a wider range of options for fixing the schedule)
+        """
+        logger.info(f"Unavailable role to fix: {unavailableRole}")
+        MAX_LENGTH = 5
+        for length in range(2,MAX_LENGTH):
+            allCycles = self.allCyclesOfLength(unavailableRole, length)
+            logger.debug(f"allCycles: {allCycles}")
+            if allCycles == []:
+                length += 1
+                continue
+
+            cycle = random.choice(allCycles)
+            logger.debug(f"Repairing: {unavailableRole}-{self.schedule[unavailableRole]}, Cycle: {[(role, self.schedule[role]) for role in cycle]}")
+            self.cycleSwap(cycle)
+            return
+        
+        logger.info(f"Currently no way of repairing {unavailableRole}")
