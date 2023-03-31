@@ -172,3 +172,21 @@ class Schedule:
             logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
             cycles.extend(newCycles)
         return cycles
+
+def cycleSwap(self, cycle):
+        """
+        Perform the sequence of swaps indicated by the cycle
+        If cycle is [role1, role2, role3], staff working role1 gets reassigned to role2, staff working role2 gets reassigned to role3, staff working role3 gets reassigned to role1
+        It turns out that every cycle can be broken down into direct swaps (official term is transposition).
+        There's more than one way to do this, but the way it's being done in this function is to swap the
+        first with the second, the first with the third, the first with the fourth, and so on, and that ends
+        up performing the cycle we want.
+
+        There's some math here, basically we're just using the identity mentioned in this stack exchange post: https://math.stackexchange.com/q/3358722
+        For more info you can look up "decomposing cycles as a product of transpositions" or take a look at the lecture
+        notes mentioned in that post.
+        """
+        for i in range(1,len(cycle)):
+            logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
+            self.swap(cycle[0], cycle[i])
+            logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
