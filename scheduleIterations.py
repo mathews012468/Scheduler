@@ -42,6 +42,14 @@ class Schedule:
         logger.debug(staffByShifts)
         return schedule
 
+
+    def identifyUnavailables(self):
+        """
+        Return list of all roles where the staff is unavailable to work the role
+        """
+        return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
+    
+
     def repairUnavailables(self):
         unavailables = self.identifyUnavailables()
         
