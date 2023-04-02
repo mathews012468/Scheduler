@@ -31,10 +31,8 @@ def createSchedule(roleCollection, staffCollection):
     logger.debug(f"Remaing doubles {remainingDoubles}")
     logger.debug(f"number of doubles: {remainingDoubleCount}")
     logger.debug(f"Doubles repaired: {DoubleCount - remainingDoubleCount}")
-
-    tupleSchedule = schedule.tupleRepresentation()
     
-    return tupleSchedule
+    return schedule
 
 class Schedule:
     def __init__(self, roles, staff):
@@ -296,6 +294,17 @@ class Schedule:
 
     def tupleRepresentation(self):
         return [(role,staff) for role, staff in self.schedule.items()]
+
+    def toJSON(self):
+        scheduleJSON = []
+        for role, staff in self.schedule.items():
+            jsonObject = {}
+            jsonObject['name'] = role.name
+            jsonObject['staff'] = staff.name
+            jsonObject['day'] = role.day.name
+            jsonObject['callTime'] = role.callTime.strftime('%H:%M')
+            scheduleJSON.append(jsonObject)
+        return scheduleJSON
 
 def numberOfDaysCouldWork(staff):
     days = 0

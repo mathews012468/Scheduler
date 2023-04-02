@@ -35,6 +35,6 @@ def createSchedule():
 
     schedule = scheduleIterations.createSchedule(roleCollection, staffCollection)
 
-    scheduleJSON = main.scheduleToJSON(schedule)
+    scheduleJSON = schedule.toJSON()
 
-    return json.dumps(scheduleJSON)
+    return scheduleJSON

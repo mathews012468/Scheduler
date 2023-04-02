@@ -150,17 +150,3 @@ def formatAvailability(availability):
             weekdayCalltimes.append(callTime)
         staffAvailability[weekday] = weekdayCalltimes
     return staffAvailability
-
-
-def scheduleToJSON(schedule):
-    scheduleJSON = []
-    for pair in schedule:
-        role = pair[0]
-        staff = pair[1]
-        jsonObject = {}
-        jsonObject['name'] = role.name
-        jsonObject['staff'] = staff.name
-        jsonObject['day'] = role.day.name
-        jsonObject['callTime'] = role.callTime.strftime('%H:%M')
-        scheduleJSON.append(jsonObject)
-    return scheduleJSON
