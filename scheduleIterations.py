@@ -19,6 +19,14 @@ def createSchedule(roleCollection, staffCollection):
     logger.debug(f"Number of unavailables: {len(unavailables)}")
     logger.debug(f"Unavailables removed: {beforeUnavailables - len(unavailables)}")
 
+    del schedule.graph
+    logger.info(f"Unavailables graph deleted")
+
+    doubles = schedule.identifyDoubles()
+    DoubleCount = len(doubles)
+    logger.debug(f'Before repairDoubles: {DoubleCount}')
+    schedule.repairDoubles()
+
     tupleSchedule = schedule.tupleRepresentation()
     
     return tupleSchedule
@@ -97,9 +105,23 @@ class Schedule:
             unavailables = self.identifyUnavailables()
 
             attempts += 1
-            logger.debug(f"attempts: {attempts}")
+            logger.debug(f"unavailable attempts: {attempts}")
 
         logger.debug(f"Unavailables: {unavailables}")
+
+    def repairDoubles(self):
+        doubles = self.identifyDoubles()
+
+        MAX_ATTEMPTS = 100
+        attempts = 0
+        while doubles != [] and attempts < MAX_ATTEMPTS:
+            doubleRole = random.choice(doubles)
+            self.repairDouble(doubleRole)
+            doubles = self.identifyDoubles()
+
+            attempts += 1
+            logger.debug(f"doubles attempts: {attempts}")
+        logger.debug(f"Doubles: {doubles}")
 
     
     def repairUnavailable(self, unavailableRole):
@@ -112,6 +134,13 @@ class Schedule:
         We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
         Try to change this to 8 to see how long it takes! (just remember the point of this is to give us a wider range of options for fixing the schedule)
         """
+
+        try:
+            self.graph
+        except AttributeError:
+            self.graph = {role1: {role2: staff1.isAvailable(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+            logger.info(f"Unavailbes graph created")
+
         logger.info(f"Unavailable role to fix: {unavailableRole}")
         MAX_LENGTH = 5
         for length in range(2,MAX_LENGTH):
@@ -129,7 +158,30 @@ class Schedule:
         
         logger.info(f"Currently no way of repairing {unavailableRole}")
 
-    def couldWorkRole(self, testStaff, testRole):
+    def repairDouble(self, doubleRole):
+        logger.debug(f"Double role to repair: {doubleRole}")
+
+        try:
+            self.graph
+        except AttributeError:
+            self.graph = {role1: {role2: self.doublesGraph(staff1,role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+            logger.info(f"Doubles graph created")
+
+        MAX_LENGTH = 5
+        for length in range(2,MAX_LENGTH):
+            allCycles = self.allCyclesOfLength(doubleRole, length)
+            if allCycles == []:
+                logger.warning(f"no cycles for length:{length}")
+                length += 1
+                continue
+            cycle = random.choice(allCycles)
+            self.cycleSwap(cycle)
+            return
+
+        logger.warning(f"{doubleRole} left unrepaired.")
+
+
+    def doublesGraph(self, testStaff, testRole):
             allDays = {day for day in Weekdays}
             staffWorkingDays = {role.day for role, staff in self.schedule.items() if staff is testStaff}
             possibleSwapDays = allDays - staffWorkingDays
@@ -163,10 +215,6 @@ class Schedule:
         """
         #only do this once
         #rebuilding the graph every time we fix a role-staff pair was making this program run VERY slow
-        try:
-            self.graph
-        except AttributeError:
-            self.graph = {role1: {role2: staff1.isAvailable(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
 
         path = [unavailableRole]
         #at the start, nothing but the node we're repairing has been visited, 
