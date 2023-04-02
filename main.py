@@ -114,7 +114,7 @@ def parseRole(role):
     except ValueError:
         raise ValueError(f"Call time {role['callTime']} not in a valid format")
     qualifiedStaff = role["qualifiedStaff"]
-    #preferredStaff = role["preferredStaff"]
+    preferredStaff = role["preferredStaff"]
     try:
         day = role["day"]
         weekday = Weekdays[day]
