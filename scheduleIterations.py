@@ -68,6 +68,23 @@ class Schedule:
         """
         return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
     
+    def identifyDoubles(self):
+        """
+        return list of roles that need to be reassigned to avoid doubles
+        """
+        
+        #if staff has already worked that day, then it's a double
+        doubles = []
+        staffDays = set() #set of staff day pairs
+        for role, staff in self.schedule.items():
+            day = role.day
+            staffDay = (staff, day)
+
+            if staffDay in staffDays:
+                doubles.append(role)
+            else:
+                staffDays.add(staffDay)
+        return doubles
 
     def repairUnavailables(self):
         unavailables = self.identifyUnavailables()
