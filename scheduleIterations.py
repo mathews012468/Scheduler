@@ -26,6 +26,11 @@ def createSchedule(roleCollection, staffCollection):
     DoubleCount = len(doubles)
     logger.debug(f'Before repairDoubles: {DoubleCount}')
     schedule.repairDoubles()
+    remainingDoubles = schedule.identifyDoubles()
+    remainingDoubleCount = len(remainingDoubles)
+    logger.debug(f"Remaing doubles {remainingDoubles}")
+    logger.debug(f"number of doubles: {remainingDoubleCount}")
+    logger.debug(f"Doubles repaired: {DoubleCount - remainingDoubleCount}")
 
     tupleSchedule = schedule.tupleRepresentation()
     
@@ -112,7 +117,7 @@ class Schedule:
     def repairDoubles(self):
         doubles = self.identifyDoubles()
 
-        MAX_ATTEMPTS = 100
+        MAX_ATTEMPTS = 200
         attempts = 0
         while doubles != [] and attempts < MAX_ATTEMPTS:
             doubleRole = random.choice(doubles)
@@ -193,7 +198,7 @@ class Schedule:
 
             return (testRole.day in possibleSwapDays or staffAlreadyWorksRole) and testStaff.isAvailable(testRole)
 
-    def allCyclesOfLength(self, unavailableRole, length):
+    def allCyclesOfLength(self, startRole, length):
         """
         Find all groups of roles in the schedule of size 'length' involving the 'unavailableRole'
         where the staff can be shuffled around while respecting doubles and availability.
@@ -213,14 +218,11 @@ class Schedule:
         working role1 could work role2. If that's true, then staff1 could be reassigned to role2 without breaking
         doubles/availability.
         """
-        #only do this once
-        #rebuilding the graph every time we fix a role-staff pair was making this program run VERY slow
-
-        path = [unavailableRole]
+        path = [startRole]
         #at the start, nothing but the node we're repairing has been visited, 
         # since the cycle we're looking for should start with that node
         visited = {role: False for role in self.graph}
-        visited[unavailableRole] = True
+        visited[startRole] = True
 
         return self.allCyclesOfLengthHelper(length, path, visited)
 
@@ -246,8 +248,8 @@ class Schedule:
             return cycles
         
         unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
-        #So this unvisited is a list of roles which currentNode is able to swap with.
-        #Question, how are these 'neighbors'? It seems this list of 'unvisitedNeighbors' are actually roles scattered within the graph.
+        #Question, how are these 'neighbors' It seems these are roles scattered within the graph.
+        # is 'qualifyingSwapNodes' a way to think of them?
         logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
             #we need a copy of visited because we don't want changes to visited in one function
