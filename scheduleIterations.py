@@ -101,6 +101,7 @@ class Schedule:
             allCycles = self.allCyclesOfLength(unavailableRole, length)
             logger.debug(f"allCycles: {allCycles}")
             if allCycles == []:
+                logger.warning(f"no cycles for length:{length}")
                 length += 1
                 continue
 
@@ -148,7 +149,7 @@ class Schedule:
         try:
             self.graph
         except AttributeError:
-            self.graph = {role1: {role2: self.couldWorkRole(staff1, role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+            self.graph = {role1: {role2: staff1.isAvailable(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
 
         path = [unavailableRole]
         #at the start, nothing but the node we're repairing has been visited, 
@@ -180,6 +181,8 @@ class Schedule:
             return cycles
         
         unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
+        #So this unvisited is a list of roles which currentNode is able to swap with.
+        #Question, how are these 'neighbors'? It seems this list of 'unvisitedNeighbors' are actually roles scattered within the graph.
         logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
             #we need a copy of visited because we don't want changes to visited in one function
