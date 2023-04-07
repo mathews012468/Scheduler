@@ -69,7 +69,7 @@ class Staff:
 	def __str__(self):
 		return f"{self.name}"
 
-	def isAvailable(self, role):
+	def isAvailableFor_CallTime(self, role):
 		""""check role callTime is in staff availablity"""
 		dayAvailability = self.availability[role.day]
 		if role.callTime not in dayAvailability:

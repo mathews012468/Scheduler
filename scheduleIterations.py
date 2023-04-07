@@ -4,6 +4,19 @@ from classes import Weekdays
 
 logger = logging.getLogger(__name__)
 
+# TODO:
+# Schedule = startSchedule.
+    # A log statement to surface if number of DaysCouldWork >= number of roles
+# logging stats before a repair function and after a repair function.
+    # A function which logs the stats of the repair function before and after
+
+# Graph creation:
+    # staff1.isAvailableFor_CallTime(role2)
+    # &
+    # staff1.isAvailableFor_Day(role2)
+
+
+
 
 def createSchedule(roleCollection, staffCollection):
     schedule = Schedule(roles=roleCollection, staff=staffCollection)
@@ -77,7 +90,7 @@ class Schedule:
         """
         Return list of all roles where the staff is unavailable to work the role
         """
-        return [role for role, staff in self.schedule.items() if not staff.isAvailable(role)]
+        return [role for role, staff in self.schedule.items() if not staff.isAvailableFor_CallTime(role)]
     
     def identifyDoubles(self):
         """
@@ -141,7 +154,7 @@ class Schedule:
         try:
             self.graph
         except AttributeError:
-            self.graph = {role1: {role2: staff1.isAvailable(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+            self.graph = {role1: {role2: staff1.isAvailableFor_CallTime(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
             logger.info(f"Unavailbes graph created")
 
         logger.info(f"Unavailable role to fix: {unavailableRole}")
@@ -167,7 +180,7 @@ class Schedule:
         try:
             self.graph
         except AttributeError:
-            self.graph = {role1: {role2: self.doublesGraph(staff1,role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
+            self.graph = {role1: {role2: self.StaffIsAvailableFor_Day(staff1,role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
             logger.info(f"Doubles graph created")
 
         MAX_LENGTH = 5
@@ -184,7 +197,7 @@ class Schedule:
         logger.warning(f"{doubleRole} left unrepaired.")
 
 
-    def doublesGraph(self, testStaff, testRole):
+    def StaffIsAvailableFor_Day(self, testStaff, testRole):
             allDays = {day for day in Weekdays}
             staffWorkingDays = {role.day for role, staff in self.schedule.items() if staff is testStaff}
             possibleSwapDays = allDays - staffWorkingDays
@@ -194,7 +207,7 @@ class Schedule:
                     staffAlreadyWorksRole = True
                     break
 
-            return (testRole.day in possibleSwapDays or staffAlreadyWorksRole) and testStaff.isAvailable(testRole)
+            return (testRole.day in possibleSwapDays or staffAlreadyWorksRole) and testStaff.isAvailableFor_CallTime(testRole)
 
     def allCyclesOfLength(self, startRole, length):
         """
@@ -246,8 +259,6 @@ class Schedule:
             return cycles
         
         unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
-        #Question, how are these 'neighbors' It seems these are roles scattered within the graph.
-        # is 'qualifyingSwapNodes' a way to think of them?
         logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
             #we need a copy of visited because we don't want changes to visited in one function
@@ -289,8 +300,8 @@ class Schedule:
         except AttributeError:
             return
         self.graph[role2], self.graph[role1] = self.graph[role1], self.graph[role2]
-        for role in self.graph:
-            self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
+        #for role in self.graph:
+            #self.graph[role][role2], self.graph[role][role1] = self.graph[role][role1], self.graph[role][role2]
 
     def tupleRepresentation(self):
         return [(role,staff) for role, staff in self.schedule.items()]
