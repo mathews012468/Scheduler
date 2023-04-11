@@ -5,32 +5,23 @@ from classes import Weekdays
 logger = logging.getLogger(__name__)
 
 # TODO:
-# Schedule = startSchedule.
-    # A log statement to surface if number of DaysCouldWork >= number of roles
 # logging stats before a repair function and after a repair function.
     # A function which logs the stats of the repair function before and after
 
-# Graph creation:
-    # staff1.isAvailableFor_CallTime(role2)
-    # &
-    # staff1.isAvailableFor_Day(role2)
+    #schedule.repairUnavailables()
+    #inside log the unavailables before a repair
+    #and log the unavailables after a repair
+    #
+    #Now after repairDoubles
+    #I'd like to know the unavailable count as well
+    #That means identify the count of the repairs that came before it.
 
 
 
 
 def createSchedule(roleCollection, staffCollection):
     schedule = Schedule(roles=roleCollection, staff=staffCollection)
-
-    unavailables = schedule.identifyUnavailables()
-    logger.debug(f"Remaining unavailabilities: {unavailables}")
-    logger.debug(f"Number of unavailables: {len(unavailables)}")
     schedule.repairUnavailables()
-
-    beforeUnavailables = len(unavailables)
-    unavailables = schedule.identifyUnavailables()
-    logger.debug(f"Remaining unavailabilities: {unavailables}")
-    logger.debug(f"Number of unavailables: {len(unavailables)}")
-    logger.debug(f"Unavailables removed: {beforeUnavailables - len(unavailables)}")
 
     del schedule.graph
     logger.info(f"Unavailables graph deleted")
@@ -67,6 +58,7 @@ class Schedule:
             staffByShifts.setdefault(shiftsRemaining, [])
             staffByShifts[shiftsRemaining].append(staff)
         maxRemainingShifts = max(staffByShifts)
+        logShiftCount(staffByShifts, self.roles)
 
         #shuffle role collection
         roles = random.sample(self.roles, k=len(self.roles))
@@ -82,6 +74,7 @@ class Schedule:
                 del staffByShifts[maxRemainingShifts]
                 maxRemainingShifts -= 1
             schedule[role] = staff
+        
         logger.debug(staffByShifts)
         return schedule
 
@@ -111,7 +104,8 @@ class Schedule:
         return doubles
 
     def repairUnavailables(self):
-        unavailables = self.identifyUnavailables()
+        unavailables= self.identifyUnavailables()
+        logger.info(f"repairUnavailables starting count: {len(unavailables)}")
         
         MAX_ATTEMPTS = 100
         attempts = 0
@@ -122,11 +116,13 @@ class Schedule:
 
             attempts += 1
             logger.debug(f"unavailable attempts: {attempts}")
+            logger.debug(f"remaining unavailables: {len(unavailables)}")
 
-        logger.debug(f"Unavailables: {unavailables}")
+        logger.info(f"repairUnavailables ending count: {len(unavailables)}")
 
     def repairDoubles(self):
         doubles = self.identifyDoubles()
+        logger.debug(f"repairDoubles starting count: {len(doubles)}")
 
         MAX_ATTEMPTS = 200
         attempts = 0
@@ -137,7 +133,8 @@ class Schedule:
 
             attempts += 1
             logger.debug(f"doubles attempts: {attempts}")
-        logger.debug(f"Doubles: {doubles}")
+
+        logger.debug(f"repairDoubles ending count: {len(doubles)}")
 
     
     def repairUnavailable(self, unavailableRole):
@@ -155,20 +152,20 @@ class Schedule:
             self.graph
         except AttributeError:
             self.graph = {role1: {role2: staff1.isAvailableFor_CallTime(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
-            logger.info(f"Unavailbes graph created")
+            logger.info(f"Unavailables graph created")
 
-        logger.info(f"Unavailable role to fix: {unavailableRole}")
+        logger.info(f"Unavailable role to repair: {unavailableRole}")
         MAX_LENGTH = 5
         for length in range(2,MAX_LENGTH):
             allCycles = self.allCyclesOfLength(unavailableRole, length)
-            logger.debug(f"allCycles: {allCycles}")
+            logger.debug(f"found {len(allCycles)} cycles of length {length}")
             if allCycles == []:
                 logger.warning(f"no cycles for length:{length}")
                 length += 1
                 continue
 
             cycle = random.choice(allCycles)
-            logger.debug(f"Repairing: {unavailableRole}-{self.schedule[unavailableRole]}, Cycle: {[(role, self.schedule[role]) for role in cycle]}")
+            logger.info(f"selected cyle: {cycle}")
             self.cycleSwap(cycle)
             return
         
@@ -185,6 +182,7 @@ class Schedule:
 
         MAX_LENGTH = 5
         for length in range(2,MAX_LENGTH):
+            logger.info(f"finding all cycles of length: {length}")
             allCycles = self.allCyclesOfLength(doubleRole, length)
             if allCycles == []:
                 logger.warning(f"no cycles for length:{length}")
@@ -229,6 +227,7 @@ class Schedule:
         working role1 could work role2. If that's true, then staff1 could be reassigned to role2 without breaking
         doubles/availability.
         """
+        logger.info(f"starting role: {startRole} with staff: {self.schedule[startRole]}")
         path = [startRole]
         #at the start, nothing but the node we're repairing has been visited, 
         # since the cycle we're looking for should start with that node
@@ -248,24 +247,27 @@ class Schedule:
 
         Return a list[list[role]]
         """
-        logger.debug(f"start of allCyclesOfLengthHelper. length: {length}, path: {path}")
         cycles = []
         currentNode = path[-1]
+        logger.debug(f"path = {path}")
+        logger.debug(f"current node: {currentNode}")
+        staff = self.schedule[currentNode] # staff variable for logging
         if length == 1:
             startNode = path[0]
             #only add path to cycles if the current node connects to the start node
             if self.graph[currentNode][startNode]:
+                logger.debug(f"path connects into a cycle")
                 cycles.append(path)
             return cycles
         
         unvisitedNeighbors = [role for role in visited if self.graph[currentNode][role] and not visited[role]]
-        logger.debug(f"length: {length}, path: {path}, unvisitedNeighbors: {unvisitedNeighbors}")
+        logger.info(f"{staff} open for: {len(unvisitedNeighbors)} Roles")
+        logger.debug(f"open roles: {unvisitedNeighbors}")
         for neighbor in unvisitedNeighbors:
             #we need a copy of visited because we don't want changes to visited in one function
             #call to mess with visited in another function call
             newVisited = {role: didVisit for role, didVisit in visited.items()}
             newVisited[neighbor] = True
-            logger.debug(f"currentNode: {currentNode}, neighbor: {neighbor}")
             newCycles = self.allCyclesOfLengthHelper(length-1, path + [neighbor], newVisited)
             logger.debug(f"neighbor: {neighbor}, newCycles: {newCycles}")
             cycles.extend(newCycles)
@@ -284,14 +286,17 @@ class Schedule:
         For more info you can look up "decomposing cycles as a product of transpositions" or take a look at the lecture
         notes mentioned in that post.
         """
+        logger.info(f"Repairing: {cycle[0]}(staff:{self.schedule[cycle[0]]}), with cycle: {[(role, self.schedule[role]) for role in cycle]}")
+
         for i in range(1,len(cycle)):
-            logger.debug(f"Before swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
+            logger.debug(f"Swapping {cycle[0]} with {cycle[i]}")
             self.swap(cycle[0], cycle[i])
-            logger.debug(f"After swap in cycle swap. indices: {cycle[0]}, {cycle[i]}; info: {self.schedule[cycle[0]]}, {self.schedule[cycle[i]]}")
+        logger.info("Unavailable Repaired")
 
     def swap(self, role1, role2):
         #swap the staff in the schedule
         self.schedule[role2], self.schedule[role1] = self.schedule[role1], self.schedule[role2]
+        logger.debug(f"Staff sawpped: {self.schedule[role2]} with {self.schedule[role1]}")
 
         #update the graph to reflect the swap. The rows and columns involving role1 and role2 need to be swapped.
         #This should only be done once we start fixing availabilites, so if self.graph doesn't exist, we exit.
@@ -326,3 +331,13 @@ def numberOfDaysCouldWork(staff):
         #don't want someone with no availability to work
         days = -10
     return days
+
+def logShiftCount(staffByShiftsDict, roleList):
+    shiftCount = 0
+    roleCount = len(roleList)
+    for shiftKey, staffList in staffByShiftsDict.items():
+        if shiftKey != -10:
+            shiftCount += shiftKey * len(staffList)
+    if shiftCount < roleCount:
+        return logger.warning(f"Role count exceeds Staff availability\nStaff shifts available: {shiftCount}, Roles to fill: {roleCount}")
+    return logger.info(f"Staff shifts available: {shiftCount}, Roles to fill: {roleCount}")
