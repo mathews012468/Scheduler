@@ -1,6 +1,9 @@
 import random
 import logging
-from classes import Weekdays
+from classes import Weekdays, Role
+import networkx as nx
+from networkx import bipartite
+import copy
 
 logger = logging.getLogger(__name__)
 
@@ -45,37 +48,45 @@ class Schedule:
         self.schedule = self.startSchedule()
     
     def startSchedule(self):
+        #This is actually an 'availabilitySchedule'
+        #Unsure how a 'startschedule' fits in to current Schedule class structure.
         """
-        For each role, pick random employee with max shifts remaining
+        Make a bipartite graph.
+        Set 0 vertices are Role objects
+        Set 1 vertices are Staff objects, duplicated by their number of 'shiftsRemaining'
         """
-        #generate dictionary where keys are shifts remaining
-        #and values are list of employees with that number of shifts
-        staffByShifts = {}
-        for staff in self.staff:
-            #makes sure shifts remaining aligns with a staff's indicated availability
-            shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
-            logger.debug(f"Staff: {staff}, shifts remaining: {shiftsRemaining}, max shifts: {staff.maxShifts}, days could work: {numberOfDaysCouldWork(staff)}")
-            staffByShifts.setdefault(shiftsRemaining, [])
-            staffByShifts[shiftsRemaining].append(staff)
-        maxRemainingShifts = max(staffByShifts)
-        logShiftCount(staffByShifts, self.roles)
 
-        #shuffle role collection
-        roles = random.sample(self.roles, k=len(self.roles))
-        schedule = {}
-        for role in roles:
-            staff = random.choice(staffByShifts[maxRemainingShifts])
-            #move staff to lower key, possibly remove key and update max
-            #if that was the last staff with that number of shifts remaining
-            staffByShifts[maxRemainingShifts].remove(staff)
-            staffByShifts.setdefault(maxRemainingShifts-1, [])
-            staffByShifts[maxRemainingShifts-1].append(staff)
-            if staffByShifts[maxRemainingShifts] == []:
-                del staffByShifts[maxRemainingShifts]
-                maxRemainingShifts -= 1
-            schedule[role] = staff
+        #dupelicate staff by their count of shiftsRemaining
+        staffByShifts = []
+        for staff in self.staff:
+            shiftsRemaining = min(staff.maxShifts, numberOfDaysCouldWork(staff))
+            for shiftCount in range(shiftsRemaining):
+                staffByShifts.append(copy.deepcopy(staff))
         
-        logger.debug(staffByShifts)
+        #establish Role and Staff vertex sets
+        Bgraph = nx.Graph()
+        Bgraph.add_nodes_from(self.roles, bipartite=0)
+        Bgraph.add_nodes_from(staffByShifts, bipartite=1)
+
+        #connect staff to each role they are available for, forming the availability bipartite graph.
+        roleStaffConnections_Availablity = []
+        for staff in staffByShifts:
+            for role in self.roles:
+                if staff.isAvailableFor_CallTime(role):
+                    roleStaffConnections_Availablity.append((role, staff))
+        Bgraph.add_edges_from(roleStaffConnections_Availablity)
+        
+        #run graph through the maximum matching algorithm
+        maxMatching_Availability = nx.bipartite.maximum_matching(Bgraph)
+
+        #Maximum_matching returns a dictionary with both 'right' and 'left' sets
+        #unsure how to cleanly extract a single set,
+        #for now checking that 'role' key is in self.roles gets the desired result.
+        schedule = {}
+        for role, staff in maxMatching_Availability.items():
+            if role in self.roles:
+                schedule[role] = staff
+
         return schedule
 
 
