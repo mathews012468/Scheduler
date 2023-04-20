@@ -29,6 +29,15 @@ def createSchedule(roleCollection, staffCollection):
     unavailables = schedule.identifyUnavailables()
     logger.info(f"unavailables length: {len(unavailables)}, unavailables: {unavailables}")
     
+    doubles = schedule.identifyDoubles()
+    logger.info(f"doubles length: {len(doubles)}, doubles: {doubles}")
+
+    schedule.repairDoubles()
+    unavailables = schedule.identifyUnavailables()
+    logger.info(f"unavailables length: {len(unavailables)}, unavailables: {unavailables}")
+    doubles = schedule.identifyDoubles()
+    logger.info(f"doubles length: {len(doubles)}, doubles: {doubles}")
+    
     return schedule
 
 class Schedule:
@@ -96,7 +105,9 @@ class Schedule:
         staffDays = set() #set of staff day pairs
         for role, staff in self.schedule.items():
             day = role.day
-            staffDay = (staff, day)
+            #staff objects are unique even with the same staff, so name tells us which staff it is
+            #change this to something else if more than one staff has same name
+            staffDay = (staff.name, day)
 
             if staffDay in staffDays:
                 doubles.append(role)
