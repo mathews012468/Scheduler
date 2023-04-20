@@ -24,22 +24,10 @@ logger = logging.getLogger(__name__)
 
 def createSchedule(roleCollection, staffCollection):
     schedule = Schedule(roles=roleCollection, staff=staffCollection)
-    schedule.repairUnavailables()
-
-    #del schedule.graph
-    #logger.info(f"Unavailables graph deleted")
-
-    doubles = schedule.identifyDoubles()
-    DoubleCount = len(doubles)
-    logger.debug(f'Before repairDoubles: {DoubleCount}')
-    schedule.repairDoubles()
-    remainingDoubles = schedule.identifyDoubles()
-    remainingDoubleCount = len(remainingDoubles)
-    logger.debug(f"Remaing doubles {remainingDoubles}")
-    logger.debug(f"number of doubles: {remainingDoubleCount}")
-    logger.debug(f"Doubles repaired: {DoubleCount - remainingDoubleCount}")
+    logger.info(f"Total roles: {len(roleCollection)}")
+    logger.info(f"Size of schedule: {len(schedule.schedule)}")
     unavailables = schedule.identifyUnavailables()
-    logger.debug(f"unavailable Count: {unavailables}")
+    logger.info(f"unavailables length: {len(unavailables)}, unavailables: {unavailables}")
     
     return schedule
 
