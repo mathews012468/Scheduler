@@ -26,8 +26,8 @@ def createSchedule(roleCollection, staffCollection):
     schedule = Schedule(roles=roleCollection, staff=staffCollection)
     schedule.repairUnavailables()
 
-    del schedule.graph
-    logger.info(f"Unavailables graph deleted")
+    #del schedule.graph
+    #logger.info(f"Unavailables graph deleted")
 
     doubles = schedule.identifyDoubles()
     DoubleCount = len(doubles)
@@ -38,6 +38,8 @@ def createSchedule(roleCollection, staffCollection):
     logger.debug(f"Remaing doubles {remainingDoubles}")
     logger.debug(f"number of doubles: {remainingDoubleCount}")
     logger.debug(f"Doubles repaired: {DoubleCount - remainingDoubleCount}")
+    unavailables = schedule.identifyUnavailables()
+    logger.debug(f"unavailable Count: {unavailables}")
     
     return schedule
 
@@ -63,7 +65,7 @@ class Schedule:
             for shiftCount in range(shiftsRemaining):
                 staffByShifts.append(copy.deepcopy(staff))
         
-        #establish Role and Staff vertex sets
+        #establish set of Role and Staff nodes
         Bgraph = nx.Graph()
         Bgraph.add_nodes_from(self.roles, bipartite=0)
         Bgraph.add_nodes_from(staffByShifts, bipartite=1)
