@@ -104,23 +104,6 @@ class Schedule:
                 staffDays.add(staffDay)
         return doubles
 
-    def repairUnavailables(self):
-        unavailables= self.identifyUnavailables()
-        logger.info(f"repairUnavailables starting count: {len(unavailables)}")
-        
-        MAX_ATTEMPTS = 100
-        attempts = 0
-        while unavailables != [] and attempts < MAX_ATTEMPTS:
-            unavailableRole = random.choice(unavailables)
-            self.repairUnavailable(unavailableRole)
-            unavailables = self.identifyUnavailables()
-
-            attempts += 1
-            logger.debug(f"unavailable attempts: {attempts}")
-            logger.debug(f"remaining unavailables: {len(unavailables)}")
-
-        logger.info(f"repairUnavailables ending count: {len(unavailables)}")
-
     def repairDoubles(self):
         doubles = self.identifyDoubles()
         logger.debug(f"repairDoubles starting count: {len(doubles)}")
@@ -136,41 +119,6 @@ class Schedule:
             logger.debug(f"doubles attempts: {attempts}")
 
         logger.debug(f"repairDoubles ending count: {len(doubles)}")
-
-    
-    def repairUnavailable(self, unavailableRole):
-        """
-        The staff at schedule[unavailableRole] should not be available to work the current role
-        they're assigned to. This function performs a series of swaps within the schedule to fix this unavailability.
-        """
-
-        """
-        We need to cap the maximum cycle length we look for because this could take a LONG time with a larger number.
-        Try to change this to 8 to see how long it takes! (just remember the point of this is to give us a wider range of options for fixing the schedule)
-        """
-
-        try:
-            self.graph
-        except AttributeError:
-            self.graph = {role1: {role2: staff1.isAvailableFor_CallTime(role2) for role2 in self.schedule} for role1, staff1 in self.schedule.items()}
-            logger.info(f"Unavailables graph created")
-
-        logger.info(f"Unavailable role to repair: {unavailableRole}")
-        MAX_LENGTH = 5
-        for length in range(2,MAX_LENGTH):
-            allCycles = self.allCyclesOfLength(unavailableRole, length)
-            logger.debug(f"found {len(allCycles)} cycles of length {length}")
-            if allCycles == []:
-                logger.warning(f"no cycles for length:{length}")
-                length += 1
-                continue
-
-            cycle = random.choice(allCycles)
-            logger.info(f"selected cyle: {cycle}")
-            self.cycleSwap(cycle)
-            return
-        
-        logger.info(f"Currently no way of repairing {unavailableRole}")
 
     def repairDouble(self, doubleRole):
         logger.debug(f"Double role to repair: {doubleRole}")
