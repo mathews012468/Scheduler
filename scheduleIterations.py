@@ -4,6 +4,7 @@ from classes import Weekdays, Role
 import networkx as nx
 from networkx import bipartite
 import copy
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,8 @@ def createSchedule(roleCollection, staffCollection):
     logger.info(f"unavailables length: {len(unavailables)}, unavailables: {unavailables}")
     doubles = schedule.identifyDoubles()
     logger.info(f"doubles length: {len(doubles)}, doubles: {doubles}")
+
+    schedule.restaurantView()
     
     return schedule
 
@@ -270,6 +273,33 @@ class Schedule:
 
     def tupleRepresentation(self):
         return [(role,staff) for role, staff in self.schedule.items()]
+    
+    def restaurantView(self):
+        """
+        Return list of lists representing restaurant view of the schedule
+            Mon Tue Wed Thu Fri Sat Sun
+        bar Sil Ern ...
+        she Mat Mar ...
+        """
+        rolesToStaffDays = {}
+        for role, staff in self.schedule.items():
+            #if role name isn't already in dictionary, add it
+            if role.name not in rolesToStaffDays:
+                rolesToStaffDays[role.name] = {day: [] for day in Weekdays}
+            rolesToStaffDays[role.name][role.day].append(staff.name)
+
+        #list of lists to make it easier to convert to csv
+        data = []
+        headers = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        data.append(headers)
+        for roleName, staffToDays in rolesToStaffDays.items():
+            newRow = [roleName] + list(staffToDays.values())
+            data.append(newRow)
+
+        with open("output/schedule.csv", "w") as f:
+            scheduleWriter = csv.writer(f)
+            scheduleWriter.writerows(data)
+
 
     def toJSON(self):
         scheduleJSON = []
